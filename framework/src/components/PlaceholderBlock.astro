@@ -1,0 +1,41 @@
+---
+type PlaceholderKind = 'text' | 'media' | 'item' | 'news' | 'sponsor' | 'contact';
+
+interface Props {
+  label: string;
+  kind: PlaceholderKind;
+}
+
+const { label, kind } = Astro.props;
+
+const kindLabels: Record<PlaceholderKind, string> = {
+  text: '文字区域',
+  media: '图片或视频区域',
+  item: '信息区域',
+  news: '新闻内容区域',
+  sponsor: '赞助商标志区域',
+  contact: '官方联系信息区域',
+};
+---
+
+<div class:list={['placeholder', `placeholder--${kind}`]}>
+  <span class="placeholder__kind">{kindLabels[kind]}</span>
+  <p>{label}</p>
+
+  {
+    kind === 'text' && (
+      <div class="placeholder__text-lines" aria-hidden="true">
+        <span></span>
+        <span></span>
+        <span></span>
+        <span></span>
+      </div>
+    )
+  }
+
+  {
+    (kind === 'media' || kind === 'news' || kind === 'sponsor') && (
+      <div class="placeholder__cross" aria-hidden="true"></div>
+    )
+  }
+</div>
