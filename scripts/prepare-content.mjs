@@ -1,12 +1,13 @@
 import { createHash } from 'node:crypto';
-import { copyFile, mkdir, readFile } from 'node:fs/promises';
+import { access, copyFile, mkdir, readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const contentRoot = process.env.GH_FRC_CONTENT_DIR
-  ? resolve(process.env.GH_FRC_CONTENT_DIR)
+  ? resolve(projectRoot, process.env.GH_FRC_CONTENT_DIR)
   : join(projectRoot, 'content');
+const sourceSiteConfig = join(contentRoot, 'config', 'site.yaml');
 const sourceLogo = join(contentRoot, 'media', 'images', '光华剑桥图标.png');
 const stagedLogo = join(
   projectRoot,
@@ -21,6 +22,15 @@ async function sha256(filePath) {
   const file = await readFile(filePath);
   return createHash('sha256').update(file).digest('hex');
 }
+
+await Promise.all([
+  access(sourceSiteConfig).catch(() => {
+    throw new Error(`Content preparation failed: missing site config at ${sourceSiteConfig}`);
+  }),
+  access(sourceLogo).catch(() => {
+    throw new Error(`Content preparation failed: missing Logo at ${sourceLogo}`);
+  }),
+]);
 
 await mkdir(dirname(stagedLogo), { recursive: true });
 await copyFile(sourceLogo, stagedLogo);
