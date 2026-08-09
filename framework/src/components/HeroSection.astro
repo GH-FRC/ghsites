@@ -1,0 +1,29 @@
+---
+import PlaceholderBlock from './PlaceholderBlock.astro';
+
+interface Props {
+  title: string;
+  introPlaceholder: string;
+  mediaPlaceholder: string;
+}
+
+const { title, introPlaceholder, mediaPlaceholder } = Astro.props;
+---
+
+<section class="hero" id="page-top" aria-labelledby="hero-title">
+  <div class="hero__inner">
+    <div class="hero__copy">
+      <h1 id="hero-title">{title}</h1>
+      <PlaceholderBlock label={introPlaceholder} kind="text" />
+    </div>
+
+    <div class="hero__media">
+      <PlaceholderBlock label={mediaPlaceholder} kind="media" />
+    </div>
+  </div>
+
+  <div class="hero__index" aria-hidden="true">
+    <span>GH FRC</span>
+    <span>01</span>
+  </div>
+</section>

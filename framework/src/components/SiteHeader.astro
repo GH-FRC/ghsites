@@ -1,0 +1,55 @@
+---
+interface NavigationItem {
+  target: string;
+  label: string;
+}
+
+interface Props {
+  logo: {
+    src: string;
+    alt: string;
+    intrinsicWidth: number;
+    intrinsicHeight: number;
+  };
+  navigationItems: NavigationItem[];
+  mainNavigationLabel: string;
+  returnToTopLabel: string;
+}
+
+const {
+  logo,
+  navigationItems,
+  mainNavigationLabel,
+  returnToTopLabel,
+} = Astro.props;
+---
+
+<header class="site-header" data-site-header>
+  <div class="site-header__inner">
+    <a
+      class="site-header__brand"
+      href="#page-top"
+      aria-label={returnToTopLabel}
+      data-home-link
+    >
+      <img
+        src={logo.src}
+        alt={logo.alt}
+        width={logo.intrinsicWidth}
+        height={logo.intrinsicHeight}
+      />
+    </a>
+
+    <nav class="site-header__navigation" aria-label={mainNavigationLabel}>
+      <ul>
+        {
+          navigationItems.map((item) => (
+            <li>
+              <a href={`#${item.target}`} data-section-link>{item.label}</a>
+            </li>
+          ))
+        }
+      </ul>
+    </nav>
+  </div>
+</header>
