@@ -23,7 +23,6 @@ html {
   background: var(--color-background);
   color: var(--color-text);
   font-family: var(--font-sans);
-  scroll-padding-top: calc(var(--header-height) + 24px);
 }
 
 body {
