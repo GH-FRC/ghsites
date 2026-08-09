@@ -1,0 +1,10 @@
+.DS_Store
+node_modules/
+dist/
+.astro/
+framework/public/content/
+framework/src/generated/
+coverage/
+playwright-report/
+test-results/
+*.log
