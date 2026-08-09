@@ -1,6 +1,15 @@
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
 import { defineCollection } from 'astro:content';
 import { file } from 'astro/loaders';
 import { z } from 'astro/zod';
+
+const defaultContentRoot = fileURLToPath(new URL('../../content/', import.meta.url));
+const contentRoot = process.env.GH_FRC_CONTENT_DIR
+  ? resolve(process.env.GH_FRC_CONTENT_DIR)
+  : defaultContentRoot;
+const siteContentFile = resolve(contentRoot, 'config', 'site.yaml');
 
 const sectionSchema = z.object({
   heading: z.string().min(1),
@@ -10,7 +19,7 @@ const sectionSchema = z.object({
 });
 
 const site = defineCollection({
-  loader: file('../content/config/site.yaml'),
+  loader: file(siteContentFile),
   schema: z.object({
     language: z.literal('zh-CN'),
     title: z.string().min(1),

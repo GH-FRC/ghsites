@@ -60,10 +60,10 @@ const navigationItems = sectionPlan.map(({ id }) => ({
   </main>
 
   <SiteFooter title={site.footer.title} placeholder={site.footer.placeholder} />
+
+  <script>
+    import { initializeSiteInteractions } from '../scripts/site-interactions';
+
+    initializeSiteInteractions();
+  </script>
 </BaseLayout>
-
-<script>
-  import { initializeSiteInteractions } from '../scripts/site-interactions';
-
-  initializeSiteInteractions();
-</script>
