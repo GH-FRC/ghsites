@@ -1,6 +1,8 @@
 ---
 import '../styles/global.css';
 
+import { COLOR_SCHEME_STORAGE_KEY } from '../scripts/color-scheme';
+
 interface Props {
   title: string;
   description: string;
@@ -16,10 +18,28 @@ const { title, description, language } = Astro.props;
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
-    <meta name="color-scheme" content="light" />
+    <meta name="color-scheme" content="light dark" />
+    <script is:inline define:vars={{ colorSchemeStorageKey: COLOR_SCHEME_STORAGE_KEY }}>
+      try {
+        const storedColorScheme = window.sessionStorage.getItem(colorSchemeStorageKey);
+
+        if (storedColorScheme === 'dark' || storedColorScheme === 'light') {
+          document.documentElement.dataset.colorScheme = storedColorScheme;
+        } else if (storedColorScheme !== null) {
+          window.sessionStorage.removeItem(colorSchemeStorageKey);
+        }
+      } catch {
+        // The system preference remains active when session storage is unavailable.
+      }
+    </script>
     <title>{title}</title>
   </head>
   <body>
     <slot />
+    <script>
+      import { initializeColorSchemeControl } from '../scripts/color-scheme';
+
+      initializeColorSchemeControl(document, window);
+    </script>
   </body>
 </html>
