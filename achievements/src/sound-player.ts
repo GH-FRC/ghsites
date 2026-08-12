@@ -47,6 +47,7 @@ function scheduleTone(
 export function createAchievementSoundPlayer(windowRef: BrowserWindow): AchievementSoundPlayer {
   let context: AudioContext | undefined;
   let destroyed = false;
+  let closePromise: Promise<void> | undefined;
 
   const getContext = () => {
     if (!windowRef.AudioContext) {
@@ -59,13 +60,17 @@ export function createAchievementSoundPlayer(windowRef: BrowserWindow): Achievem
 
   return {
     destroy: () => {
+      if (destroyed) {
+        return;
+      }
+
       destroyed = true;
 
       if (context && context.state !== 'closed') {
-        void context.close();
+        closePromise ??= context.close().catch(() => {});
       }
     },
-    prepare: async (): Promise<PreparedAchievementSound> => {
+    prepare: async ({ userActivation = false } = {}): Promise<PreparedAchievementSound> => {
       if (destroyed) {
         throw new Error('The achievement sound player has been destroyed.');
       }
@@ -73,6 +78,10 @@ export function createAchievementSoundPlayer(windowRef: BrowserWindow): Achievem
       const audioContext = getContext();
 
       if (audioContext.state === 'suspended') {
+        if (!userActivation) {
+          throw new Error('Achievement audio requires a browser activation.');
+        }
+
         await audioContext.resume();
       }
 

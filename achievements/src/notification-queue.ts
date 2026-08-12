@@ -19,12 +19,21 @@ export interface PreparedAchievementSound {
 
 export interface AchievementSoundPlayer {
   destroy: () => void;
-  prepare: () => Promise<PreparedAchievementSound>;
+  prepare: (options?: { userActivation?: boolean }) => Promise<PreparedAchievementSound>;
+}
+
+export interface AchievementPresentationCoordinator {
+  runExclusive: <Result>(
+    achievementId: AchievementId,
+    task: () => Promise<Result> | Result,
+  ) => Promise<Result>;
 }
 
 interface AchievementNotificationQueueOptions {
   document: Document;
+  isPresented: (achievementId: AchievementId) => boolean;
   onPresented: (achievementId: AchievementId) => void;
+  presentationCoordinator: AchievementPresentationCoordinator;
   soundPlayer: AchievementSoundPlayer;
   timings?: AchievementNotificationTimings;
   window: Window & typeof globalThis;
@@ -35,15 +44,19 @@ export interface AchievementNotificationQueue {
   enqueue: (achievementIds: AchievementId[]) => void;
 }
 
-function createToast(documentRef: Document, achievementId: AchievementId): HTMLElement {
+function createToast(
+  documentRef: Document,
+  achievementId: AchievementId,
+  timings: AchievementNotificationTimings,
+): HTMLElement {
   const toast = documentRef.createElement('div');
   toast.className = 'ghfrc-achievement-toast';
   toast.dataset.achievementId = achievementId;
   toast.dataset.state = 'entering';
   toast.dataset.achievementToast = '';
-  toast.setAttribute('aria-live', 'polite');
-  toast.setAttribute('aria-atomic', 'true');
-  toast.setAttribute('role', 'status');
+  toast.setAttribute('aria-hidden', 'true');
+  toast.style.setProperty('--ghfrc-achievement-enter-duration', `${timings.enterMs}ms`);
+  toast.style.setProperty('--ghfrc-achievement-exit-duration', `${timings.exitMs}ms`);
 
   const icon = documentRef.createElement('span');
   icon.className = 'ghfrc-achievement-toast__icon';
@@ -61,7 +74,9 @@ function createToast(documentRef: Document, achievementId: AchievementId): HTMLE
 
 export function createAchievementNotificationQueue({
   document: documentRef,
+  isPresented,
   onPresented,
+  presentationCoordinator,
   soundPlayer,
   timings = DEFAULT_NOTIFICATION_TIMINGS,
   window: windowRef,
@@ -71,7 +86,7 @@ export function createAchievementNotificationQueue({
   let activeAchievementId: AchievementId | undefined;
   let activePreparedSound: PreparedAchievementSound | undefined;
   let destroyed = false;
-  let preparationInProgress = false;
+  const preparationsInProgress = new Set<symbol>();
 
   const schedule = (callback: () => void, delayMs: number) => {
     const timeoutId = windowRef.setTimeout(() => {
@@ -81,69 +96,101 @@ export function createAchievementNotificationQueue({
     timeoutIds.add(timeoutId);
   };
 
-  const attemptPresentation = async () => {
+  const attemptPresentation = async (userActivation = false) => {
     if (
       destroyed ||
-      preparationInProgress ||
       activeAchievementId ||
-      queuedAchievementIds.length === 0
+      queuedAchievementIds.length === 0 ||
+      (!userActivation && preparationsInProgress.size > 0)
     ) {
       return;
     }
 
-    preparationInProgress = true;
+    const preparationToken = Symbol('achievement-sound-preparation');
+    preparationsInProgress.add(preparationToken);
     const achievementId = queuedAchievementIds[0];
+    let shouldAttemptNext = false;
 
     try {
-      const preparedSound = await soundPlayer.prepare();
+      const preparedSound = await soundPlayer.prepare({ userActivation });
 
       if (destroyed || queuedAchievementIds[0] !== achievementId) {
         preparedSound.dispose();
         return;
       }
 
-      const toast = createToast(documentRef, achievementId);
-      documentRef.body.append(toast);
-      // Commit the off-screen state before starting the transition and paired sound.
-      toast.getBoundingClientRect();
-      toast.dataset.state = 'visible';
+      let committed = false;
 
-      try {
-        preparedSound.start();
-      } catch {
-        toast.remove();
-        preparedSound.dispose();
-        return;
-      }
-
-      queuedAchievementIds.shift();
-      activeAchievementId = achievementId;
-      activePreparedSound = preparedSound;
-      onPresented(achievementId);
-
-      schedule(() => {
-        if (destroyed) {
+      await presentationCoordinator.runExclusive(achievementId, () => {
+        if (
+          destroyed ||
+          activeAchievementId ||
+          queuedAchievementIds[0] !== achievementId
+        ) {
           return;
         }
 
-        toast.dataset.state = 'exiting';
-        schedule(() => {
+        if (isPresented(achievementId)) {
+          queuedAchievementIds.shift();
+          return;
+        }
+
+        const toast = createToast(documentRef, achievementId, timings);
+        documentRef.body.append(toast);
+        // Commit the off-screen state before starting the paired sound and reveal.
+        toast.getBoundingClientRect();
+
+        try {
+          preparedSound.start();
+        } catch {
           toast.remove();
-          preparedSound.dispose();
-          activeAchievementId = undefined;
-          activePreparedSound = undefined;
-          void attemptPresentation();
-        }, timings.exitMs);
-      }, timings.enterMs + timings.visibleMs);
+          return;
+        }
+
+        toast.setAttribute('aria-live', 'polite');
+        toast.setAttribute('aria-atomic', 'true');
+        toast.setAttribute('role', 'status');
+        toast.removeAttribute('aria-hidden');
+        toast.dataset.state = 'visible';
+        queuedAchievementIds.shift();
+        activeAchievementId = achievementId;
+        activePreparedSound = preparedSound;
+        committed = true;
+        onPresented(achievementId);
+
+        schedule(() => {
+          if (destroyed) {
+            return;
+          }
+
+          toast.dataset.state = 'exiting';
+          schedule(() => {
+            toast.remove();
+            preparedSound.dispose();
+            activeAchievementId = undefined;
+            activePreparedSound = undefined;
+            void attemptPresentation();
+          }, timings.exitMs);
+        }, timings.enterMs + timings.visibleMs);
+      });
+
+      if (!committed) {
+        preparedSound.dispose();
+        shouldAttemptNext = queuedAchievementIds[0] !== achievementId;
+      }
     } catch {
       // A blocked or unavailable sound leaves the paired notification pending.
     } finally {
-      preparationInProgress = false;
+      preparationsInProgress.delete(preparationToken);
+
+      if (shouldAttemptNext) {
+        void attemptPresentation();
+      }
     }
   };
 
   const handleActivation = () => {
-    void attemptPresentation();
+    void attemptPresentation(true);
   };
   const activationEvents = ['click', 'keydown', 'pointerdown', 'touchstart'] as const;
 
@@ -153,6 +200,10 @@ export function createAchievementNotificationQueue({
 
   return {
     destroy: () => {
+      if (destroyed) {
+        return;
+      }
+
       destroyed = true;
       queuedAchievementIds.length = 0;
       timeoutIds.forEach((timeoutId) => windowRef.clearTimeout(timeoutId));
