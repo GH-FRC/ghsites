@@ -1,0 +1,85 @@
+site:
+  language: zh-CN
+  title: GHFRC
+  description: GHFRC 队伍官方网站框架
+  logo:
+    src: /content/images/placeholder-logo.png
+    alt: 示例队伍 Logo
+    intrinsicWidth: 400
+    intrinsicHeight: 138
+  accessibility:
+    mainNavigation: 主要导航
+    returnToTop: 返回页面顶部
+  navigation:
+    about-frc: 关于 FRC
+    about-xplore: 关于 X.PLORE
+    about-gh-frc: 关于 GHFRC
+    robots: 机器人
+    achievements: 赛事成果
+    news: 新闻动态
+    sponsors: 赞助商
+    contact: 联系我们
+  hero:
+    title: GHFRC
+    introPlaceholder: 首页介绍文字预留区
+    mediaPlaceholder: 首页图片或视频预留区
+  sections:
+    about-frc:
+      heading: 关于 FRC
+      bodyPlaceholder: FRC 介绍文字预留区
+      mediaPlaceholder: FRC 图片或视频预留区
+      itemPlaceholders: []
+    about-xplore:
+      heading: 关于 X.PLORE
+      bodyPlaceholder: X.PLORE 介绍文字预留区
+      mediaPlaceholder: X.PLORE 图片或视频预留区
+      itemPlaceholders: []
+    about-gh-frc:
+      heading: 关于 GHFRC
+      bodyPlaceholder: GHFRC 队伍介绍文字预留区
+      mediaPlaceholder: GHFRC 队伍媒体预留区
+      itemPlaceholders:
+        - 队伍人数预留区
+        - 队伍公开概况预留区
+        - 队伍相关信息预留区
+    robots:
+      heading: 机器人
+      bodyPlaceholder: 机器人介绍文字预留区
+      mediaPlaceholder: 机器人图片或视频预留区
+      itemPlaceholders:
+        - 机器人赛季信息预留区
+        - 机器人技术简介预留区
+    achievements:
+      heading: 赛事成果
+      bodyPlaceholder: 赛事成果介绍文字预留区
+      itemPlaceholders:
+        - 参赛记录预留区
+        - 奖项与排名预留区
+        - 比赛回顾预留区
+    news:
+      heading: 新闻动态
+      bodyPlaceholder: 新闻动态介绍文字预留区
+      itemPlaceholders:
+        - 新闻条目预留区 01
+        - 新闻条目预留区 02
+        - 新闻条目预留区 03
+    sponsors:
+      heading: 赞助商
+      bodyPlaceholder: 赞助商介绍文字预留区
+      itemPlaceholders:
+        - 赞助商标志预留区 01
+        - 赞助商标志预留区 02
+        - 赞助商标志预留区 03
+        - 赞助商标志预留区 04
+        - 赞助商标志预留区 05
+        - 赞助商标志预留区 06
+    contact:
+      heading: 联系我们
+      bodyPlaceholder: 联系说明文字预留区
+      itemPlaceholders:
+        - 队伍邮箱预留区
+        - 微信号预留区
+        - 其他官方联系方式预留区
+  footer:
+    title: GHFRC
+    placeholder: 页脚信息预留区
