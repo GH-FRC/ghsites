@@ -1,0 +1,69 @@
+---
+import { getEntry } from 'astro:content';
+
+import ContentSection from '../components/ContentSection.astro';
+import HeroSection from '../components/HeroSection.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import BaseLayout from '../layouts/BaseLayout.astro';
+
+const siteEntry = await getEntry('site', 'site');
+
+if (!siteEntry) {
+  throw new Error('The site content entry is missing.');
+}
+
+const site = siteEntry.data;
+
+const sectionPlan = [
+  { id: 'about-frc', index: '02', variant: 'split' },
+  { id: 'about-xplore', index: '03', variant: 'split-reverse' },
+  { id: 'about-gh-frc', index: '04', variant: 'overview' },
+  { id: 'robots', index: '05', variant: 'feature' },
+  { id: 'achievements', index: '06', variant: 'grid' },
+  { id: 'news', index: '07', variant: 'news' },
+  { id: 'sponsors', index: '08', variant: 'sponsors' },
+  { id: 'contact', index: '09', variant: 'contact' },
+] as const;
+
+const navigationItems = sectionPlan.map(({ id }) => ({
+  target: id,
+  label: site.navigation[id],
+}));
+---
+
+<BaseLayout title={site.title} description={site.description} language={site.language}>
+  <SiteHeader
+    logo={site.logo}
+    navigationItems={navigationItems}
+    mainNavigationLabel={site.accessibility.mainNavigation}
+    returnToTopLabel={site.accessibility.returnToTop}
+  />
+
+  <main>
+    <HeroSection
+      title={site.hero.title}
+      introPlaceholder={site.hero.introPlaceholder}
+      mediaPlaceholder={site.hero.mediaPlaceholder}
+    />
+
+    {
+      sectionPlan.map((section) => (
+        <ContentSection
+          id={section.id}
+          index={section.index}
+          variant={section.variant}
+          content={site.sections[section.id]}
+        />
+      ))
+    }
+  </main>
+
+  <SiteFooter title={site.footer.title} placeholder={site.footer.placeholder} />
+
+  <script>
+    import { initializeSiteInteractions } from '../scripts/site-interactions';
+
+    initializeSiteInteractions();
+  </script>
+</BaseLayout>
