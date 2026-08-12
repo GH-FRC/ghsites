@@ -10,6 +10,32 @@ function isColorScheme(value: string | undefined): value is ColorScheme {
   return value === 'dark' || value === 'light';
 }
 
+export function createColorSchemeBootstrapScript(
+  storageKey = COLOR_SCHEME_STORAGE_KEY,
+): string {
+  const serializedStorageKey = JSON.stringify(storageKey);
+
+  return `(function () {
+    try {
+      var storedColorScheme = window.sessionStorage.getItem(${serializedStorageKey});
+
+      if (storedColorScheme === 'dark' || storedColorScheme === 'light') {
+        document.documentElement.dataset.colorScheme = storedColorScheme;
+      } else {
+        delete document.documentElement.dataset.colorScheme;
+
+        if (storedColorScheme !== null) {
+          window.sessionStorage.removeItem(${serializedStorageKey});
+        }
+      }
+    } catch (error) {
+      delete document.documentElement.dataset.colorScheme;
+    }
+  })();`;
+}
+
+export const COLOR_SCHEME_BOOTSTRAP_SCRIPT = createColorSchemeBootstrapScript();
+
 export function initializeColorSchemeControl(
   documentRef: Document,
   windowRef: Window & typeof globalThis,
@@ -27,30 +53,6 @@ export function initializeColorSchemeControl(
   if (!switchToDarkLabel || !switchToLightLabel) {
     return { destroy: () => undefined };
   }
-
-  const getStoredColorScheme = (): ColorScheme | undefined => {
-    try {
-      const storedColorScheme = windowRef.sessionStorage.getItem(COLOR_SCHEME_STORAGE_KEY);
-
-      if (storedColorScheme === null || !isColorScheme(storedColorScheme)) {
-        return undefined;
-      }
-
-      return storedColorScheme;
-    } catch {
-      return undefined;
-    }
-  };
-
-  const applyStoredColorScheme = () => {
-    const storedColorScheme = getStoredColorScheme();
-
-    if (storedColorScheme) {
-      documentRef.documentElement.dataset.colorScheme = storedColorScheme;
-    } else {
-      delete documentRef.documentElement.dataset.colorScheme;
-    }
-  };
 
   const getActiveColorScheme = (): ColorScheme => {
     const manualColorScheme = documentRef.documentElement.dataset.colorScheme;
@@ -70,7 +72,6 @@ export function initializeColorSchemeControl(
     toggle.title = nextLabel;
   };
 
-  applyStoredColorScheme();
   updateToggle();
 
   const handleToggle = () => {
