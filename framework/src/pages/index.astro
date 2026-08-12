@@ -62,8 +62,11 @@ const navigationItems = sectionPlan.map(({ id }) => ({
   <SiteFooter title={site.footer.title} placeholder={site.footer.placeholder} />
 
   <script>
+    import { initializeAchievementSystem } from '@gh-frc/achievements';
+
     import { initializeSiteInteractions } from '../scripts/site-interactions';
 
+    initializeAchievementSystem();
     initializeSiteInteractions();
   </script>
 </BaseLayout>

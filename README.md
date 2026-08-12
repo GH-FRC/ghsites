@@ -8,6 +8,7 @@ The repository contains only replaceable example content. GHFRC's real website c
 
 - `framework/`: page structure, components, navigation behavior, and content interfaces.
 - `skins/`: replaceable visual themes and design tokens.
+- `achievements/`: skin-independent achievement rules, progress, notifications, and sound.
 - `content/`: public example content that can be replaced with another team's content.
 - `engineering-logs/`: project-wide same-day goals and completed work.
 - `docs/`: implementation specifications and cross-module documentation.
@@ -59,6 +60,7 @@ GHFRC 官网是公开的网站代码库，也是可复用的网站模板。框�
 
 - `framework/`：页面结构、组件、导航行为和内容接口。
 - `skins/`：可替换的视觉主题和设计令牌。
+- `achievements/`：不依赖皮肤的成就规则、进度、通知和声音。
 - `content/`：可由其他队伍直接替换的公开示例内容。
 - `engineering-logs/`：项目所有模块当天的目标与实际完成工作。
 - `docs/`：实施规格和跨模块文档。
