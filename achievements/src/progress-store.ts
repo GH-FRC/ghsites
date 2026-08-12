@@ -1,6 +1,7 @@
 import { ACHIEVEMENT_ORDER, type AchievementId, type AchievementProgress } from './achievement-types';
 
-const STORAGE_KEY = 'ghfrc-achievements:v1';
+export const ACHIEVEMENT_STORAGE_PREFIX = 'ghfrc-achievements:v1';
+const STORAGE_KEY = ACHIEVEMENT_STORAGE_PREFIX;
 const STORAGE_VERSION = 1;
 const achievementIds = new Set<string>(ACHIEVEMENT_ORDER);
 
@@ -13,7 +14,7 @@ interface PersistedAchievementProgress {
 
 export interface AchievementProgressStore {
   load: () => AchievementProgress;
-  save: (progress: AchievementProgress) => void;
+  save: (progress: AchievementProgress) => AchievementProgress;
 }
 
 function createEmptyProgress(): AchievementProgress {
@@ -30,6 +31,28 @@ function cloneProgress(progress: AchievementProgress): AchievementProgress {
     unlockedAchievementIds: new Set(progress.unlockedAchievementIds),
     visitedSectionKeys: new Set(progress.visitedSectionKeys),
   };
+}
+
+function mergeProgress(...progressRecords: AchievementProgress[]): AchievementProgress {
+  const mergedProgress = createEmptyProgress();
+
+  progressRecords.forEach((progress) => {
+    progress.presentedAchievementIds.forEach((id) =>
+      mergedProgress.presentedAchievementIds.add(id),
+    );
+    progress.unlockedAchievementIds.forEach((id) =>
+      mergedProgress.unlockedAchievementIds.add(id),
+    );
+    progress.visitedSectionKeys.forEach((key) => mergedProgress.visitedSectionKeys.add(key));
+  });
+  mergedProgress.presentedAchievementIds.forEach((id) =>
+    mergedProgress.unlockedAchievementIds.add(id),
+  );
+  return mergedProgress;
+}
+
+function factKey(category: 'presented' | 'unlocked' | 'visited', value: string): string {
+  return `${ACHIEVEMENT_STORAGE_PREFIX}:${category}:${encodeURIComponent(value)}`;
 }
 
 function isStringArray(value: unknown): value is string[] {
@@ -85,41 +108,73 @@ function parseProgress(rawValue: string | null): AchievementProgress | undefined
 
 export function createAchievementProgressStore(
   storage: Storage | undefined,
+  knownSectionKeys: Iterable<string> = [],
 ): AchievementProgressStore {
   let memoryProgress = createEmptyProgress();
+  const sectionKeys = new Set(knownSectionKeys);
+
+  const load = () => {
+    let storedProgress = createEmptyProgress();
+
+    try {
+      storedProgress = parseProgress(storage?.getItem(STORAGE_KEY) ?? null) ?? storedProgress;
+
+      ACHIEVEMENT_ORDER.forEach((achievementId) => {
+        if (storage?.getItem(factKey('unlocked', achievementId)) === '1') {
+          storedProgress.unlockedAchievementIds.add(achievementId);
+        }
+
+        if (storage?.getItem(factKey('presented', achievementId)) === '1') {
+          storedProgress.presentedAchievementIds.add(achievementId);
+          storedProgress.unlockedAchievementIds.add(achievementId);
+        }
+      });
+      sectionKeys.forEach((sectionKey) => {
+        if (storage?.getItem(factKey('visited', sectionKey)) === '1') {
+          storedProgress.visitedSectionKeys.add(sectionKey);
+        }
+      });
+    } catch {
+      // Storage can be unavailable in private browsing or under strict privacy settings.
+    }
+
+    memoryProgress = mergeProgress(memoryProgress, storedProgress);
+    return cloneProgress(memoryProgress);
+  };
 
   return {
-    load: () => {
-      try {
-        const storedProgress = parseProgress(storage?.getItem(STORAGE_KEY) ?? null);
-
-        if (storedProgress) {
-          memoryProgress = storedProgress;
-        }
-      } catch {
-        // Storage can be unavailable in private browsing or under strict privacy settings.
-      }
-
-      return cloneProgress(memoryProgress);
-    },
+    load,
     save: (progress) => {
-      memoryProgress = cloneProgress(progress);
+      memoryProgress = mergeProgress(load(), progress);
       const persistedProgress: PersistedAchievementProgress = {
         presentedAchievementIds: ACHIEVEMENT_ORDER.filter((id) =>
-          progress.presentedAchievementIds.has(id),
+          memoryProgress.presentedAchievementIds.has(id),
         ),
         unlockedAchievementIds: ACHIEVEMENT_ORDER.filter((id) =>
-          progress.unlockedAchievementIds.has(id),
+          memoryProgress.unlockedAchievementIds.has(id),
         ),
         version: STORAGE_VERSION,
-        visitedSectionKeys: [...progress.visitedSectionKeys].sort(),
+        visitedSectionKeys: [...memoryProgress.visitedSectionKeys].sort(),
       };
 
       try {
+        memoryProgress.unlockedAchievementIds.forEach((achievementId) => {
+          storage?.setItem(factKey('unlocked', achievementId), '1');
+        });
+        memoryProgress.presentedAchievementIds.forEach((achievementId) => {
+          storage?.setItem(factKey('presented', achievementId), '1');
+        });
+        memoryProgress.visitedSectionKeys.forEach((sectionKey) => {
+          storage?.setItem(factKey('visited', sectionKey), '1');
+        });
+        // Retain the aggregate record for backward compatibility and easy inspection.
+        // Independent fact keys remain authoritative and prevent cross-tab lost updates.
         storage?.setItem(STORAGE_KEY, JSON.stringify(persistedProgress));
       } catch {
         // The in-memory copy keeps the current page functional when persistence fails.
       }
+
+      return cloneProgress(memoryProgress);
     },
   };
 }
