@@ -1,53 +1,25 @@
 :root {
-  --color-background: #ffffff;
-  --color-surface: #f4f4f2;
-  --color-surface-strong: #e8e8e5;
-  --color-text: #111111;
-  --color-muted: #666666;
-  --color-border: #b9b9b5;
-  --color-border-strong: #111111;
-  --color-footer-background: #111111;
-  --color-footer-text: #ffffff;
-  --color-footer-muted: #c8c8c8;
+  --color-background: light-dark(#ffffff, #111111);
+  --color-surface: light-dark(#f4f4f2, #1b1b1a);
+  --color-surface-strong: light-dark(#e8e8e5, #242422);
+  --color-text: light-dark(#111111, #f5f5f3);
+  --color-muted: light-dark(#666666, #ababaa);
+  --color-border: light-dark(#b9b9b5, #555553);
+  --color-border-strong: light-dark(#111111, #d8d8d5);
+  --color-footer-background: light-dark(#111111, #f5f5f3);
+  --color-footer-text: light-dark(#ffffff, #111111);
+  --color-footer-muted: light-dark(#c8c8c8, #555553);
   --color-logo-background: #ffffff;
-  --color-toggle-hover: #e8e8e5;
+  --color-toggle-hover: light-dark(#e8e8e5, #2a2a28);
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --header-height: 78px;
   --page-max-width: 1440px;
   --page-padding: 48px;
   --desktop-min-width: 1180px;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root:not([data-color-scheme]) {
-    --color-background: #111111;
-    --color-surface: #1b1b1a;
-    --color-surface-strong: #242422;
-    --color-text: #f5f5f3;
-    --color-muted: #ababaa;
-    --color-border: #555553;
-    --color-border-strong: #d8d8d5;
-    --color-footer-background: #f5f5f3;
-    --color-footer-text: #111111;
-    --color-footer-muted: #555553;
-    --color-toggle-hover: #2a2a28;
-    color-scheme: dark;
-  }
+  color-scheme: light dark;
 }
 
 :root[data-color-scheme='dark'] {
-  --color-background: #111111;
-  --color-surface: #1b1b1a;
-  --color-surface-strong: #242422;
-  --color-text: #f5f5f3;
-  --color-muted: #ababaa;
-  --color-border: #555553;
-  --color-border-strong: #d8d8d5;
-  --color-footer-background: #f5f5f3;
-  --color-footer-text: #111111;
-  --color-footer-muted: #555553;
-  --color-toggle-hover: #2a2a28;
   color-scheme: dark;
 }
 

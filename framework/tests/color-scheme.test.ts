@@ -1,6 +1,59 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import { initializeColorSchemeControl } from '../src/scripts/color-scheme';
+import {
+  COLOR_SCHEME_BOOTSTRAP_SCRIPT,
+  initializeColorSchemeControl,
+} from '../src/scripts/color-scheme';
+
+function runColorSchemeBootstrap() {
+  const executeBootstrap = new Function(
+    'window',
+    'document',
+    COLOR_SCHEME_BOOTSTRAP_SCRIPT,
+  );
+
+  executeBootstrap(window, document);
+}
+
+describe('color scheme pre-paint bootstrap', () => {
+  beforeEach(() => {
+    sessionStorage.clear();
+    document.documentElement.removeAttribute('data-color-scheme');
+  });
+
+  afterEach(() => {
+    sessionStorage.clear();
+    document.documentElement.removeAttribute('data-color-scheme');
+  });
+
+  it('applies a valid session choice before the interface initializes', () => {
+    sessionStorage.setItem('ghfrc-color-scheme', 'dark');
+
+    runColorSchemeBootstrap();
+
+    expect(document.documentElement.dataset.colorScheme).toBe('dark');
+  });
+
+  it('removes invalid session data and leaves the system preference active', () => {
+    sessionStorage.setItem('ghfrc-color-scheme', 'sepia');
+    document.documentElement.dataset.colorScheme = 'light';
+
+    runColorSchemeBootstrap();
+
+    expect(sessionStorage.getItem('ghfrc-color-scheme')).toBeNull();
+    expect(document.documentElement.dataset.colorScheme).toBeUndefined();
+  });
+
+  it('leaves the system preference active when session storage is unavailable', () => {
+    document.documentElement.dataset.colorScheme = 'light';
+    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
+      throw new DOMException('Storage unavailable');
+    });
+
+    expect(() => runColorSchemeBootstrap()).not.toThrow();
+    expect(document.documentElement.dataset.colorScheme).toBeUndefined();
+  });
+});
 
 describe('color scheme controls', () => {
   const originalMatchMedia = window.matchMedia;
@@ -100,6 +153,7 @@ describe('color scheme controls', () => {
     interactionHandle.destroy();
     interactionHandle = undefined;
     document.documentElement.removeAttribute('data-color-scheme');
+    runColorSchemeBootstrap();
 
     interactionHandle = initializeColorSchemeControl(document, window);
 
@@ -143,22 +197,8 @@ describe('color scheme controls', () => {
     expect(toggle.getAttribute('aria-label')).toBe('切换至深色模式');
   });
 
-  it('ignores invalid session data and keeps following the system', () => {
-    installColorSchemePreference(true);
-    sessionStorage.setItem('ghfrc-color-scheme', 'sepia');
-
-    interactionHandle = initializeColorSchemeControl(document, window);
-
-    const toggle = document.querySelector<HTMLButtonElement>('[data-color-scheme-toggle]')!;
-    expect(document.documentElement.dataset.colorScheme).toBeUndefined();
-    expect(toggle.getAttribute('aria-label')).toBe('切换至浅色模式');
-  });
-
   it('keeps working when session storage is unavailable', () => {
     installColorSchemePreference(false);
-    vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
-      throw new DOMException('Storage unavailable');
-    });
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new DOMException('Storage unavailable');
     });
