@@ -6,7 +6,6 @@ describe('site navigation', () => {
   const originalIntersectionObserver = window.IntersectionObserver;
   const originalScrollTo = window.scrollTo;
   const originalScrollYDescriptor = Object.getOwnPropertyDescriptor(window, 'scrollY');
-  const originalInnerWidthDescriptor = Object.getOwnPropertyDescriptor(window, 'innerWidth');
   let interactionHandle: ReturnType<typeof initializeSiteInteractions> | undefined;
 
   beforeEach(() => {
@@ -42,11 +41,7 @@ describe('site navigation', () => {
       Reflect.deleteProperty(window, 'scrollY');
     }
 
-    if (originalInnerWidthDescriptor) {
-      Object.defineProperty(window, 'innerWidth', originalInnerWidthDescriptor);
-    } else {
-      Reflect.deleteProperty(window, 'innerWidth');
-    }
+    document.documentElement.style.removeProperty('--compact-navigation-active');
 
     Object.defineProperty(window, 'IntersectionObserver', {
       configurable: true,
@@ -420,16 +415,11 @@ describe('site navigation', () => {
     expect(compactMenu.hidden).toBe(false);
   });
 
-  it('closes the compact navigation only after resizing past its layout breakpoint', () => {
+  it('closes the compact navigation when CSS changes to the wide layout', () => {
     const menuToggle = document.querySelector<HTMLButtonElement>('[data-menu-toggle]')!;
     const compactMenu = document.querySelector<HTMLElement>('[data-compact-menu]')!;
-    let simulatedInnerWidth = 980;
 
-    Object.defineProperty(window, 'innerWidth', {
-      configurable: true,
-      get: () => simulatedInnerWidth,
-    });
-
+    document.documentElement.style.setProperty('--compact-navigation-active', '1');
     interactionHandle = initializeSiteInteractions(document, window);
     menuToggle.click();
     window.dispatchEvent(new Event('resize'));
@@ -437,7 +427,7 @@ describe('site navigation', () => {
     expect(menuToggle.getAttribute('aria-expanded')).toBe('true');
     expect(compactMenu.hidden).toBe(false);
 
-    simulatedInnerWidth = 981;
+    document.documentElement.style.setProperty('--compact-navigation-active', '0');
     window.dispatchEvent(new Event('resize'));
 
     expect(menuToggle.getAttribute('aria-expanded')).toBe('false');

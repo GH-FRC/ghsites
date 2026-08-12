@@ -250,7 +250,12 @@ export function initializeSiteInteractions(
     };
 
     const handleResize = () => {
-      if (windowRef.innerWidth > 980) {
+      const compactNavigationIsActive = windowRef
+        .getComputedStyle(documentRef.documentElement)
+        .getPropertyValue('--compact-navigation-active')
+        .trim() === '1';
+
+      if (!compactNavigationIsActive) {
         closeCompactMenu();
       }
     };
