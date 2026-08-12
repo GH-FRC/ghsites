@@ -1,0 +1,22 @@
+---
+interface NavigationItem {
+  target: string;
+  label: string;
+}
+
+interface Props {
+  navigationItems: NavigationItem[];
+}
+
+const { navigationItems } = Astro.props;
+---
+
+<ul>
+  {
+    navigationItems.map((item) => (
+      <li>
+        <a href={`#${item.target}`} data-section-link>{item.label}</a>
+      </li>
+    ))
+  }
+</ul>

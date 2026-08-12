@@ -1,4 +1,6 @@
 ---
+import NavigationList from './NavigationList.astro';
+
 interface NavigationItem {
   target: string;
   label: string;
@@ -55,15 +57,7 @@ const {
     </a>
 
     <nav class="site-header__navigation" aria-label={mainNavigationLabel}>
-      <ul>
-        {
-          navigationItems.map((item) => (
-            <li>
-              <a href={`#${item.target}`} data-section-link>{item.label}</a>
-            </li>
-          ))
-        }
-      </ul>
+      <NavigationList navigationItems={navigationItems} />
     </nav>
   </div>
 
@@ -74,14 +68,6 @@ const {
     data-compact-menu
     hidden
   >
-    <ul>
-      {
-        navigationItems.map((item) => (
-          <li>
-            <a href={`#${item.target}`} data-section-link>{item.label}</a>
-          </li>
-        ))
-      }
-    </ul>
+    <NavigationList navigationItems={navigationItems} />
   </nav>
 </header>
