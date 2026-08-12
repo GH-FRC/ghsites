@@ -52,6 +52,87 @@ describe('site navigation', () => {
     });
   });
 
+  it('keeps the header visible while navigating downward between sections', () => {
+    const header = document.querySelector<HTMLElement>('[data-site-header]')!;
+    const target = document.querySelector<HTMLElement>('#about-frc')!;
+    target.scrollIntoView = vi.fn();
+    let simulatedScrollY = 160;
+
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      get: () => simulatedScrollY,
+    });
+
+    interactionHandle = initializeSiteInteractions(document, window);
+    window.dispatchEvent(new WheelEvent('wheel', { deltaY: 48 }));
+    expect(header.dataset.hidden).toBe('true');
+
+    document.querySelector<HTMLAnchorElement>('[data-section-link]')!.click();
+    expect(header.dataset.hidden).toBeUndefined();
+
+    simulatedScrollY = 640;
+    window.dispatchEvent(new Event('scrollend'));
+
+    expect(header.dataset.hidden).toBeUndefined();
+    expect(header.inert).toBe(false);
+  });
+
+  it.each([
+    ['a page key', () => window.dispatchEvent(new KeyboardEvent('keydown', { key: 'PageDown' }))],
+    ['pointer input', () => window.dispatchEvent(new PointerEvent('pointerdown'))],
+  ])('restores downward header hiding when %s interrupts section navigation', (_, interrupt) => {
+    const header = document.querySelector<HTMLElement>('[data-site-header]')!;
+    const target = document.querySelector<HTMLElement>('#about-frc')!;
+    target.scrollIntoView = vi.fn();
+    let simulatedScrollY = 160;
+
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      get: () => simulatedScrollY,
+    });
+
+    interactionHandle = initializeSiteInteractions(document, window);
+    document.querySelector<HTMLAnchorElement>('[data-section-link]')!.click();
+    interrupt();
+    simulatedScrollY = 640;
+    window.dispatchEvent(new Event('scrollend'));
+
+    expect(header.dataset.hidden).toBe('true');
+    expect(header.inert).toBe(true);
+  });
+
+  it('keeps the header visible when another section link is pressed during navigation', () => {
+    const header = document.querySelector<HTMLElement>('[data-site-header]')!;
+    const firstLink = document.querySelector<HTMLAnchorElement>('[data-section-link]')!;
+    const secondLink = document.createElement('a');
+    secondLink.href = '#about-team';
+    secondLink.dataset.sectionLink = '';
+    header.append(secondLink);
+
+    const secondTarget = document.createElement('section');
+    secondTarget.id = 'about-team';
+    secondTarget.dataset.scrollSection = '';
+    document.querySelector('main')!.append(secondTarget);
+
+    document.querySelector<HTMLElement>('#about-frc')!.scrollIntoView = vi.fn();
+    secondTarget.scrollIntoView = vi.fn();
+    let simulatedScrollY = 160;
+
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      get: () => simulatedScrollY,
+    });
+
+    interactionHandle = initializeSiteInteractions(document, window);
+    firstLink.click();
+    secondLink.dispatchEvent(new PointerEvent('pointerdown', { bubbles: true }));
+    simulatedScrollY = 640;
+    window.dispatchEvent(new Event('scrollend'));
+
+    expect(header.dataset.hidden).toBeUndefined();
+    expect(header.inert).toBe(false);
+  });
+
   it('returns to the page top when the logo is selected', () => {
     const scrollTo = vi.fn();
     window.scrollTo = scrollTo;
