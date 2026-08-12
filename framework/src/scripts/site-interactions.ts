@@ -18,6 +18,16 @@ export function initializeSiteInteractions(
   const scrollSections = documentRef.querySelectorAll<HTMLElement>('[data-scroll-section]');
   const homeLink = documentRef.querySelector<HTMLAnchorElement>('[data-home-link]');
   const siteHeader = documentRef.querySelector<HTMLElement>('[data-site-header]');
+  let isSectionNavigationInProgress = false;
+
+  const showHeader = () => {
+    if (!siteHeader) {
+      return;
+    }
+
+    delete siteHeader.dataset.hidden;
+    siteHeader.inert = false;
+  };
 
   sectionLinks.forEach((link) => {
     const handleSectionClick = (event: MouseEvent) => {
@@ -34,6 +44,8 @@ export function initializeSiteInteractions(
       }
 
       event.preventDefault();
+      isSectionNavigationInProgress = true;
+      showHeader();
       target.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
       windowRef.history.replaceState(null, '', href);
     };
@@ -78,13 +90,14 @@ export function initializeSiteInteractions(
       }
     };
 
-    const showHeader = () => {
-      delete siteHeader.dataset.hidden;
-      siteHeader.inert = false;
-    };
-
     const updateHeaderFromActualPosition = (previousScrollPosition: number) => {
       const currentScrollPosition = windowRef.scrollY;
+
+      if (isSectionNavigationInProgress) {
+        showHeader();
+        return currentScrollPosition;
+      }
+
       const scrollDistance = currentScrollPosition - previousScrollPosition;
 
       if (currentScrollPosition <= minimumScrollPosition) {
@@ -99,6 +112,8 @@ export function initializeSiteInteractions(
     };
 
     const handleWheel = (event: WheelEvent) => {
+      isSectionNavigationInProgress = false;
+
       if (event.deltaY > 4) {
         hideHeader();
       }
@@ -111,13 +126,36 @@ export function initializeSiteInteractions(
     const handleKeyDown = (event: KeyboardEvent) => {
       const usesUpwardNavigationKey = ['ArrowUp', 'PageUp', 'Home'].includes(event.key);
       const usesReversePageKey = event.key === ' ' && event.shiftKey;
+      const usesDownwardNavigationKey = ['ArrowDown', 'PageDown', 'End'].includes(event.key);
+      const usesForwardPageKey = event.key === ' ' && !event.shiftKey;
 
       if (usesUpwardNavigationKey || usesReversePageKey) {
+        isSectionNavigationInProgress = false;
         showHeader();
+      }
+
+      if (usesDownwardNavigationKey || usesForwardPageKey) {
+        isSectionNavigationInProgress = false;
       }
     };
 
+    const handlePointerDown = (event: PointerEvent) => {
+      if (event.target instanceof Element && event.target.closest('[data-section-link]')) {
+        return;
+      }
+
+      isSectionNavigationInProgress = false;
+    };
+
     const handleScrollEnd = () => {
+      if (isSectionNavigationInProgress) {
+        isSectionNavigationInProgress = false;
+        showHeader();
+        lastSettledScrollPosition = windowRef.scrollY;
+        lastObservedScrollPosition = windowRef.scrollY;
+        return;
+      }
+
       lastSettledScrollPosition = updateHeaderFromActualPosition(lastSettledScrollPosition);
     };
 
@@ -139,10 +177,12 @@ export function initializeSiteInteractions(
 
     windowRef.addEventListener('wheel', handleWheel, { passive: true });
     windowRef.addEventListener('keydown', handleKeyDown);
+    windowRef.addEventListener('pointerdown', handlePointerDown, { passive: true });
     windowRef.addEventListener('scrollend', handleScrollEnd);
     documentRef.addEventListener('scrollend', handleScrollEnd);
     cleanupCallbacks.push(() => windowRef.removeEventListener('wheel', handleWheel));
     cleanupCallbacks.push(() => windowRef.removeEventListener('keydown', handleKeyDown));
+    cleanupCallbacks.push(() => windowRef.removeEventListener('pointerdown', handlePointerDown));
     cleanupCallbacks.push(() => windowRef.removeEventListener('scrollend', handleScrollEnd));
     cleanupCallbacks.push(() => documentRef.removeEventListener('scrollend', handleScrollEnd));
   }
