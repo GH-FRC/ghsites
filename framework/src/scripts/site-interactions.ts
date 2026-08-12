@@ -18,6 +18,8 @@ export function initializeSiteInteractions(
   const scrollSections = documentRef.querySelectorAll<HTMLElement>('[data-scroll-section]');
   const homeLink = documentRef.querySelector<HTMLAnchorElement>('[data-home-link]');
   const siteHeader = documentRef.querySelector<HTMLElement>('[data-site-header]');
+  const menuToggle = documentRef.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+  const compactMenu = documentRef.querySelector<HTMLElement>('[data-compact-menu]');
   let isSectionNavigationInProgress = false;
 
   const showHeader = () => {
@@ -28,6 +30,55 @@ export function initializeSiteInteractions(
     delete siteHeader.dataset.hidden;
     siteHeader.inert = false;
   };
+
+  const closeCompactMenu = (returnFocus = false) => {
+    if (!menuToggle || !compactMenu) {
+      return;
+    }
+
+    const wasOpen = menuToggle.getAttribute('aria-expanded') === 'true';
+    menuToggle.setAttribute('aria-expanded', 'false');
+    compactMenu.hidden = true;
+
+    if (siteHeader) {
+      delete siteHeader.dataset.menuOpen;
+    }
+
+    if (compactMenu.contains(documentRef.activeElement)) {
+      (documentRef.activeElement as HTMLElement).blur();
+    }
+
+    if (returnFocus && wasOpen) {
+      menuToggle.focus();
+    }
+  };
+
+  const openCompactMenu = () => {
+    if (!menuToggle || !compactMenu) {
+      return;
+    }
+
+    showHeader();
+    menuToggle.setAttribute('aria-expanded', 'true');
+    compactMenu.hidden = false;
+
+    if (siteHeader) {
+      siteHeader.dataset.menuOpen = 'true';
+    }
+  };
+
+  if (menuToggle && compactMenu) {
+    const handleMenuToggle = () => {
+      if (menuToggle.getAttribute('aria-expanded') === 'true') {
+        closeCompactMenu();
+      } else {
+        openCompactMenu();
+      }
+    };
+
+    menuToggle.addEventListener('click', handleMenuToggle);
+    cleanupCallbacks.push(() => menuToggle.removeEventListener('click', handleMenuToggle));
+  }
 
   sectionLinks.forEach((link) => {
     const handleSectionClick = (event: MouseEvent) => {
@@ -45,6 +96,7 @@ export function initializeSiteInteractions(
 
       event.preventDefault();
       isSectionNavigationInProgress = true;
+      closeCompactMenu();
       showHeader();
       target.scrollIntoView({ behavior: scrollBehavior, block: 'start' });
       windowRef.history.replaceState(null, '', href);
@@ -57,6 +109,8 @@ export function initializeSiteInteractions(
   if (homeLink) {
     const handleHomeClick = (event: MouseEvent) => {
       event.preventDefault();
+      closeCompactMenu();
+      showHeader();
       windowRef.scrollTo({ behavior: scrollBehavior, top: 0 });
 
       if (windowRef.location.hash) {
@@ -100,6 +154,10 @@ export function initializeSiteInteractions(
 
       const scrollDistance = currentScrollPosition - previousScrollPosition;
 
+      if (scrollDistance > 4) {
+        closeCompactMenu();
+      }
+
       if (currentScrollPosition <= minimumScrollPosition) {
         showHeader();
       } else if (scrollDistance > 4) {
@@ -108,13 +166,22 @@ export function initializeSiteInteractions(
         showHeader();
       }
 
-      return currentScrollPosition;
+      if (currentScrollPosition === 0 || Math.abs(scrollDistance) > 4) {
+        return currentScrollPosition;
+      }
+
+      return previousScrollPosition;
     };
 
     const handleWheel = (event: WheelEvent) => {
+      if (event.target instanceof Element && compactMenu?.contains(event.target)) {
+        return;
+      }
+
       isSectionNavigationInProgress = false;
 
       if (event.deltaY > 4) {
+        closeCompactMenu();
         hideHeader();
       }
 
@@ -124,6 +191,16 @@ export function initializeSiteInteractions(
     };
 
     const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        isSectionNavigationInProgress = false;
+        closeCompactMenu(true);
+        return;
+      }
+
+      if (event.target instanceof Element && compactMenu?.contains(event.target)) {
+        return;
+      }
+
       const usesUpwardNavigationKey = ['ArrowUp', 'PageUp', 'Home'].includes(event.key);
       const usesReversePageKey = event.key === ' ' && event.shiftKey;
       const usesDownwardNavigationKey = ['ArrowDown', 'PageDown', 'End'].includes(event.key);
@@ -136,10 +213,19 @@ export function initializeSiteInteractions(
 
       if (usesDownwardNavigationKey || usesForwardPageKey) {
         isSectionNavigationInProgress = false;
+        closeCompactMenu();
       }
     };
 
     const handlePointerDown = (event: PointerEvent) => {
+      if (
+        menuToggle?.getAttribute('aria-expanded') === 'true'
+        && event.target instanceof Element
+        && !siteHeader.contains(event.target)
+      ) {
+        closeCompactMenu();
+      }
+
       if (event.target instanceof Element && event.target.closest('[data-section-link]')) {
         return;
       }
@@ -157,6 +243,16 @@ export function initializeSiteInteractions(
       }
 
       lastSettledScrollPosition = updateHeaderFromActualPosition(lastSettledScrollPosition);
+    };
+
+    const handleScroll = () => {
+      lastObservedScrollPosition = updateHeaderFromActualPosition(lastObservedScrollPosition);
+    };
+
+    const handleResize = () => {
+      if (windowRef.innerWidth > 980) {
+        closeCompactMenu();
+      }
     };
 
     if (windowRef.IntersectionObserver && scrollSections.length > 0) {
@@ -178,12 +274,16 @@ export function initializeSiteInteractions(
     windowRef.addEventListener('wheel', handleWheel, { passive: true });
     windowRef.addEventListener('keydown', handleKeyDown);
     windowRef.addEventListener('pointerdown', handlePointerDown, { passive: true });
+    windowRef.addEventListener('scroll', handleScroll, { passive: true });
     windowRef.addEventListener('scrollend', handleScrollEnd);
+    windowRef.addEventListener('resize', handleResize);
     documentRef.addEventListener('scrollend', handleScrollEnd);
     cleanupCallbacks.push(() => windowRef.removeEventListener('wheel', handleWheel));
     cleanupCallbacks.push(() => windowRef.removeEventListener('keydown', handleKeyDown));
     cleanupCallbacks.push(() => windowRef.removeEventListener('pointerdown', handlePointerDown));
+    cleanupCallbacks.push(() => windowRef.removeEventListener('scroll', handleScroll));
     cleanupCallbacks.push(() => windowRef.removeEventListener('scrollend', handleScrollEnd));
+    cleanupCallbacks.push(() => windowRef.removeEventListener('resize', handleResize));
     cleanupCallbacks.push(() => documentRef.removeEventListener('scrollend', handleScrollEnd));
   }
 

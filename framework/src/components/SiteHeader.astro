@@ -26,6 +26,20 @@ const {
 
 <header class="site-header" data-site-header>
   <div class="site-header__inner">
+    <button
+      class="site-header__menu-toggle"
+      type="button"
+      aria-label={mainNavigationLabel}
+      aria-controls="compact-navigation"
+      aria-expanded="false"
+      data-menu-toggle
+    >
+      <span class="site-header__menu-icon" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
     <a
       class="site-header__brand"
       href="#page-top"
@@ -52,4 +66,22 @@ const {
       </ul>
     </nav>
   </div>
+
+  <nav
+    class="site-header__compact-navigation"
+    id="compact-navigation"
+    aria-label={mainNavigationLabel}
+    data-compact-menu
+    hidden
+  >
+    <ul>
+      {
+        navigationItems.map((item) => (
+          <li>
+            <a href={`#${item.target}`} data-section-link>{item.label}</a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
 </header>
