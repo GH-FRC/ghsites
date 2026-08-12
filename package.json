@@ -6,15 +6,16 @@
     "node": ">=24.0.0 <25.0.0"
   },
   "workspaces": [
+    "achievements",
     "framework"
   ],
   "scripts": {
     "prepare:content": "node scripts/prepare-content.mjs",
     "dev": "npm run prepare:content && npm --workspace @gh-frc/framework run dev",
     "build": "npm run prepare:content && npm --workspace @gh-frc/framework run build",
-    "check": "npm run prepare:content && npm --workspace @gh-frc/framework run check",
+    "check": "npm run prepare:content && npm run check --workspaces --if-present",
     "preview": "npm run prepare:content && npm --workspace @gh-frc/framework run preview",
-    "test": "npm --workspace @gh-frc/framework run test"
+    "test": "npm run test --workspaces --if-present"
   },
   "dependencies": {
     "yaml": "2.9.0"

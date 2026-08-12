@@ -11,5 +11,6 @@
 - 从相邻 `content/` 模块读取 YAML 的 Astro Content Collection。
 - 使用 CSS Custom Properties 定义的基础黑白框架样式。
 - 导航定位、Logo 返回顶部和标题栏滚动行为测试。
+- 通过页面区域标记和单个初始化调用接入独立的 `achievements/` 模块。
 
 请从总项目目录运行开发、测试、检查和构建命令，以确保内容暂存步骤同时执行。
