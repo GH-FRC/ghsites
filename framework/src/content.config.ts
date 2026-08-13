@@ -1,4 +1,3 @@
-import { existsSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -7,12 +6,9 @@ import { file } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 const projectRoot = fileURLToPath(new URL('../../', import.meta.url));
-const siblingPrivateContentRoot = resolve(projectRoot, '..', 'ghfrc-website-content');
 const contentRoot = process.env.GH_FRC_CONTENT_DIR
   ? resolve(projectRoot, process.env.GH_FRC_CONTENT_DIR)
-  : existsSync(resolve(siblingPrivateContentRoot, 'config', 'site.yaml'))
-    ? siblingPrivateContentRoot
-    : resolve(projectRoot, 'content');
+  : resolve(projectRoot, 'content');
 const siteContentFile = resolve(contentRoot, 'config', 'site.yaml');
 
 const sectionSchema = z.object({
