@@ -1,0 +1,25 @@
+name: Request Preview deployment
+
+on:
+  push:
+    branches:
+      - preview
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  request:
+    name: Request Preview deployment
+    if: ${{ vars.PREVIEW_DEPLOYMENT_ENABLED == 'true' }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Notify the private deployment repository
+        env:
+          GH_TOKEN: ${{ secrets.PREVIEW_DISPATCH_TOKEN }}
+        run: |
+          gh api --method POST repos/GH-FRC/ghfrc-website-content/dispatches \
+            --field event_type=preview-website-updated
