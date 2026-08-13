@@ -1,4 +1,6 @@
 ---
+import NavigationList from './NavigationList.astro';
+
 interface NavigationItem {
   target: string;
   label: string;
@@ -30,6 +32,20 @@ const {
 
 <header class="site-header" data-site-header>
   <div class="site-header__inner">
+    <button
+      class="site-header__menu-toggle"
+      type="button"
+      aria-label={mainNavigationLabel}
+      aria-controls="compact-navigation"
+      aria-expanded="false"
+      data-menu-toggle
+    >
+      <span class="site-header__menu-icon" aria-hidden="true">
+        <span></span>
+        <span></span>
+      </span>
+    </button>
+
     <a
       class="site-header__brand"
       href="#page-top"
@@ -45,15 +61,7 @@ const {
     </a>
 
     <nav class="site-header__navigation" aria-label={mainNavigationLabel}>
-      <ul>
-        {
-          navigationItems.map((item) => (
-            <li>
-              <a href={`#${item.target}`} data-section-link>{item.label}</a>
-            </li>
-          ))
-        }
-      </ul>
+      <NavigationList navigationItems={navigationItems} />
     </nav>
 
     <div class="site-header__utility">
@@ -85,4 +93,14 @@ const {
       </button>
     </div>
   </div>
+
+  <nav
+    class="site-header__compact-navigation"
+    id="compact-navigation"
+    aria-label={mainNavigationLabel}
+    data-compact-menu
+    hidden
+  >
+    <NavigationList navigationItems={navigationItems} />
+  </nav>
 </header>
