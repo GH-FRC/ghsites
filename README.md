@@ -33,10 +33,9 @@ The local website is available at `http://localhost:4321` by default. The projec
 The build selects one complete content source in the following order:
 
 1. `GH_FRC_CONTENT_DIR`, when explicitly configured.
-2. A sibling folder named `ghfrc-website-content`, when present.
-3. The public example `content/` folder in this repository.
+2. The public example `content/` folder in this repository.
 
-This allows the public project to run independently while letting GHFRC use its private sibling content repository locally. The selected source must contain both `config/site.yaml` and the required media files; the build does not mix files from different content sources.
+This keeps public and preview builds on the replaceable example content by default, even when GHFRC's private content repository exists beside the project locally. Set `GH_FRC_CONTENT_DIR` explicitly when a trusted build needs the private content. The selected source must contain both `config/site.yaml` and the required media files; the build does not mix files from different content sources.
 
 ## Verification
 
@@ -85,10 +84,9 @@ npm run dev
 构建时按照以下顺序选择一套完整内容来源：
 
 1. 明确设置的 `GH_FRC_CONTENT_DIR`。
-2. 同级目录中的 `ghfrc-website-content` 文件夹。
-3. 本仓库中的公开示例 `content/` 文件夹。
+2. 本仓库中的公开示例 `content/` 文件夹。
 
-因此，公开项目可以独立运行，GHFRC 本地开发时也可以自动使用同级私有内容仓库。所选来源必须同时包含 `config/site.yaml` 和所需媒体文件，构建过程不会混用不同来源中的文件。
+这样，即使 GHFRC 私有内容仓库位于本项目旁边，公开构建和预览构建默认仍会使用可替换的示例内容。只有受信任的构建需要使用私有内容时，才明确设置 `GH_FRC_CONTENT_DIR`。所选来源必须同时包含 `config/site.yaml` 和所需媒体文件，构建过程不会混用不同来源中的文件。
 
 ## 验证
 
