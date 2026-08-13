@@ -16,6 +16,8 @@ The complete sanitized legacy framework and skin history is connected to the `pr
 
 The stable website is published at `https://ghfrc.pages.dev`. A trusted GitHub Actions workflow in the private content repository builds the public `stable` framework together with the private `stable` content, then uploads only the generated static output to Cloudflare Pages.
 
+Changes to `stable` must be introduced through a Pull Request. The `Stable pull request checks` workflow validates Astro content and code, runs the automated tests, builds the public example website, and rejects internal reference media before the Pull Request can be merged.
+
 ## Use as a Template
 
 1. Download or fork this repository.
@@ -67,6 +69,8 @@ GHFRC 官网是公开的网站代码库，也是可复用的网站模板。框�
 经过净化的旧框架与皮肤完整历史已经连接到 `preview` 分支，公开历史不包含 GHFRC 真实内容。将 `preview` 合并到 `stable` 时应使用普通 Merge commit；如需保留旧历史拓扑，不要使用 Squash and merge 或 Rebase and merge。
 
 稳定版官网发布于 `https://ghfrc.pages.dev`。私有内容仓库中的受信任 GitHub Actions 工作流会将公开 `stable` 框架与私有 `stable` 内容组合构建，然后仅将生成的静态产物上传至 Cloudflare Pages。
+
+对 `stable` 的改动必须通过 Pull Request 引入。`Stable pull request checks` 工作流会校验 Astro 内容与代码、运行自动化测试、构建公开示例官网，并拒绝内部参考媒体；检查通过后才能合并 Pull Request。
 
 ## 作为模板使用
 
