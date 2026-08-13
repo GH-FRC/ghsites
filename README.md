@@ -12,7 +12,9 @@ The repository contains only replaceable example content. GHFRC's real website c
 - `engineering-logs/`: project-wide same-day goals and completed work.
 - `docs/`: implementation specifications and cross-module documentation.
 
-The complete sanitized legacy framework and skin history is connected to the `Tony` branch. The public history excludes GHFRC's real content. Use a regular merge commit when merging `Tony` into `main`; do not squash or rebase if the legacy topology must remain visible.
+The complete sanitized legacy framework and skin history is connected to the `preview` branch. The public history excludes GHFRC's real content. Use a regular Merge commit when merging `preview` into `stable`; do not use Squash and merge or Rebase and merge if the legacy topology must remain visible.
+
+The stable website is published at `https://ghfrc.pages.dev`. A trusted GitHub Actions workflow in the private content repository builds the public `stable` framework together with the private `stable` content, then uploads only the generated static output to Cloudflare Pages.
 
 ## Use as a Template
 
@@ -62,7 +64,9 @@ GHFRC 官网是公开的网站代码库，也是可复用的网站模板。框�
 - `engineering-logs/`：项目所有模块当天的目标与实际完成工作。
 - `docs/`：实施规格和跨模块文档。
 
-经过净化的旧框架与皮肤完整历史已经连接到 `Tony` 分支，公开历史不包含 GHFRC 真实内容。将 `Tony` 合并到 `main` 时应使用普通 Merge commit；如需保留旧历史拓扑，不要使用 Squash 或 Rebase。
+经过净化的旧框架与皮肤完整历史已经连接到 `preview` 分支，公开历史不包含 GHFRC 真实内容。将 `preview` 合并到 `stable` 时应使用普通 Merge commit；如需保留旧历史拓扑，不要使用 Squash and merge 或 Rebase and merge。
+
+稳定版官网发布于 `https://ghfrc.pages.dev`。私有内容仓库中的受信任 GitHub Actions 工作流会将公开 `stable` 框架与私有 `stable` 内容组合构建，然后仅将生成的静态产物上传至 Cloudflare Pages。
 
 ## 作为模板使用
 
