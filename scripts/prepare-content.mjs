@@ -1,17 +1,13 @@
 import { createHash } from 'node:crypto';
-import { existsSync } from 'node:fs';
 import { access, copyFile, mkdir, readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { parse } from 'yaml';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const siblingPrivateContentRoot = resolve(projectRoot, '..', 'ghfrc-website-content');
 const contentRoot = process.env.GH_FRC_CONTENT_DIR
   ? resolve(projectRoot, process.env.GH_FRC_CONTENT_DIR)
-  : existsSync(join(siblingPrivateContentRoot, 'config', 'site.yaml'))
-    ? siblingPrivateContentRoot
-    : join(projectRoot, 'content');
+  : join(projectRoot, 'content');
 const sourceSiteConfig = join(contentRoot, 'config', 'site.yaml');
 
 await access(sourceSiteConfig).catch(() => {
