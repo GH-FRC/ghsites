@@ -1,16 +1,30 @@
 :root {
-  --color-background: #ffffff;
-  --color-surface: #f4f4f2;
-  --color-surface-strong: #e8e8e5;
-  --color-text: #111111;
-  --color-muted: #666666;
-  --color-border: #b9b9b5;
-  --color-border-strong: #111111;
+  --color-background: light-dark(#ffffff, #111111);
+  --color-surface: light-dark(#f4f4f2, #1b1b1a);
+  --color-surface-strong: light-dark(#e8e8e5, #242422);
+  --color-text: light-dark(#111111, #f5f5f3);
+  --color-muted: light-dark(#666666, #ababaa);
+  --color-border: light-dark(#b9b9b5, #555553);
+  --color-border-strong: light-dark(#111111, #d8d8d5);
+  --color-footer-background: light-dark(#111111, #f5f5f3);
+  --color-footer-text: light-dark(#ffffff, #111111);
+  --color-footer-muted: light-dark(#c8c8c8, #555553);
+  --color-logo-background: #ffffff;
+  --color-toggle-hover: light-dark(#e8e8e5, #2a2a28);
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --header-height: 78px;
   --page-max-width: 1440px;
   --page-padding: 48px;
   --desktop-min-width: 1180px;
+  color-scheme: light dark;
+}
+
+:root[data-color-scheme='dark'] {
+  color-scheme: dark;
+}
+
+:root[data-color-scheme='light'] {
+  color-scheme: light;
 }
 
 *,
@@ -69,7 +83,8 @@ img {
 
 .site-header__inner {
   display: grid;
-  grid-template-columns: 190px minmax(0, 1fr);
+  grid-template-columns: 190px minmax(0, 1fr) 44px;
+  column-gap: 18px;
   align-items: center;
   width: min(calc(100% - (var(--page-padding) * 2)), var(--page-max-width));
   height: 100%;
@@ -87,6 +102,7 @@ img {
   display: block;
   width: 174px;
   height: auto;
+  background: var(--color-logo-background);
 }
 
 .site-header__navigation {
@@ -132,6 +148,85 @@ img {
 .site-header__navigation a:focus-visible::after {
   transform: scaleX(1);
   transform-origin: left;
+}
+
+.site-header__utility {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.site-header__color-scheme-toggle {
+  position: relative;
+  display: grid;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--color-text);
+  cursor: pointer;
+  place-items: center;
+  transition:
+    background-color 160ms ease-out,
+    color 160ms ease-out;
+}
+
+.site-header__color-scheme-toggle:hover,
+.site-header__color-scheme-toggle:focus-visible {
+  background: var(--color-toggle-hover);
+}
+
+.site-header__color-scheme-toggle:active {
+  transform: scale(0.96);
+}
+
+.site-header__color-scheme-icon {
+  position: absolute;
+  width: 18px;
+  height: 18px;
+  fill: none;
+  stroke: currentColor;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-width: 1.6;
+  transition:
+    opacity 160ms ease-out,
+    transform 160ms ease-out;
+}
+
+.site-header__color-scheme-icon--sun {
+  opacity: 0;
+  transform: scale(0.72) rotate(-18deg);
+}
+
+.site-header__color-scheme-icon--moon {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-color-scheme]) .site-header__color-scheme-icon--sun {
+    opacity: 1;
+    transform: scale(1) rotate(0);
+  }
+
+  :root:not([data-color-scheme]) .site-header__color-scheme-icon--moon {
+    opacity: 0;
+    transform: scale(0.72) rotate(18deg);
+  }
+}
+
+:root[data-color-scheme='dark'] .site-header__color-scheme-icon--sun {
+  opacity: 1;
+  transform: scale(1) rotate(0);
+}
+
+:root[data-color-scheme='dark'] .site-header__color-scheme-icon--moon {
+  opacity: 0;
+  transform: scale(0.72) rotate(18deg);
 }
 
 .hero {
@@ -448,8 +543,8 @@ img {
 }
 
 .site-footer {
-  background: var(--color-text);
-  color: var(--color-background);
+  background: var(--color-footer-background);
+  color: var(--color-footer-text);
 }
 
 .site-footer__inner {
@@ -475,7 +570,7 @@ img {
 
 .site-footer__placeholder {
   justify-self: end;
-  color: #c8c8c8;
+  color: var(--color-footer-muted);
   font-size: 13px;
 }
 

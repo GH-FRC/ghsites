@@ -10,6 +10,8 @@ site:
   accessibility:
     mainNavigation: 主要导航
     returnToTop: 返回页面顶部
+    switchToDarkMode: 切换至深色模式
+    switchToLightMode: 切换至浅色模式
   navigation:
     about-frc: 关于 FRC
     about-xplore: 关于 X.PLORE

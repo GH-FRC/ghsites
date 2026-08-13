@@ -37,6 +37,8 @@ const site = defineCollection({
     accessibility: z.object({
       mainNavigation: z.string().min(1),
       returnToTop: z.string().min(1),
+      switchToDarkMode: z.string().min(1),
+      switchToLightMode: z.string().min(1),
     }),
     navigation: z.object({
       'about-frc': z.string().min(1),
