@@ -6,20 +6,39 @@ on:
       - preview
   workflow_dispatch:
 
+concurrency:
+  group: public-preview-deployment
+  cancel-in-progress: false
+
 permissions:
   contents: read
+  deployments: write
 
 jobs:
   request:
-    name: Request Preview deployment
+    name: Track private Preview deployment
     if: ${{ vars.PREVIEW_DEPLOYMENT_ENABLED == 'true' }}
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 40
 
     steps:
-      - name: Notify the private deployment repository
+      - name: Check out deployment tracker
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6
+        with:
+          persist-credentials: false
+
+      - name: Create public deployment and run private workflow
         env:
-          GH_TOKEN: ${{ secrets.PREVIEW_DISPATCH_TOKEN }}
-        run: |
-          gh api --method POST repos/GH-FRC/ghfrc-website-content/dispatches \
-            --field event_type=preview-website-updated
+          PUBLIC_GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PRIVATE_GITHUB_TOKEN: ${{ secrets.PRIVATE_DEPLOYMENT_TRIGGER_TOKEN }}
+          PUBLIC_REPOSITORY: ${{ github.repository }}
+          PUBLIC_SHA: ${{ github.sha }}
+          PUBLIC_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PRIVATE_REPOSITORY: GH-FRC/ghfrc-website-content
+          PRIVATE_WORKFLOW: deploy-preview.yml
+          PRIVATE_REF: preview
+          PRIVATE_RUN_NAME_PREFIX: Deploy Preview website for
+          ENVIRONMENT_NAME: preview
+          ENVIRONMENT_URL: https://preview.ghfrc.pages.dev
+          DEPLOYMENT_LABEL: Preview
+        run: .github/scripts/track-private-deployment.sh
