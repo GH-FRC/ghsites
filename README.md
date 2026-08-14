@@ -45,7 +45,7 @@ npm run check
 npm run build
 ```
 
-Pull Requests targeting `preview` must pass the `Preview pull request checks` workflow before merging. Direct pushes, force pushes, and branch deletion are blocked for `preview`, including for repository administrators. The prepared request workflow notifies the private content repository after an approved public `preview` update, but it remains disabled unless the repository variable `PREVIEW_DEPLOYMENT_ENABLED` is exactly `true`. When enabled later, it requires the repository Secret `PREVIEW_DISPATCH_TOKEN`, limited to triggering the private repository's dispatch endpoint. Cloudflare deployment remains disabled until the separate Cloudflare setup is completed.
+Pull Requests targeting `preview` must pass the `Preview pull request checks` workflow before merging. Direct pushes, force pushes, and branch deletion are blocked for `preview`, including for repository administrators. The request workflow notifies the private content repository after an approved public `preview` update and runs when the repository variable `PREVIEW_DEPLOYMENT_ENABLED` is exactly `true`. It requires the repository Secret `PRIVATE_DEPLOYMENT_TRIGGER_TOKEN`, limited to triggering and reading the private deployment workflow. The private workflow publishes the tested result to `https://preview.ghfrc.pages.dev`, while this public repository records the matching Preview Deployment status without receiving private content or Cloudflare credentials.
 
 ## License
 
@@ -98,7 +98,7 @@ npm run check
 npm run build
 ```
 
-以 `preview` 为目标分支的 Pull Request 必须通过 `Preview pull request checks` 工作流后才能合并。`preview` 禁止直接推送、强制推送和删除分支，并且仓库管理员同样不能绕过。已经准备的请求工作流会在获准合并的公开 `preview` 更新后通知私有内容仓库，但只有当仓库变量 `PREVIEW_DEPLOYMENT_ENABLED` 严格等于 `true` 时才会运行。之后启用时，它需要仓库 Secret `PREVIEW_DISPATCH_TOKEN`，并且该凭据应仅限触发私有仓库的 dispatch 接口。Cloudflare 部署暂时保持关闭，直到完成单独的 Cloudflare 配置。
+以 `preview` 为目标分支的 Pull Request 必须通过 `Preview pull request checks` 工作流后才能合并。`preview` 禁止直接推送、强制推送和删除分支，并且仓库管理员同样不能绕过。请求工作流会在获准合并的公开 `preview` 更新后通知私有内容仓库，并在仓库变量 `PREVIEW_DEPLOYMENT_ENABLED` 严格等于 `true` 时运行。该工作流需要仓库 Secret `PRIVATE_DEPLOYMENT_TRIGGER_TOKEN`，其权限仅限触发和读取私有部署工作流。私有工作流会将通过测试的结果发布至 `https://preview.ghfrc.pages.dev`，公开仓库则记录对应的 Preview Deployment 状态，但不会获得私有内容或 Cloudflare 凭据。
 
 ## 许可证
 
