@@ -33,6 +33,7 @@ jobs:
           PRIVATE_GITHUB_TOKEN: ${{ secrets.PRIVATE_DEPLOYMENT_TRIGGER_TOKEN }}
           PUBLIC_REPOSITORY: ${{ github.repository }}
           PUBLIC_SHA: ${{ github.sha }}
+          PUBLIC_RUN_ID: ${{ github.run_id }}
           PUBLIC_RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           PRIVATE_REPOSITORY: GH-FRC/ghfrc-website-content
           PRIVATE_WORKFLOW: deploy-preview.yml

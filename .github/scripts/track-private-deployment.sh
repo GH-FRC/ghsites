@@ -7,6 +7,7 @@ required_variables=(
   PRIVATE_GITHUB_TOKEN
   PUBLIC_REPOSITORY
   PUBLIC_SHA
+  PUBLIC_RUN_ID
   PUBLIC_RUN_URL
   PRIVATE_REPOSITORY
   PRIVATE_WORKFLOW
@@ -66,7 +67,7 @@ dispatched_at="$(date -u +'%Y-%m-%dT%H:%M:%SZ')"
 dispatch_payload="$({
   printf '{'
   printf '"ref":"%s",' "${PRIVATE_REF}"
-  printf '"inputs":{"public_sha":"%s"}' "${PUBLIC_SHA}"
+  printf '"inputs":{"public_sha":"%s","correlation_id":"%s"}' "${PUBLIC_SHA}" "${PUBLIC_RUN_ID}"
   printf '}'
 })"
 printf '%s' "${dispatch_payload}" | GH_TOKEN="${PRIVATE_GITHUB_TOKEN}" gh api \
@@ -75,7 +76,7 @@ printf '%s' "${dispatch_payload}" | GH_TOKEN="${PRIVATE_GITHUB_TOKEN}" gh api \
   --input - \
   --silent
 
-expected_private_run_name="${PRIVATE_RUN_NAME_PREFIX} ${PUBLIC_SHA}"
+expected_private_run_name="${PRIVATE_RUN_NAME_PREFIX} ${PUBLIC_SHA}-${PUBLIC_RUN_ID}"
 export EXPECTED_PRIVATE_RUN_NAME="${expected_private_run_name}"
 run_id=''
 for _ in {1..30}; do
