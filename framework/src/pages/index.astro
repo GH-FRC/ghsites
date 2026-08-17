@@ -6,6 +6,7 @@ import HeroSection from '../components/HeroSection.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { buildSiteNavigationItems, siteSectionPlan } from '../site-structure';
 
 const siteEntry = await getEntry('site', 'site');
 
@@ -15,21 +16,7 @@ if (!siteEntry) {
 
 const site = siteEntry.data;
 
-const sectionPlan = [
-  { id: 'about-frc', index: '02', variant: 'split' },
-  { id: 'about-xplore', index: '03', variant: 'split-reverse' },
-  { id: 'about-gh-frc', index: '04', variant: 'overview' },
-  { id: 'robots', index: '05', variant: 'feature' },
-  { id: 'achievements', index: '06', variant: 'grid' },
-  { id: 'news', index: '07', variant: 'news' },
-  { id: 'sponsors', index: '08', variant: 'sponsors' },
-  { id: 'contact', index: '09', variant: 'contact' },
-] as const;
-
-const navigationItems = sectionPlan.map(({ id }) => ({
-  href: id === 'about-frc' ? '/about-frc/' : `#${id}`,
-  label: site.navigation[id],
-}));
+const navigationItems = buildSiteNavigationItems(site.navigation, 'home');
 ---
 
 <BaseLayout title={site.title} description={site.description} language={site.language}>
@@ -50,7 +37,7 @@ const navigationItems = sectionPlan.map(({ id }) => ({
     />
 
     {
-      sectionPlan.map((section) => (
+      siteSectionPlan.map((section) => (
         <ContentSection
           id={section.id}
           index={section.index}

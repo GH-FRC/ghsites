@@ -1321,6 +1321,11 @@ video {
   background: #111111;
 }
 
+.about-frc-page__partner-grid li[data-surface='dark'] a,
+.about-frc-page__partner-grid li[data-surface='dark'] span {
+  color: #ffffff;
+}
+
 .about-frc-page__partner-grid a {
   display: grid;
   width: 100%;
@@ -1332,7 +1337,7 @@ video {
 
 .about-frc-page__partner-grid img {
   width: 100%;
-  max-width: 180px;
+  max-width: 220px;
   max-height: 72px;
   object-fit: contain;
 }
