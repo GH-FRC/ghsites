@@ -162,6 +162,20 @@ describe('site navigation', () => {
     expect(compactMenu.hidden).toBe(true);
   });
 
+  it('preserves native navigation when the logo points to the home page', () => {
+    const homeLink = document.querySelector<HTMLAnchorElement>('[data-home-link]')!;
+    const scrollTo = vi.fn();
+    homeLink.setAttribute('href', '/');
+    window.scrollTo = scrollTo;
+
+    interactionHandle = initializeSiteInteractions(document, window);
+    const clickEvent = new MouseEvent('click', { bubbles: true, cancelable: true });
+    homeLink.dispatchEvent(clickEvent);
+
+    expect(clickEvent.defaultPrevented).toBe(false);
+    expect(scrollTo).not.toHaveBeenCalled();
+  });
+
   it('hides the header while scrolling down and restores it while scrolling up', () => {
     const header = document.querySelector<HTMLElement>('[data-site-header]')!;
     Object.defineProperty(window, 'scrollY', { configurable: true, value: 160 });

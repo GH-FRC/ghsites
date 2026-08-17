@@ -108,6 +108,12 @@ export function initializeSiteInteractions(
 
   if (homeLink) {
     const handleHomeClick = (event: MouseEvent) => {
+      const href = homeLink.getAttribute('href');
+
+      if (!href?.startsWith('#')) {
+        return;
+      }
+
       event.preventDefault();
       closeCompactMenu();
       showHeader();

@@ -27,7 +27,7 @@ const sectionPlan = [
 ] as const;
 
 const navigationItems = sectionPlan.map(({ id }) => ({
-  target: id,
+  href: id === 'about-frc' ? '/about-frc/' : `#${id}`,
   label: site.navigation[id],
 }));
 ---
@@ -37,7 +37,7 @@ const navigationItems = sectionPlan.map(({ id }) => ({
     logo={site.logo}
     navigationItems={navigationItems}
     mainNavigationLabel={site.accessibility.mainNavigation}
-    returnToTopLabel={site.accessibility.returnToTop}
+    homeLinkLabel={site.accessibility.returnToTop}
     switchToDarkModeLabel={site.accessibility.switchToDarkMode}
     switchToLightModeLabel={site.accessibility.switchToLightMode}
   />
