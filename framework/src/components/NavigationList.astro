@@ -1,7 +1,8 @@
 ---
 interface NavigationItem {
-  target: string;
+  href: string;
   label: string;
+  isCurrent?: boolean;
 }
 
 interface Props {
@@ -15,7 +16,13 @@ const { navigationItems } = Astro.props;
   {
     navigationItems.map((item) => (
       <li>
-        <a href={`#${item.target}`} data-section-link>{item.label}</a>
+        <a
+          href={item.href}
+          aria-current={item.isCurrent ? 'page' : undefined}
+          data-section-link={item.href.startsWith('#') ? '' : undefined}
+        >
+          {item.label}
+        </a>
       </li>
     ))
   }

@@ -7,8 +7,9 @@
 当前实现包括：
 
 - Astro 静态单页。
+- 独立的 `/about-frc/` 介绍页面，以及从首页导航进入、从 Logo 返回首页的跨页面导航。
 - TypeScript 内容接口与交互脚本。
-- 从相邻 `content/` 模块读取 YAML 的 Astro Content Collection。
+- 从所选 `content/` 模块读取 `site.yaml` 与 `about-frc.yaml` 的 Astro Content Collection。
 - 使用 CSS Custom Properties 定义的基础黑白框架样式。
 - 导航定位、Logo 返回顶部和标题栏滚动行为测试。
 - 跟随系统设置并支持会话内手动切换的深色／浅色模式。
