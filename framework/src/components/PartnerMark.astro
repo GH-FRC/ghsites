@@ -1,0 +1,25 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+type Partner = CollectionEntry<'aboutFrc'>['data']['partners']['items'][number];
+
+interface Props {
+  partner: Partner;
+}
+
+const { partner } = Astro.props;
+---
+
+{
+  partner.logo ? (
+    <img
+      src={partner.logo.src}
+      alt={partner.logo.alt}
+      width={partner.logo.intrinsicWidth}
+      height={partner.logo.intrinsicHeight}
+      loading="lazy"
+    />
+  ) : (
+    <span>{partner.name}</span>
+  )
+}

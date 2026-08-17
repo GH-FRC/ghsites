@@ -1,6 +1,8 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 
+import PartnerMark from './PartnerMark.astro';
+
 interface Props {
   content: CollectionEntry<'aboutFrc'>['data'];
 }
@@ -9,7 +11,7 @@ const { content } = Astro.props;
 ---
 
 <main class="about-frc-page" id="page-top">
-  <nav class="about-frc-page__breadcrumb" aria-label="面包屑导航">
+  <nav class="about-frc-page__breadcrumb" aria-label={content.breadcrumb.ariaLabel}>
     <a href="/">{content.breadcrumb.homeLabel}</a>
     <span aria-hidden="true">/</span>
     <span aria-current="page">{content.breadcrumb.currentLabel}</span>
@@ -145,28 +147,10 @@ const { content } = Astro.props;
         <li data-surface={partner.surface ?? 'light'}>
           {partner.website ? (
             <a href={partner.website} target="_blank" rel="noreferrer">
-              {partner.logo ? (
-                <img
-                  src={partner.logo.src}
-                  alt={partner.logo.alt}
-                  width={partner.logo.intrinsicWidth}
-                  height={partner.logo.intrinsicHeight}
-                  loading="lazy"
-                />
-              ) : (
-                <span>{partner.name}</span>
-              )}
+              <PartnerMark partner={partner} />
             </a>
-          ) : partner.logo ? (
-            <img
-              src={partner.logo.src}
-              alt={partner.logo.alt}
-              width={partner.logo.intrinsicWidth}
-              height={partner.logo.intrinsicHeight}
-              loading="lazy"
-            />
           ) : (
-            <span>{partner.name}</span>
+            <PartnerMark partner={partner} />
           )}
         </li>
       ))}
@@ -176,7 +160,7 @@ const { content } = Astro.props;
 
   <section class="about-frc-page__section about-frc-page__section--sources" data-scroll-section>
     <div class="about-frc-page__section-heading">
-      <p class="about-frc-page__eyebrow">Sources</p>
+      <p class="about-frc-page__eyebrow">{content.sources.eyebrow}</p>
       <h2>{content.sources.heading}</h2>
       <p>{content.sources.introduction}</p>
     </div>

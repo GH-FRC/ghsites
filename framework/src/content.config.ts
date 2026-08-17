@@ -80,6 +80,7 @@ const aboutFrc = defineCollection({
       description: z.string().min(1),
     }),
     breadcrumb: z.object({
+      ariaLabel: z.string().min(1),
       homeLabel: z.string().min(1),
       currentLabel: z.string().min(1),
     }),
@@ -165,6 +166,7 @@ const aboutFrc = defineCollection({
       disclaimer: z.string().min(1),
     }),
     sources: z.object({
+      eyebrow: z.string().min(1),
       heading: z.string().min(1),
       introduction: z.string().min(1),
       reviewedOn: z.string().min(1),

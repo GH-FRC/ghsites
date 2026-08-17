@@ -5,6 +5,7 @@ import AboutFrcPage from '../components/AboutFrcPage.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { buildSiteNavigationItems } from '../site-structure';
 
 const [siteEntry, aboutFrcEntry] = await Promise.all([
   getEntry('site', 'site'),
@@ -17,21 +18,7 @@ if (!siteEntry || !aboutFrcEntry) {
 
 const site = siteEntry.data;
 const aboutFrc = aboutFrcEntry.data;
-const sectionIds = [
-  'about-frc',
-  'about-xplore',
-  'about-gh-frc',
-  'robots',
-  'achievements',
-  'news',
-  'sponsors',
-  'contact',
-] as const;
-const navigationItems = sectionIds.map((id) => ({
-  href: id === 'about-frc' ? '/about-frc/' : `/#${id}`,
-  label: site.navigation[id],
-  isCurrent: id === 'about-frc',
-}));
+const navigationItems = buildSiteNavigationItems(site.navigation, 'about-frc');
 ---
 
 <BaseLayout

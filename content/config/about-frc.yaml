@@ -3,6 +3,7 @@ aboutFrc:
     title: 关于 FRC | 示例队伍官网
     description: 面向首次了解 FRC 的访客所准备的示例介绍页面。
   breadcrumb:
+    ariaLabel: 面包屑导航
     homeLabel: 首页
     currentLabel: 关于 FRC
   hero:
@@ -98,6 +99,7 @@ aboutFrc:
       - name: 合作机构预留位 08
     disclaimer: 本区域仅用于展示示例结构，不代表这些预留位与示例队伍存在赞助关系。
   sources:
+    eyebrow: Sources
     heading: 资料来源
     introduction: 页面中的数据和机构信息应链接至拥有该事实的一手官方来源。
     reviewedOn: 资料核验日期预留位
