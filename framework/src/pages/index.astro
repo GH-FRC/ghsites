@@ -37,9 +37,9 @@ const site = siteEntry.data;
 
   <script>
     import { initializeOptionalAchievementSystem } from '../scripts/optional-achievements';
-    import { redirectLegacySection } from '../scripts/legacy-navigation';
+    import { initializeLegacySectionNavigation } from '../scripts/legacy-navigation';
 
-    if (!redirectLegacySection()) {
+    if (!initializeLegacySectionNavigation()) {
       void initializeOptionalAchievementSystem();
     }
   </script>

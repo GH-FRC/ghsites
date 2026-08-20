@@ -5,6 +5,10 @@ interface LegacyLocation {
   replace: (url: string) => void;
 }
 
+interface LegacyNavigationEventTarget {
+  addEventListener: (type: 'hashchange', listener: () => void) => void;
+}
+
 export function redirectLegacySection(
   locationRef: LegacyLocation = window.location,
 ): boolean {
@@ -16,4 +20,19 @@ export function redirectLegacySection(
 
   locationRef.replace(route);
   return true;
+}
+
+export function initializeLegacySectionNavigation(
+  locationRef: LegacyLocation = window.location,
+  eventTarget: LegacyNavigationEventTarget = window,
+): boolean {
+  const redirectedOnLoad = redirectLegacySection(locationRef);
+
+  if (!redirectedOnLoad) {
+    eventTarget.addEventListener('hashchange', () => {
+      redirectLegacySection(locationRef);
+    });
+  }
+
+  return redirectedOnLoad;
 }
