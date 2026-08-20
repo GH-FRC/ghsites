@@ -1,0 +1,252 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+import MediaFrame from './MediaFrame.astro';
+import PartnerMark from './PartnerMark.astro';
+
+interface Props {
+  page: CollectionEntry<'page'>['data'];
+  breadcrumbLabel: string;
+  homeLabel: string;
+  robots: Array<{
+    id: string;
+    data: Extract<CollectionEntry<'robot'>['data'], { entryType: 'robot' }>;
+  }>;
+  news: Array<{
+    id: string;
+    data: Extract<CollectionEntry<'news'>['data'], { entryType: 'news' }>;
+  }>;
+}
+
+const { page, breadcrumbLabel, homeLabel, robots, news } = Astro.props;
+const emptyState = page.emptyState;
+const detailLinkLabel = page.detailLinkLabel ?? page.home.linkLabel;
+---
+
+<main class:list={['site-page', `site-page--${page.layout}`]} id="main-content">
+  <nav class="site-page__breadcrumb" aria-label={breadcrumbLabel}>
+    <a href="/">{homeLabel}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{page.hero.title}</span>
+  </nav>
+
+  <header class="site-page__hero" id="page-top" data-scroll-section>
+    <div class="site-page__hero-copy">
+      <p class="page-eyebrow">{page.hero.eyebrow}</p>
+      <h1>{page.hero.title}</h1>
+      <p class="site-page__introduction">{page.hero.introduction}</p>
+    </div>
+
+    {
+      page.hero.mediaLabel && (
+        <div class="site-page__hero-media">
+          <MediaFrame media={page.hero.media} placeholderLabel={page.hero.mediaLabel} eager />
+        </div>
+      )
+    }
+
+    {
+      page.highlights && page.highlights.length > 0 && (
+        <dl class="site-page__highlights">
+          {page.highlights.map((highlight) => (
+            <div>
+              <dt>{highlight.value}</dt>
+              <dd>{highlight.label}</dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+  </header>
+
+  <section class="site-page__body" data-scroll-section>
+    <div class="site-page__prose">
+      <slot />
+    </div>
+  </section>
+
+  {
+    page.layout === 'robots' && (
+      <section class="poster-stack" aria-label={page.hero.title} data-scroll-section>
+        {robots.length > 0 ? (
+          robots.map((robot) => (
+            <article class="poster-card">
+              <div class="poster-card__media">
+                <MediaFrame media={robot.data.poster} placeholderLabel={robot.data.title} />
+              </div>
+              <div class="poster-card__copy">
+                <p class="page-eyebrow">{robot.data.season}</p>
+                <h2>{robot.data.title}</h2>
+                <p>{robot.data.summary}</p>
+                <a class="text-link" href={`/robots/${robot.id}/`}>
+                  <span>{detailLinkLabel}</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </article>
+          ))
+        ) : emptyState ? (
+          <article class="poster-card poster-card--empty">
+            <div class="poster-card__media">
+              <MediaFrame placeholderLabel={emptyState.eyebrow} />
+            </div>
+            <div class="poster-card__copy">
+              <p class="page-eyebrow">{emptyState.eyebrow}</p>
+              <h2>{emptyState.title}</h2>
+              <p>{emptyState.body}</p>
+            </div>
+          </article>
+        ) : null}
+      </section>
+    )
+  }
+
+  {
+    page.layout === 'competition-results' && (
+      <section class="season-showcase" aria-label={page.hero.title} data-scroll-section>
+        {page.seasons && page.seasons.length > 0 ? (
+          page.seasons.map((season) => (
+            <article class="season-poster">
+              <div class="season-poster__copy">
+                <p class="page-eyebrow">{season.season}</p>
+                <h2>{season.event}</h2>
+                <p>{season.summary}</p>
+                {season.awards.length > 0 && (
+                  <ul>
+                    {season.awards.map((award) => <li>{award}</li>)}
+                  </ul>
+                )}
+              </div>
+              <MediaFrame media={season.media} placeholderLabel={season.event} />
+            </article>
+          ))
+        ) : emptyState ? (
+          <div class="empty-state">
+            <p class="page-eyebrow">{emptyState.eyebrow}</p>
+            <h2>{emptyState.title}</h2>
+            <p>{emptyState.body}</p>
+          </div>
+        ) : null}
+      </section>
+    )
+  }
+
+  {
+    page.layout === 'news' && (
+      <section class="news-index" aria-label={page.hero.title} data-scroll-section>
+        {news.length > 0 ? (
+          <div class="news-index__grid">
+            {news.map((article) => (
+              <article class="news-card">
+                {article.data.cover && (
+                  <MediaFrame media={article.data.cover} placeholderLabel={article.data.title} />
+                )}
+                <div class="news-card__copy">
+                  <time datetime={article.data.publishedAt.toISOString()}>
+                    {article.data.publishedAt.toLocaleDateString('zh-CN')}
+                  </time>
+                  <h2>{article.data.title}</h2>
+                  <p>{article.data.summary}</p>
+                  <a class="text-link" href={`/news/${article.id}/`}>
+                    <span>{detailLinkLabel}</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : emptyState ? (
+          <div class="empty-state">
+            <p class="page-eyebrow">{emptyState.eyebrow}</p>
+            <h2>{emptyState.title}</h2>
+            <p>{emptyState.body}</p>
+          </div>
+        ) : null}
+      </section>
+    )
+  }
+
+  {
+    page.layout === 'contact' && (
+      <section class="contact-panel" aria-label={page.hero.title} data-scroll-section>
+        {page.contactMethods && page.contactMethods.length > 0 ? (
+          <dl>
+            {page.contactMethods.map((method) => (
+              <div>
+                <dt>{method.label}</dt>
+                <dd>
+                  {method.href ? <a href={method.href}>{method.value}</a> : method.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ) : emptyState ? (
+          <div class="empty-state">
+            <p class="page-eyebrow">{emptyState.eyebrow}</p>
+            <h2>{emptyState.title}</h2>
+            <p>{emptyState.body}</p>
+          </div>
+        ) : null}
+      </section>
+    )
+  }
+
+  {
+    page.layout === 'placeholder' && emptyState && (
+      <section class="placeholder-page" data-scroll-section>
+        <div class="empty-state">
+          <p class="page-eyebrow">{emptyState.eyebrow}</p>
+          <h2>{emptyState.title}</h2>
+          <p>{emptyState.body}</p>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    page.partners && (
+      <section class="site-page__support" data-scroll-section>
+        <header>
+          <p class="page-eyebrow">{page.partners.eyebrow}</p>
+          <h2>{page.partners.heading}</h2>
+          <p>{page.partners.introduction}</p>
+        </header>
+        <ul class="partner-grid" aria-label={page.partners.heading}>
+          {page.partners.items.map((partner) => (
+            <li data-surface={partner.surface ?? 'light'}>
+              {partner.website ? (
+                <a href={partner.website} target="_blank" rel="noreferrer">
+                  <PartnerMark partner={partner} />
+                </a>
+              ) : (
+                <PartnerMark partner={partner} />
+              )}
+            </li>
+          ))}
+        </ul>
+        <p class="site-page__note">{page.partners.disclaimer}</p>
+      </section>
+    )
+  }
+
+  {
+    page.sources && (
+      <section class="site-page__sources" data-scroll-section>
+        <header>
+          <p class="page-eyebrow">{page.sources.eyebrow}</p>
+          <h2>{page.sources.heading}</h2>
+          <p>{page.sources.introduction}</p>
+        </header>
+        <ol>
+          {page.sources.items.map((source) => (
+            <li>
+              <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a>
+              <span>{source.organization}</span>
+            </li>
+          ))}
+        </ol>
+        <p class="site-page__note">{page.sources.reviewedOn}</p>
+      </section>
+    )
+  }
+</main>

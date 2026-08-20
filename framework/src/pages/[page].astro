@@ -1,0 +1,77 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
+
+import SitePage from '../components/SitePage.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { sitePagePlan, type SitePageId } from '../site-structure';
+
+interface Props {
+  navigationId: SitePageId;
+  pageEntry: CollectionEntry<'page'>;
+}
+
+export async function getStaticPaths() {
+  const pageEntries = await getCollection('page');
+  const pageEntryById = new Map(pageEntries.map((entry) => [entry.id, entry]));
+
+  return sitePagePlan.map((plan) => {
+    const pageEntry = pageEntryById.get(plan.contentId);
+
+    if (!pageEntry || pageEntry.data.navigationId !== plan.id || pageEntry.data.order !== plan.order) {
+      throw new Error(`The ${plan.contentId} page content is missing or assigned to the wrong navigation item.`);
+    }
+
+    return {
+      params: { page: plan.contentId },
+      props: { navigationId: plan.id, pageEntry },
+    };
+  });
+}
+
+const { navigationId, pageEntry } = Astro.props;
+const [siteEntry, robotEntries, newsEntries] = await Promise.all([
+  getEntry('site', 'site'),
+  getCollection('robot'),
+  getCollection('news'),
+]);
+
+if (!siteEntry) {
+  throw new Error('The site content entry is missing.');
+}
+
+const robots = robotEntries
+  .flatMap((entry) => (
+    entry.data.entryType === 'robot' && entry.data.published
+      ? [{ id: entry.id, data: entry.data }]
+      : []
+  ))
+  .sort((a, b) => b.data.season.localeCompare(a.data.season, 'zh-CN'));
+const news = newsEntries
+  .flatMap((entry) => (
+    entry.data.entryType === 'news' && entry.data.published
+      ? [{ id: entry.id, data: entry.data }]
+      : []
+  ))
+  .sort((a, b) => b.data.publishedAt.getTime() - a.data.publishedAt.getTime());
+const { Content } = await render(pageEntry);
+const page = pageEntry.data;
+const site = siteEntry.data;
+---
+
+<SiteLayout
+  site={site}
+  currentPage={navigationId}
+  title={page.meta.title}
+  description={page.meta.description}
+>
+  <SitePage
+    page={page}
+    breadcrumbLabel={site.accessibility.breadcrumbNavigation}
+    homeLabel={site.accessibility.homeLabel}
+    robots={robots}
+    news={news}
+  >
+    <Content />
+  </SitePage>
+</SiteLayout>

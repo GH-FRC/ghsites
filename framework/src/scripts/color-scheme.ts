@@ -1,5 +1,3 @@
-export const COLOR_SCHEME_STORAGE_KEY = 'ghfrc-color-scheme';
-
 type ColorScheme = 'dark' | 'light';
 
 interface ColorSchemeControlHandle {
@@ -10,27 +8,9 @@ function isColorScheme(value: string | undefined): value is ColorScheme {
   return value === 'dark' || value === 'light';
 }
 
-export function createColorSchemeBootstrapScript(
-  storageKey = COLOR_SCHEME_STORAGE_KEY,
-): string {
-  const serializedStorageKey = JSON.stringify(storageKey);
-
+export function createColorSchemeBootstrapScript(): string {
   return `(function () {
-    try {
-      var storedColorScheme = window.sessionStorage.getItem(${serializedStorageKey});
-
-      if (storedColorScheme === 'dark' || storedColorScheme === 'light') {
-        document.documentElement.dataset.colorScheme = storedColorScheme;
-      } else {
-        delete document.documentElement.dataset.colorScheme;
-
-        if (storedColorScheme !== null) {
-          window.sessionStorage.removeItem(${serializedStorageKey});
-        }
-      }
-    } catch (error) {
-      delete document.documentElement.dataset.colorScheme;
-    }
+    delete document.documentElement.dataset.colorScheme;
   })();`;
 }
 
@@ -77,12 +57,6 @@ export function initializeColorSchemeControl(
   const handleToggle = () => {
     const nextColorScheme: ColorScheme = getActiveColorScheme() === 'dark' ? 'light' : 'dark';
     documentRef.documentElement.dataset.colorScheme = nextColorScheme;
-
-    try {
-      windowRef.sessionStorage.setItem(COLOR_SCHEME_STORAGE_KEY, nextColorScheme);
-    } catch {
-      // The selected mode still applies to the current document when storage is unavailable.
-    }
 
     updateToggle();
   };

@@ -1,8 +1,8 @@
 import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { defineCollection } from 'astro:content';
-import { file } from 'astro/loaders';
+import { file, glob } from 'astro/loaders';
 import { z } from 'astro/zod';
 
 const projectRoot = fileURLToPath(new URL('../../', import.meta.url));
@@ -10,13 +10,21 @@ const contentRoot = process.env.GH_FRC_CONTENT_DIR
   ? resolve(projectRoot, process.env.GH_FRC_CONTENT_DIR)
   : resolve(projectRoot, 'content');
 const siteContentFile = resolve(contentRoot, 'config', 'site.yaml');
-const aboutFrcContentFile = resolve(contentRoot, 'config', 'about-frc.yaml');
+const pagesContentDirectory = pathToFileURL(resolve(contentRoot, 'pages'));
+const robotsContentDirectory = pathToFileURL(resolve(contentRoot, 'robots'));
+const newsContentDirectory = pathToFileURL(resolve(contentRoot, 'news'));
 
-const sectionSchema = z.object({
-  heading: z.string().min(1),
-  bodyPlaceholder: z.string().min(1),
-  mediaPlaceholder: z.string().min(1).optional(),
-  itemPlaceholders: z.array(z.string().min(1)),
+const mediaSchema = z.object({
+  src: z.string().startsWith('/content/'),
+  alt: z.string().min(1),
+  intrinsicWidth: z.number().int().positive(),
+  intrinsicHeight: z.number().int().positive(),
+});
+
+const emptyStateSchema = z.object({
+  eyebrow: z.string().min(1),
+  title: z.string().min(1),
+  body: z.string().min(1),
 });
 
 const site = defineCollection({
@@ -26,13 +34,16 @@ const site = defineCollection({
     title: z.string().min(1),
     description: z.string().min(1),
     logo: z.object({
-      src: z.string().min(1),
-      alt: z.string().min(1),
-      intrinsicWidth: z.number().int().positive(),
-      intrinsicHeight: z.number().int().positive(),
+      src: mediaSchema.shape.src,
+      alt: mediaSchema.shape.alt,
+      intrinsicWidth: mediaSchema.shape.intrinsicWidth,
+      intrinsicHeight: mediaSchema.shape.intrinsicHeight,
     }),
     accessibility: z.object({
+      skipToContent: z.string().min(1),
       mainNavigation: z.string().min(1),
+      breadcrumbNavigation: z.string().min(1),
+      homeLabel: z.string().min(1),
       returnToTop: z.string().min(1),
       returnToHome: z.string().min(1),
       switchToDarkMode: z.string().min(1),
@@ -49,19 +60,11 @@ const site = defineCollection({
       contact: z.string().min(1),
     }),
     hero: z.object({
+      eyebrow: z.string().min(1),
       title: z.string().min(1),
-      introPlaceholder: z.string().min(1),
-      mediaPlaceholder: z.string().min(1),
-    }),
-    sections: z.object({
-      'about-frc': sectionSchema,
-      'about-xplore': sectionSchema,
-      'about-gh-frc': sectionSchema,
-      robots: sectionSchema,
-      achievements: sectionSchema,
-      news: sectionSchema,
-      sponsors: sectionSchema,
-      contact: sectionSchema,
+      introduction: z.string().min(1),
+      mediaLabel: z.string().min(1),
+      media: mediaSchema.optional(),
     }),
     footer: z.object({
       title: z.string().min(1),
@@ -70,84 +73,67 @@ const site = defineCollection({
   }),
 });
 
-const paragraphListSchema = z.array(z.string().min(1)).min(1);
-
-const aboutFrc = defineCollection({
-  loader: file(aboutFrcContentFile),
+const page = defineCollection({
+  loader: glob({
+    base: pagesContentDirectory,
+    pattern: '*.md',
+  }),
   schema: z.object({
+    navigationId: z.enum([
+      'about-frc',
+      'about-xplore',
+      'about-gh-frc',
+      'robots',
+      'achievements',
+      'news',
+      'sponsors',
+      'contact',
+    ]),
+    order: z.number().int().min(1).max(8),
+    layout: z.enum([
+      'editorial',
+      'robots',
+      'competition-results',
+      'news',
+      'placeholder',
+      'contact',
+    ]),
     meta: z.object({
       title: z.string().min(1),
       description: z.string().min(1),
-    }),
-    breadcrumb: z.object({
-      ariaLabel: z.string().min(1),
-      homeLabel: z.string().min(1),
-      currentLabel: z.string().min(1),
     }),
     hero: z.object({
       eyebrow: z.string().min(1),
       title: z.string().min(1),
       introduction: z.string().min(1),
-      highlights: z.array(z.object({
-        value: z.string().min(1),
-        label: z.string().min(1),
-      })).min(1),
+      mediaLabel: z.string().min(1).optional(),
+      media: mediaSchema.optional(),
     }),
-    overview: z.object({
-      eyebrow: z.string().min(1),
-      heading: z.string().min(1),
-      paragraphs: paragraphListSchema,
+    home: z.object({
+      title: z.string().min(1),
+      summary: z.string().min(1),
+      linkLabel: z.string().min(1),
+      mediaLabel: z.string().min(1),
+      media: mediaSchema.optional(),
     }),
-    competition: z.object({
-      eyebrow: z.string().min(1),
-      heading: z.string().min(1),
-      introduction: z.string().min(1),
-      stages: z.array(z.object({
-        index: z.string().min(1),
-        heading: z.string().min(1),
-        body: z.string().min(1),
-      })).min(1),
-    }),
-    impact: z.object({
-      eyebrow: z.string().min(1),
-      heading: z.string().min(1),
-      paragraphs: paragraphListSchema,
-      statistics: z.array(z.object({
-        value: z.string().min(1),
-        label: z.string().min(1),
-        context: z.string().min(1),
-      })).min(1),
-    }),
-    development: z.object({
-      eyebrow: z.string().min(1),
-      heading: z.string().min(1),
-      introduction: z.string().min(1),
-      items: z.array(z.object({
-        heading: z.string().min(1),
-        body: z.string().min(1),
-      })).min(1),
-    }),
-    higherEducation: z.object({
-      eyebrow: z.string().min(1),
-      heading: z.string().min(1),
-      introduction: z.string().min(1),
-      cases: z.array(z.object({
-        year: z.string().min(1),
-        heading: z.string().min(1),
-        body: z.string().min(1),
-      })).min(1),
-      disclaimer: z.string().min(1),
-    }),
-    scholarships: z.object({
-      eyebrow: z.string().min(1),
-      heading: z.string().min(1),
-      paragraphs: paragraphListSchema,
-      highlight: z.object({
-        value: z.string().min(1),
-        label: z.string().min(1),
-        note: z.string().min(1),
-      }),
-    }),
+    highlights: z.array(z.object({
+      value: z.string().min(1),
+      label: z.string().min(1),
+    })).optional(),
+    emptyState: emptyStateSchema.optional(),
+    detailLinkLabel: z.string().min(1).optional(),
+    seasons: z.array(z.object({
+      season: z.string().min(1),
+      event: z.string().min(1),
+      summary: z.string().min(1),
+      awards: z.array(z.string().min(1)),
+      media: mediaSchema.optional(),
+    })).optional(),
+    contactMethods: z.array(z.object({
+      label: z.string().min(1),
+      value: z.string().min(1),
+      href: z.string().min(1).optional(),
+    })).optional(),
     partners: z.object({
       eyebrow: z.string().min(1),
       heading: z.string().min(1),
@@ -156,15 +142,10 @@ const aboutFrc = defineCollection({
         name: z.string().min(1),
         website: z.url().optional(),
         surface: z.enum(['light', 'dark']).optional(),
-        logo: z.object({
-          src: z.string().startsWith('/content/'),
-          alt: z.string().min(1),
-          intrinsicWidth: z.number().int().positive(),
-          intrinsicHeight: z.number().int().positive(),
-        }).optional(),
+        logo: mediaSchema.optional(),
       })).min(1),
       disclaimer: z.string().min(1),
-    }),
+    }).optional(),
     sources: z.object({
       eyebrow: z.string().min(1),
       heading: z.string().min(1),
@@ -175,8 +156,50 @@ const aboutFrc = defineCollection({
         organization: z.string().min(1),
         url: z.url(),
       })).min(1),
-    }),
+    }).optional(),
   }),
 });
 
-export const collections = { aboutFrc, site };
+const robot = defineCollection({
+  loader: glob({
+    base: robotsContentDirectory,
+    pattern: '*.md',
+  }),
+  schema: z.discriminatedUnion('entryType', [
+    z.object({
+      entryType: z.literal('guide'),
+    }),
+    z.object({
+      entryType: z.literal('robot'),
+      title: z.string().min(1),
+      season: z.string().min(1),
+      summary: z.string().min(1),
+      description: z.string().min(1),
+      poster: mediaSchema,
+      published: z.boolean().default(true),
+    }),
+  ]),
+});
+
+const news = defineCollection({
+  loader: glob({
+    base: newsContentDirectory,
+    pattern: '*.md',
+  }),
+  schema: z.discriminatedUnion('entryType', [
+    z.object({
+      entryType: z.literal('guide'),
+    }),
+    z.object({
+      entryType: z.literal('news'),
+      title: z.string().min(1),
+      summary: z.string().min(1),
+      description: z.string().min(1),
+      publishedAt: z.coerce.date(),
+      cover: mediaSchema.optional(),
+      published: z.boolean().default(true),
+    }),
+  ]),
+});
+
+export const collections = { news, page, robot, site };

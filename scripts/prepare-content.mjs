@@ -1,71 +1,45 @@
 import { createHash } from 'node:crypto';
-import { access, copyFile, mkdir, readFile, rm } from 'node:fs/promises';
-import { dirname, isAbsolute, join, normalize, resolve, sep } from 'node:path';
+import { copyFile, mkdir, readFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { parse } from 'yaml';
+
+import {
+  assertPathHasNoSymbolicLinks,
+  collectReferencedMediaPaths,
+  discoverContentSourceFiles,
+  resetPreparedContentState,
+} from './prepare-content-lib.mjs';
 
 const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const contentRoot = process.env.GH_FRC_CONTENT_DIR
   ? resolve(projectRoot, process.env.GH_FRC_CONTENT_DIR)
   : join(projectRoot, 'content');
-const sourceSiteConfig = join(contentRoot, 'config', 'site.yaml');
-const sourceAboutFrcConfig = join(contentRoot, 'config', 'about-frc.yaml');
-
-await Promise.all([
-  access(sourceSiteConfig).catch(() => {
-    throw new Error(`Content preparation failed: missing site config at ${sourceSiteConfig}`);
-  }),
-  access(sourceAboutFrcConfig).catch(() => {
-    throw new Error(`Content preparation failed: missing About FRC config at ${sourceAboutFrcConfig}`);
-  }),
-]);
-
-const siteConfig = parse(await readFile(sourceSiteConfig, 'utf8'));
-const aboutFrcConfig = parse(await readFile(sourceAboutFrcConfig, 'utf8'));
-const logoPublicPath = siteConfig?.site?.logo?.src;
-const partnerLogoPublicPaths = aboutFrcConfig?.aboutFrc?.partners?.items
-  ?.flatMap((item) => item?.logo?.src ?? []) ?? [];
-
-if (typeof logoPublicPath !== 'string') {
-  throw new Error('Content preparation failed: site.logo.src must be a string.');
-}
-
 const stagingContentRoot = join(projectRoot, 'framework', 'public', 'content');
-
-function toSafeMediaPath(publicPath) {
-  if (typeof publicPath !== 'string' || !publicPath.startsWith('/content/')) {
-    throw new Error('Content preparation failed: media paths must start with /content/.');
-  }
-
-  const relativePath = normalize(publicPath.slice('/content/'.length));
-
-  if (
-    relativePath === ''
-    || relativePath === '.'
-    || relativePath === '..'
-    || relativePath.startsWith(`..${sep}`)
-    || isAbsolute(relativePath)
-  ) {
-    throw new Error(`Content preparation failed: unsafe media path ${publicPath}`);
-  }
-
-  return relativePath;
-}
+const contentDataStore = join(projectRoot, 'framework', 'node_modules', '.astro', 'data-store.json');
+const sourceMediaRoot = join(contentRoot, 'media');
 
 async function sha256(filePath) {
   const file = await readFile(filePath);
   return createHash('sha256').update(file).digest('hex');
 }
 
-const mediaPaths = [...new Set([logoPublicPath, ...partnerLogoPublicPaths].map(toSafeMediaPath))];
+await resetPreparedContentState({ stagingContentRoot, contentDataStore });
 
-await rm(stagingContentRoot, { force: true, recursive: true });
+const sourceFiles = await discoverContentSourceFiles(contentRoot);
+const sourceTexts = await Promise.all(
+  sourceFiles.map((sourceFile) => readFile(sourceFile, 'utf8')),
+);
+const mediaPaths = collectReferencedMediaPaths(sourceTexts);
 
 for (const mediaPath of mediaPaths) {
-  const sourceMedia = join(contentRoot, 'media', mediaPath);
+  const sourceMedia = join(sourceMediaRoot, mediaPath);
   const stagedMedia = join(stagingContentRoot, mediaPath);
 
-  await access(sourceMedia).catch(() => {
+  await assertPathHasNoSymbolicLinks(sourceMediaRoot, sourceMedia).catch((error) => {
+    if (error?.code !== 'ENOENT') {
+      throw error;
+    }
+
     throw new Error(`Content preparation failed: missing media at ${sourceMedia}`);
   });
 
