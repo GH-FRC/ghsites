@@ -1,12 +1,6 @@
 ---
 import PlaceholderBlock from './PlaceholderBlock.astro';
-
-interface MediaReference {
-  src: string;
-  alt: string;
-  intrinsicWidth: number;
-  intrinsicHeight: number;
-}
+import { isVideoMedia, type MediaReference } from '../media-reference';
 
 interface Props {
   media?: MediaReference;
@@ -20,14 +14,38 @@ const { media, placeholderLabel, eager = false } = Astro.props;
 {
   media ? (
     <figure class="media-frame">
-      <img
-        src={media.src}
-        alt={media.alt}
-        width={media.intrinsicWidth}
-        height={media.intrinsicHeight}
-        loading={eager ? 'eager' : 'lazy'}
-        decoding="async"
-      />
+      {isVideoMedia(media) ? (
+        <video
+          src={media.src}
+          poster={media.poster}
+          width={media.intrinsicWidth}
+          height={media.intrinsicHeight}
+          preload={eager ? 'metadata' : 'none'}
+          aria-label={media.alt}
+          controls
+          playsinline
+        >
+          {media.captions?.map((caption) => (
+            <track
+              kind="captions"
+              src={caption.src}
+              srclang={caption.srclang}
+              label={caption.label}
+              default={caption.default}
+            />
+          ))}
+          {media.alt}
+        </video>
+      ) : (
+        <img
+          src={media.src}
+          alt={media.alt}
+          width={media.intrinsicWidth}
+          height={media.intrinsicHeight}
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      )}
     </figure>
   ) : (
     <PlaceholderBlock label={placeholderLabel} kind="media" />

@@ -13,7 +13,8 @@ Each document requires these frontmatter fields:
 - `season`: the real competition season.
 - `summary`: short copy for the large poster.
 - `description`: the detail page's metadata description.
-- `poster`: a `/content/` image path, alternative text, and intrinsic pixel dimensions.
+- `poster`: a `/content/` media path, accessible description, and intrinsic pixel dimensions.
+- `poster.type`: omit it or use `image` for an image; use `video` for a video with controls, and add optional poster and WebVTT caption fields.
 - `published`: whether the entry should appear on the public website.
 
 Write the full robot story in the Markdown body. Do not create fictional robots to fill an empty page; the framework displays the configured empty state when this folder contains no published entries.
@@ -29,7 +30,8 @@ Write the full robot story in the Markdown body. Do not create fictional robots 
 - `season`：真实参赛赛季。
 - `summary`：用于大型海报的简短介绍。
 - `description`：详情页的元数据描述。
-- `poster`：以 `/content/` 开头的图片路径、替代文字和图片原始像素尺寸。
+- `poster`：以 `/content/` 开头的媒体路径、可访问描述和媒体原始像素尺寸。
+- `poster.type`：图片可省略或填写 `image`；带播放控件的视频填写 `video`，并可补充封面与 WebVTT 字幕字段。
 - `published`：是否在公开网站上显示该条目。
 
 请在 Markdown 正文中填写完整的机器人介绍。不要为了填满空白页面而虚构机器人；当本文件夹中没有已发布条目时，框架会显示已配置的空状态。
