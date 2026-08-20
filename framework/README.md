@@ -6,15 +6,15 @@
 
 当前实现包括：
 
-- Astro 静态单页。
+- 以长首页为主体的 Astro 静态网站。
+- 独立的 `/about-frc/` 介绍页面，以及从首页导航进入、从 Logo 返回首页的跨页面导航。
 - TypeScript 内容接口与交互脚本。
-- 从相邻 `content/` 模块读取 YAML 的 Astro Content Collection。
+- 从所选 `content/` 模块读取 `site.yaml` 与 `about-frc.yaml` 的 Astro Content Collection。
 - 使用 CSS Custom Properties 定义的基础黑白框架样式。
 - 导航定位、Logo 返回顶部和标题栏滚动行为测试。
 - 跟随系统设置并支持会话内手动切换的深色／浅色模式。
 - 根据可用宽度在横向导航和紧凑下拉导航之间切换的响应式布局。
-- 手机、iPad 与桌面宽度下的单页内容重排、媒体约束和触控目标。
-- 导航定位、Logo 返回顶部、紧凑菜单和标题栏滚动行为测试。
+- 手机、iPad 与桌面宽度下的首页和独立页面内容重排、媒体约束和触控目标。
 - 通过页面区域标记和可选 loader 接入独立的 `achievements/` 模块；完整移除该模块不会阻止框架构建。
 
 请从总项目目录运行开发、测试、检查和构建命令，以确保内容暂存步骤同时执行。

@@ -2,8 +2,9 @@
 import NavigationList from './NavigationList.astro';
 
 interface NavigationItem {
-  target: string;
+  href: string;
   label: string;
+  isCurrent?: boolean;
 }
 
 interface Props {
@@ -15,18 +16,20 @@ interface Props {
   };
   navigationItems: NavigationItem[];
   mainNavigationLabel: string;
-  returnToTopLabel: string;
+  homeLinkLabel: string;
   switchToDarkModeLabel: string;
   switchToLightModeLabel: string;
+  homeHref?: string;
 }
 
 const {
   logo,
   navigationItems,
   mainNavigationLabel,
-  returnToTopLabel,
+  homeLinkLabel,
   switchToDarkModeLabel,
   switchToLightModeLabel,
+  homeHref = '#page-top',
 } = Astro.props;
 ---
 
@@ -48,8 +51,8 @@ const {
 
     <a
       class="site-header__brand"
-      href="#page-top"
-      aria-label={returnToTopLabel}
+      href={homeHref}
+      aria-label={homeLinkLabel}
       data-home-link
     >
       <img

@@ -10,6 +10,7 @@ site:
   accessibility:
     mainNavigation: 主要导航
     returnToTop: 返回页面顶部
+    returnToHome: 返回首页
     switchToDarkMode: 切换至深色模式
     switchToLightMode: 切换至浅色模式
   navigation:
