@@ -15,7 +15,9 @@
     "build": "npm run prepare:content && npm --workspace @gh-frc/framework run build",
     "check": "npm run prepare:content && npm run check --workspaces --if-present",
     "preview": "npm run prepare:content && npm --workspace @gh-frc/framework run preview",
-    "test": "npm run test --workspaces --if-present"
+    "test:content": "node --test scripts/prepare-content.test.mjs",
+    "test:dist": "node scripts/verify-build.mjs",
+    "test": "npm run test:content && npm run test --workspaces --if-present"
   },
   "dependencies": {
     "yaml": "2.9.0"

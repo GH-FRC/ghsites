@@ -1,0 +1,43 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+import SiteFooter from '../components/SiteFooter.astro';
+import SiteHeader from '../components/SiteHeader.astro';
+import { buildSiteNavigationItems, type SiteNavigationContext } from '../site-structure';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  site: CollectionEntry<'site'>['data'];
+  currentPage: SiteNavigationContext;
+  title: string;
+  description: string;
+}
+
+const { site, currentPage, title, description } = Astro.props;
+const navigationItems = buildSiteNavigationItems(site.navigation, currentPage);
+const isHome = currentPage === 'home';
+---
+
+<BaseLayout title={title} description={description} language={site.language}>
+  <a class="skip-link" href="#main-content">{site.accessibility.skipToContent}</a>
+
+  <SiteHeader
+    logo={site.logo}
+    navigationItems={navigationItems}
+    mainNavigationLabel={site.accessibility.mainNavigation}
+    homeLinkLabel={isHome ? site.accessibility.returnToTop : site.accessibility.returnToHome}
+    switchToDarkModeLabel={site.accessibility.switchToDarkMode}
+    switchToLightModeLabel={site.accessibility.switchToLightMode}
+    homeHref={isHome ? '#page-top' : '/'}
+  />
+
+  <slot />
+
+  <SiteFooter title={site.footer.title} placeholder={site.footer.placeholder} />
+
+  <script>
+    import { initializeSiteInteractions } from '../scripts/site-interactions';
+
+    initializeSiteInteractions();
+  </script>
+</BaseLayout>

@@ -1,0 +1,66 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+import type { SitePageId } from '../site-structure';
+import MediaFrame from './MediaFrame.astro';
+
+interface HomePageItem {
+  id: SitePageId;
+  href: string;
+  page: CollectionEntry<'page'>['data'];
+}
+
+interface Props {
+  hero: CollectionEntry<'site'>['data']['hero'];
+  pages: HomePageItem[];
+}
+
+const { hero, pages } = Astro.props;
+---
+
+<main class="home-page" id="main-content">
+  <section class="home-hero" id="page-top" data-scroll-section>
+    <div class="home-hero__inner">
+      <div class="home-hero__copy">
+        <p class="page-eyebrow">{hero.eyebrow}</p>
+        <h1>{hero.title}</h1>
+        <p>{hero.introduction}</p>
+      </div>
+      <div class="home-hero__media">
+        <MediaFrame
+          media={hero.media}
+          placeholderLabel={hero.mediaLabel}
+          eager
+        />
+      </div>
+    </div>
+  </section>
+
+  {
+    pages.map(({ id, href, page }, index) => (
+      <section
+        class:list={['home-showcase', index % 2 === 1 && 'home-showcase--reverse']}
+        id={id}
+        data-achievement-section={id}
+        data-scroll-section
+      >
+        <div class="home-showcase__inner">
+          <div class="home-showcase__copy">
+            <span class="home-showcase__index" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <h2>{page.home.title}</h2>
+            <p>{page.home.summary}</p>
+            <a class="text-link" href={href}>
+              <span>{page.home.linkLabel}</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+          <a class="home-showcase__media-link" href={href} aria-label={page.home.title}>
+            <MediaFrame media={page.home.media} placeholderLabel={page.home.mediaLabel} />
+          </a>
+        </div>
+      </section>
+    ))
+  }
+</main>

@@ -1,60 +1,46 @@
 ---
-import { getEntry } from 'astro:content';
+import { getCollection, getEntry } from 'astro:content';
 
-import ContentSection from '../components/ContentSection.astro';
-import HeroSection from '../components/HeroSection.astro';
-import SiteFooter from '../components/SiteFooter.astro';
-import SiteHeader from '../components/SiteHeader.astro';
-import BaseLayout from '../layouts/BaseLayout.astro';
-import { buildSiteNavigationItems, siteSectionPlan } from '../site-structure';
+import HomePage from '../components/HomePage.astro';
+import SiteLayout from '../layouts/SiteLayout.astro';
+import { sitePagePlan } from '../site-structure';
 
-const siteEntry = await getEntry('site', 'site');
+const [siteEntry, pageEntries] = await Promise.all([
+  getEntry('site', 'site'),
+  getCollection('page'),
+]);
 
 if (!siteEntry) {
   throw new Error('The site content entry is missing.');
 }
 
-const site = siteEntry.data;
+const pageEntryById = new Map(pageEntries.map((entry) => [entry.id, entry]));
+const pages = sitePagePlan.map((plan) => {
+  const entry = pageEntryById.get(plan.contentId);
 
-const navigationItems = buildSiteNavigationItems(site.navigation, 'home');
+  if (!entry || entry.data.navigationId !== plan.id || entry.data.order !== plan.order) {
+    throw new Error(`The ${plan.contentId} page content is missing or assigned to the wrong navigation item.`);
+  }
+
+  return { id: plan.id, href: plan.href, page: entry.data };
+});
+const site = siteEntry.data;
 ---
 
-<BaseLayout title={site.title} description={site.description} language={site.language}>
-  <SiteHeader
-    logo={site.logo}
-    navigationItems={navigationItems}
-    mainNavigationLabel={site.accessibility.mainNavigation}
-    homeLinkLabel={site.accessibility.returnToTop}
-    switchToDarkModeLabel={site.accessibility.switchToDarkMode}
-    switchToLightModeLabel={site.accessibility.switchToLightMode}
-  />
-
-  <main>
-    <HeroSection
-      title={site.hero.title}
-      introPlaceholder={site.hero.introPlaceholder}
-      mediaPlaceholder={site.hero.mediaPlaceholder}
-    />
-
-    {
-      siteSectionPlan.map((section) => (
-        <ContentSection
-          id={section.id}
-          index={section.index}
-          variant={section.variant}
-          content={site.sections[section.id]}
-        />
-      ))
-    }
-  </main>
-
-  <SiteFooter title={site.footer.title} placeholder={site.footer.placeholder} />
+<SiteLayout
+  site={site}
+  currentPage="home"
+  title={site.title}
+  description={site.description}
+>
+  <HomePage hero={site.hero} pages={pages} />
 
   <script>
     import { initializeOptionalAchievementSystem } from '../scripts/optional-achievements';
-    import { initializeSiteInteractions } from '../scripts/site-interactions';
+    import { initializeLegacySectionNavigation } from '../scripts/legacy-navigation';
 
-    void initializeOptionalAchievementSystem();
-    initializeSiteInteractions();
+    if (!initializeLegacySectionNavigation()) {
+      void initializeOptionalAchievementSystem();
+    }
   </script>
-</BaseLayout>
+</SiteLayout>
