@@ -89,7 +89,7 @@ video {
 
 .site-header__inner {
   display: grid;
-  grid-template-columns: 190px minmax(0, 1fr) 44px;
+  grid-template-columns: 190px minmax(0, 1fr) 92px;
   column-gap: 18px;
   align-items: center;
   width: min(calc(100% - (var(--page-padding) * 2)), var(--page-max-width));
@@ -164,9 +164,34 @@ video {
 
 .site-header__utility {
   display: flex;
+  gap: 4px;
   align-items: center;
   justify-content: flex-end;
   height: 100%;
+}
+
+.language-switcher {
+  display: flex;
+  align-items: center;
+}
+
+.language-switcher a {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  color: var(--color-text);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-decoration: none;
+  place-items: center;
+  transition: background-color 160ms ease-out;
+}
+
+.language-switcher a:hover,
+.language-switcher a:focus-visible {
+  background: var(--color-toggle-hover);
 }
 
 .site-header__color-scheme-toggle {
@@ -369,6 +394,30 @@ video {
   background: var(--color-border);
   content: '';
   transform-origin: center;
+}
+
+.localized-media {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+}
+
+.localized-media--video {
+  margin: 0;
+}
+
+.localized-media--video video {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.localized-media--video figcaption {
+  margin-top: 12px;
+  color: var(--color-muted);
+  font-size: 12px;
+  line-height: 1.5;
 }
 
 .placeholder__cross::before {
@@ -592,7 +641,7 @@ video {
   }
 
   .site-header__inner {
-    grid-template-columns: 166px minmax(0, 1fr) 44px;
+    grid-template-columns: 166px minmax(0, 1fr) 92px;
   }
 
   .site-header__brand,
@@ -629,7 +678,7 @@ video {
   }
 
   .site-header__inner {
-    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    grid-template-columns: 44px minmax(0, 1fr) 92px;
     column-gap: 8px;
   }
 
@@ -682,7 +731,7 @@ video {
   }
 
   .site-header__brand {
-    width: min(174px, calc(100vw - 104px));
+    width: min(174px, calc(100vw - 152px));
     justify-self: end;
   }
 

@@ -2,25 +2,70 @@
 import '../styles/global.css';
 
 import { COLOR_SCHEME_BOOTSTRAP_SCRIPT } from '../scripts/color-scheme';
+import { createLocaleVisitScript } from '../scripts/language-preference';
+import {
+  htmlLanguageForLocale,
+  SUPPORTED_LOCALES,
+  type Locale,
+} from '../i18n/locales';
 
 interface Props {
   title: string;
   description: string;
-  language: string;
+  locale: Locale;
+  pagePath?: string;
+  noIndex?: boolean;
+  achievementUnlockedMessage?: string;
+  achievementUnlockedLanguage?: string;
+  titleLanguage?: string;
+  descriptionLanguage?: string;
 }
 
-const { title, description, language } = Astro.props;
+const {
+  title,
+  description,
+  locale,
+  pagePath = '',
+  noIndex = false,
+  achievementUnlockedMessage,
+  achievementUnlockedLanguage,
+  titleLanguage,
+  descriptionLanguage,
+} = Astro.props;
+const htmlLanguage = htmlLanguageForLocale(locale);
+const normalizedPagePath = pagePath ? `${pagePath.replace(/^\/+|\/+$/g, '')}/` : '';
+const canonicalUrl = new URL(`/${locale}/${normalizedPagePath}`, Astro.site ?? Astro.url);
+const languageAlternates = SUPPORTED_LOCALES.map((alternateLocale) => ({
+  href: new URL(`/${alternateLocale}/${normalizedPagePath}`, Astro.site ?? Astro.url),
+  htmlLanguage: htmlLanguageForLocale(alternateLocale),
+}));
+const automaticUrl = new URL(`/${normalizedPagePath}`, Astro.site ?? Astro.url);
+const shouldPreventIndexing = noIndex || import.meta.env.SITE_NOINDEX === 'true';
+const languagePreferenceScript = createLocaleVisitScript(locale);
 ---
 
 <!doctype html>
-<html lang={language}>
+<html
+  lang={htmlLanguage}
+  data-achievement-unlocked-message={achievementUnlockedMessage}
+  data-achievement-unlocked-language={achievementUnlockedLanguage}
+>
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="description" content={description} />
+    <meta name="description" content={description} lang={descriptionLanguage} />
+    {shouldPreventIndexing && <meta name="robots" content="noindex, follow" />}
     <meta name="color-scheme" content="light dark" />
+    <link rel="canonical" href={canonicalUrl} />
+    {
+      languageAlternates.map((alternate) => (
+        <link rel="alternate" hreflang={alternate.htmlLanguage} href={alternate.href} />
+      ))
+    }
+    <link rel="alternate" hreflang="x-default" href={automaticUrl} />
     <script is:inline set:html={COLOR_SCHEME_BOOTSTRAP_SCRIPT}></script>
-    <title>{title}</title>
+    <script is:inline set:html={languagePreferenceScript}></script>
+    <title lang={titleLanguage}>{title}</title>
   </head>
   <body>
     <slot />
@@ -28,6 +73,11 @@ const { title, description, language } = Astro.props;
       import { initializeColorSchemeControl } from '../scripts/color-scheme';
 
       initializeColorSchemeControl(document, window);
+    </script>
+    <script>
+      import { initializeLanguageSwitchLinks } from '../scripts/language-preference';
+
+      initializeLanguageSwitchLinks();
     </script>
   </body>
 </html>

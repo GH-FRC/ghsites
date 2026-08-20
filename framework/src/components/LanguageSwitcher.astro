@@ -1,0 +1,36 @@
+---
+import type { HtmlLanguage, Locale } from '../i18n/locales';
+
+interface Props {
+  href: string;
+  navigationLabel: string;
+  navigationLanguage?: string;
+  targetHtmlLanguage: HtmlLanguage;
+  targetLocale: Locale;
+  targetLanguageName: string;
+  targetShortLabel: string;
+}
+
+const {
+  href,
+  navigationLabel,
+  navigationLanguage,
+  targetHtmlLanguage,
+  targetLocale,
+  targetLanguageName,
+  targetShortLabel,
+} = Astro.props;
+---
+
+<nav class="language-switcher" aria-label={navigationLabel} lang={navigationLanguage}>
+  <a
+    href={href}
+    hreflang={targetHtmlLanguage}
+    lang={targetHtmlLanguage}
+    aria-label={targetLanguageName}
+    data-language-switch
+    data-language-locale={targetLocale}
+  >
+    {targetShortLabel}
+  </a>
+</nav>

@@ -1,5 +1,8 @@
 interface AchievementModule {
-  initializeAchievementSystem: () => unknown;
+  initializeAchievementSystem: (options?: {
+    notificationLanguage?: string;
+    notificationText?: string;
+  }) => unknown;
 }
 
 export type AchievementModuleLoaders = Record<
@@ -13,6 +16,7 @@ const achievementModuleLoaders = import.meta.glob<AchievementModule>(
 
 export async function initializeOptionalAchievementSystem(
   loaders: AchievementModuleLoaders = achievementModuleLoaders,
+  options: { notificationLanguage?: string; notificationText?: string } = {},
 ): Promise<boolean> {
   const loadModule = Object.values(loaders)[0];
 
@@ -22,7 +26,7 @@ export async function initializeOptionalAchievementSystem(
 
   try {
     const achievementModule = await loadModule();
-    achievementModule.initializeAchievementSystem();
+    achievementModule.initializeAchievementSystem(options);
     return true;
   } catch {
     return false;

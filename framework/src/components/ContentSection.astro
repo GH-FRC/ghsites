@@ -1,5 +1,7 @@
 ---
 import PlaceholderBlock from './PlaceholderBlock.astro';
+import LocalizedMedia from './LocalizedMedia.astro';
+import type { LocalizedMedia as LocalizedMediaContent } from '../content-schema';
 
 type SectionVariant =
   | 'split'
@@ -15,7 +17,11 @@ interface SectionContent {
   heading: string;
   bodyPlaceholder: string;
   mediaPlaceholder?: string;
-  itemPlaceholders: string[];
+  media?: LocalizedMediaContent;
+  itemPlaceholders: Array<{
+    id: string;
+    text: string;
+  }>;
 }
 
 interface Props {
@@ -23,9 +29,22 @@ interface Props {
   index: string;
   variant: SectionVariant;
   content: SectionContent;
+  placeholderKindLabels: Record<PlaceholderKind, string>;
+  fallbackPaths?: ReadonlySet<string>;
 }
 
-const { id, index, variant, content } = Astro.props;
+type PlaceholderKind = 'text' | 'media' | 'item' | 'news' | 'sponsor' | 'contact';
+
+const {
+  id,
+  index,
+  variant,
+  content,
+  placeholderKindLabels,
+  fallbackPaths = new Set<string>(),
+} = Astro.props;
+const sectionPath = `sections.${id}`;
+const languageFor = (path: string) => fallbackPaths.has(path) ? 'zh-CN' : undefined;
 
 const itemKind = variant === 'news'
   ? 'news'
@@ -46,27 +65,53 @@ const itemKind = variant === 'news'
   <div class="content-section__inner">
     <header class="content-section__header">
       <span>{index}</span>
-      <h2 id={`${id}-title`}>{content.heading}</h2>
+      <h2 id={`${id}-title`} lang={languageFor(`${sectionPath}.heading`)}>{content.heading}</h2>
     </header>
 
     <div class="content-section__body">
       <div class="content-section__introduction">
-        <PlaceholderBlock label={content.bodyPlaceholder} kind="text" />
+        <PlaceholderBlock
+          label={content.bodyPlaceholder}
+          kind="text"
+          kindLabel={placeholderKindLabels.text}
+          kindLabelLanguage={languageFor('placeholderKinds.text')}
+          labelLanguage={languageFor(`${sectionPath}.bodyPlaceholder`)}
+        />
       </div>
 
       {
-        content.mediaPlaceholder && (
+        content.media ? (
           <div class="content-section__media">
-            <PlaceholderBlock label={content.mediaPlaceholder} kind="media" />
+            <LocalizedMedia
+              media={content.media}
+              path={`${sectionPath}.media`}
+              fallbackPaths={fallbackPaths}
+            />
           </div>
-        )
+        ) : content.mediaPlaceholder ? (
+          <div class="content-section__media">
+            <PlaceholderBlock
+              label={content.mediaPlaceholder}
+              kind="media"
+              kindLabel={placeholderKindLabels.media}
+              kindLabelLanguage={languageFor('placeholderKinds.media')}
+              labelLanguage={languageFor(`${sectionPath}.mediaPlaceholder`)}
+            />
+          </div>
+        ) : null
       }
 
       {
         content.itemPlaceholders.length > 0 && (
           <div class="content-section__items">
-            {content.itemPlaceholders.map((label) => (
-              <PlaceholderBlock label={label} kind={itemKind} />
+            {content.itemPlaceholders.map((item) => (
+              <PlaceholderBlock
+                label={item.text}
+                kind={itemKind}
+                kindLabel={placeholderKindLabels[itemKind]}
+                kindLabelLanguage={languageFor(`placeholderKinds.${itemKind}`)}
+                labelLanguage={languageFor(`${sectionPath}.itemPlaceholders[id=${item.id}].text`)}
+              />
             ))}
           </div>
         )

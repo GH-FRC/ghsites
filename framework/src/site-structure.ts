@@ -11,19 +11,22 @@ export const siteSectionPlan = [
 
 type SiteSectionId = (typeof siteSectionPlan)[number]['id'];
 type SiteNavigationContext = 'home' | 'about-frc';
-
 export function buildSiteNavigationItems(
   labels: Record<SiteSectionId, string>,
   context: SiteNavigationContext,
+  locale: Locale,
 ) {
+  const localizedHomePath = `/${locale}/`;
+
   return siteSectionPlan.map(({ id }) => ({
     href:
       id === 'about-frc'
-        ? '/about-frc/'
+        ? `${localizedHomePath}about-frc/`
         : context === 'home'
           ? `#${id}`
-          : `/#${id}`,
+          : `${localizedHomePath}#${id}`,
     label: labels[id],
     isCurrent: context === 'about-frc' && id === 'about-frc',
   }));
 }
+import type { Locale } from './i18n/locales';

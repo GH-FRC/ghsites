@@ -36,6 +36,8 @@ interface AchievementNotificationQueueOptions {
   presentationCoordinator: AchievementPresentationCoordinator;
   soundPlayer: AchievementSoundPlayer;
   timings?: AchievementNotificationTimings;
+  notificationLanguage: string;
+  notificationText: string;
   window: Window & typeof globalThis;
 }
 
@@ -47,6 +49,8 @@ export interface AchievementNotificationQueue {
 function createToast(
   documentRef: Document,
   achievementId: AchievementId,
+  notificationLanguage: string,
+  notificationText: string,
   timings: AchievementNotificationTimings,
 ): HTMLElement {
   const toast = documentRef.createElement('div');
@@ -66,7 +70,8 @@ function createToast(
 
   const copy = documentRef.createElement('span');
   copy.className = 'ghfrc-achievement-toast__copy';
-  copy.textContent = '成就已解锁';
+  copy.lang = notificationLanguage;
+  copy.textContent = notificationText;
 
   toast.append(icon, copy);
   return toast;
@@ -79,6 +84,8 @@ export function createAchievementNotificationQueue({
   presentationCoordinator,
   soundPlayer,
   timings = DEFAULT_NOTIFICATION_TIMINGS,
+  notificationLanguage,
+  notificationText,
   window: windowRef,
 }: AchievementNotificationQueueOptions): AchievementNotificationQueue {
   const queuedAchievementIds: AchievementId[] = [];
@@ -135,7 +142,13 @@ export function createAchievementNotificationQueue({
           return;
         }
 
-        const toast = createToast(documentRef, achievementId, timings);
+        const toast = createToast(
+          documentRef,
+          achievementId,
+          notificationLanguage,
+          notificationText,
+          timings,
+        );
         documentRef.body.append(toast);
         // Commit the off-screen state before starting the paired sound and reveal.
         toast.getBoundingClientRect();

@@ -21,6 +21,8 @@ export interface AchievementSystemHandle {
 
 export interface AchievementSystemOptions {
   document?: Document;
+  notificationLanguage?: string;
+  notificationText?: string;
   presentationCoordinator?: AchievementPresentationCoordinator;
   soundPlayer?: AchievementSoundPlayer;
   storage?: Storage | null;
@@ -97,6 +99,8 @@ function createAchievementSession(options: AchievementSystemOptions): Achievemen
       return progress.presentedAchievementIds.has(achievementId);
     },
     onPresented: savePresentedAchievement,
+    notificationLanguage: options.notificationLanguage ?? 'zh-CN',
+    notificationText: options.notificationText ?? '成就已解锁',
     presentationCoordinator,
     soundPlayer,
     timings: options.timings,

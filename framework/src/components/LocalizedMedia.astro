@@ -1,0 +1,50 @@
+---
+import type { LocalizedMedia } from '../content-schema';
+
+interface Props {
+  fallbackPaths?: ReadonlySet<string>;
+  media: LocalizedMedia;
+  path: string;
+}
+
+const { fallbackPaths = new Set<string>(), media, path } = Astro.props;
+const languageFor = (fieldPath: string) => fallbackPaths.has(fieldPath)
+  ? 'zh-CN'
+  : undefined;
+---
+
+{
+  media.type === 'image' ? (
+    <img
+      class="localized-media"
+      src={media.src}
+      alt={media.alt}
+      width={media.intrinsicWidth}
+      height={media.intrinsicHeight}
+      lang={languageFor(`${path}.alt`)}
+      loading="lazy"
+    />
+  ) : (
+    <figure class="localized-media localized-media--video">
+      <video
+        src={media.src}
+        poster={media.poster?.src}
+        aria-label={media.title}
+        lang={languageFor(`${path}.title`)}
+        controls
+        preload="metadata"
+      >
+        {media.tracks?.map((track) => (
+          <track
+            src={track.src}
+            kind={track.kind}
+            srclang={track.srclang}
+            label={track.label}
+            lang={languageFor(`${path}.tracks[id=${track.id}].label`)}
+          />
+        ))}
+      </video>
+      <figcaption lang={languageFor(`${path}.title`)}>{media.title}</figcaption>
+    </figure>
+  )
+}

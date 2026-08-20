@@ -2,14 +2,16 @@
 interface Props {
   title: string;
   placeholder: string;
+  titleLanguage?: string;
+  placeholderLanguage?: string;
 }
 
-const { title, placeholder } = Astro.props;
+const { title, placeholder, titleLanguage, placeholderLanguage } = Astro.props;
 ---
 
 <footer class="site-footer">
   <div class="site-footer__inner">
-    <p class="site-footer__title">{title}</p>
-    <p class="site-footer__placeholder">{placeholder}</p>
+    <p class="site-footer__title" lang={titleLanguage}>{title}</p>
+    <p class="site-footer__placeholder" lang={placeholderLanguage}>{placeholder}</p>
   </div>
 </footer>

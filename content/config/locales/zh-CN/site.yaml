@@ -13,6 +13,24 @@ site:
     returnToHome: 返回首页
     switchToDarkMode: 切换至深色模式
     switchToLightMode: 切换至浅色模式
+    languageNavigation: 语言选择
+  languageSwitcher:
+    currentLanguage: 当前语言
+    options:
+      zh-cn: 简体中文
+      en: English
+    shortOptions:
+      zh-cn: 中
+      en: EN
+  placeholderKinds:
+    text: 文字区域
+    media: 图片或视频区域
+    item: 信息区域
+    news: 新闻内容区域
+    sponsor: 赞助商标志区域
+    contact: 官方联系信息区域
+  achievementMessages:
+    unlocked: 成就已解锁
   navigation:
     about-frc: 关于 FRC
     about-xplore: 关于 X.PLORE
@@ -42,47 +60,67 @@ site:
       bodyPlaceholder: GHFRC 队伍介绍文字预留区
       mediaPlaceholder: GHFRC 队伍媒体预留区
       itemPlaceholders:
-        - 队伍人数预留区
-        - 队伍公开概况预留区
-        - 队伍相关信息预留区
+        - id: team-size
+          text: 队伍人数预留区
+        - id: public-overview
+          text: 队伍公开概况预留区
+        - id: team-information
+          text: 队伍相关信息预留区
     robots:
       heading: 机器人
       bodyPlaceholder: 机器人介绍文字预留区
       mediaPlaceholder: 机器人图片或视频预留区
       itemPlaceholders:
-        - 机器人赛季信息预留区
-        - 机器人技术简介预留区
+        - id: season
+          text: 机器人赛季信息预留区
+        - id: technical-overview
+          text: 机器人技术简介预留区
     achievements:
       heading: 赛事成果
       bodyPlaceholder: 赛事成果介绍文字预留区
       itemPlaceholders:
-        - 参赛记录预留区
-        - 奖项与排名预留区
-        - 比赛回顾预留区
+        - id: competition-records
+          text: 参赛记录预留区
+        - id: awards-and-rankings
+          text: 奖项与排名预留区
+        - id: event-recaps
+          text: 比赛回顾预留区
     news:
       heading: 新闻动态
       bodyPlaceholder: 新闻动态介绍文字预留区
       itemPlaceholders:
-        - 新闻条目预留区 01
-        - 新闻条目预留区 02
-        - 新闻条目预留区 03
+        - id: news-01
+          text: 新闻条目预留区 01
+        - id: news-02
+          text: 新闻条目预留区 02
+        - id: news-03
+          text: 新闻条目预留区 03
     sponsors:
       heading: 赞助商
       bodyPlaceholder: 赞助商介绍文字预留区
       itemPlaceholders:
-        - 赞助商标志预留区 01
-        - 赞助商标志预留区 02
-        - 赞助商标志预留区 03
-        - 赞助商标志预留区 04
-        - 赞助商标志预留区 05
-        - 赞助商标志预留区 06
+        - id: sponsor-01
+          text: 赞助商标志预留区 01
+        - id: sponsor-02
+          text: 赞助商标志预留区 02
+        - id: sponsor-03
+          text: 赞助商标志预留区 03
+        - id: sponsor-04
+          text: 赞助商标志预留区 04
+        - id: sponsor-05
+          text: 赞助商标志预留区 05
+        - id: sponsor-06
+          text: 赞助商标志预留区 06
     contact:
       heading: 联系我们
       bodyPlaceholder: 联系说明文字预留区
       itemPlaceholders:
-        - 队伍邮箱预留区
-        - 微信号预留区
-        - 其他官方联系方式预留区
+        - id: email
+          text: 队伍邮箱预留区
+        - id: wechat
+          text: 微信号预留区
+        - id: other-official-contact
+          text: 其他官方联系方式预留区
   footer:
     title: GHFRC
     placeholder: 页脚信息预留区

@@ -1,0 +1,20 @@
+site:
+  accessibility:
+    languageNavigation: Language selection
+  languageSwitcher:
+    currentLanguage: Current language
+    options:
+      zh-cn: 简体中文
+      en: English
+    shortOptions:
+      zh-cn: 中
+      en: EN
+  placeholderKinds:
+    text: Text area
+    media: Image or video area
+    item: Information area
+    news: News area
+    sponsor: Sponsor Logo area
+    contact: Official contact information area
+  achievementMessages:
+    unlocked: Achievement unlocked

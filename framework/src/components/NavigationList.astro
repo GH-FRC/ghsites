@@ -3,6 +3,7 @@ interface NavigationItem {
   href: string;
   label: string;
   isCurrent?: boolean;
+  language?: string;
 }
 
 interface Props {
@@ -19,6 +20,7 @@ const { navigationItems } = Astro.props;
         <a
           href={item.href}
           aria-current={item.isCurrent ? 'page' : undefined}
+          lang={item.language}
           data-section-link={item.href.startsWith('#') ? '' : undefined}
         >
           {item.label}

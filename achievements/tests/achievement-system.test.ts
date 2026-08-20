@@ -124,6 +124,27 @@ describe('achievement system', () => {
     expect(message?.textContent?.trim()).toBe('成就已解锁');
   });
 
+  it('uses the localized notification supplied by the website', async () => {
+    const preparedSound = createPreparedSound();
+
+    achievementHandle = initializeAchievementSystem({
+      document,
+      notificationLanguage: 'en',
+      notificationText: 'Achievement unlocked',
+      soundPlayer: createTestSoundPlayer(vi.fn().mockResolvedValue(preparedSound)),
+      window,
+    });
+
+    await vi.waitFor(() => expect(preparedSound.start).toHaveBeenCalledOnce());
+
+    expect(document.querySelector('.ghfrc-achievement-toast__copy')?.textContent?.trim()).toBe(
+      'Achievement unlocked',
+    );
+    expect(document.querySelector('.ghfrc-achievement-toast__copy')?.getAttribute('lang')).toBe(
+      'en',
+    );
+  });
+
   it('keeps a blocked notification hidden until an eligible interaction starts its sound', async () => {
     const start = vi.fn();
     const prepare = vi

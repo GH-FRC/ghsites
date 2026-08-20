@@ -11,9 +11,10 @@
   ],
   "scripts": {
     "prepare:content": "node scripts/prepare-content.mjs",
-    "dev": "npm run prepare:content && npm --workspace @gh-frc/framework run dev",
-    "build": "npm run prepare:content && npm --workspace @gh-frc/framework run build",
-    "check": "npm run prepare:content && npm run check --workspaces --if-present",
+    "dev": "npm run prepare:content && npm run check:translations && npm --workspace @gh-frc/framework run dev",
+    "check:translations": "node scripts/check-translations.mjs",
+    "build": "npm run prepare:content && npm run check:translations && npm --workspace @gh-frc/framework run build",
+    "check": "npm run prepare:content && npm run check:translations && npm run check --workspaces --if-present",
     "preview": "npm run prepare:content && npm --workspace @gh-frc/framework run preview",
     "test": "npm run test --workspaces --if-present"
   },

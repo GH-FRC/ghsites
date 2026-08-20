@@ -1,33 +1,46 @@
 ---
-import type { CollectionEntry } from 'astro:content';
+import type { AboutFrcContent } from '../content-schema';
 
 import PartnerMark from './PartnerMark.astro';
 
 interface Props {
-  content: CollectionEntry<'aboutFrc'>['data'];
+  content: AboutFrcContent;
+  homeHref: string;
+  fallbackPaths?: ReadonlySet<string>;
 }
 
-const { content } = Astro.props;
+const { content, homeHref, fallbackPaths = new Set<string>() } = Astro.props;
+const languageFor = (path: string) => fallbackPaths.has(path) ? 'zh-CN' : undefined;
 ---
 
 <main class="about-frc-page" id="page-top">
-  <nav class="about-frc-page__breadcrumb" aria-label={content.breadcrumb.ariaLabel}>
-    <a href="/">{content.breadcrumb.homeLabel}</a>
+  <nav
+    class="about-frc-page__breadcrumb"
+    aria-label={content.breadcrumb.ariaLabel}
+    lang={languageFor('breadcrumb.ariaLabel')}
+  >
+    <a href={homeHref} lang={languageFor('breadcrumb.homeLabel')}>{content.breadcrumb.homeLabel}</a>
     <span aria-hidden="true">/</span>
-    <span aria-current="page">{content.breadcrumb.currentLabel}</span>
+    <span aria-current="page" lang={languageFor('breadcrumb.currentLabel')}>
+      {content.breadcrumb.currentLabel}
+    </span>
   </nav>
 
   <header class="about-frc-hero" data-scroll-section>
     <div class="about-frc-hero__copy">
-      <p class="about-frc-page__eyebrow">{content.hero.eyebrow}</p>
-      <h1>{content.hero.title}</h1>
-      <p class="about-frc-hero__introduction">{content.hero.introduction}</p>
+      <p class="about-frc-page__eyebrow" lang={languageFor('hero.eyebrow')}>
+        {content.hero.eyebrow}
+      </p>
+      <h1 lang={languageFor('hero.title')}>{content.hero.title}</h1>
+      <p class="about-frc-hero__introduction" lang={languageFor('hero.introduction')}>
+        {content.hero.introduction}
+      </p>
     </div>
     <dl class="about-frc-hero__highlights">
       {content.hero.highlights.map((highlight) => (
         <div>
-          <dt>{highlight.value}</dt>
-          <dd>{highlight.label}</dd>
+          <dt lang={languageFor(`hero.highlights[id=${highlight.id}].value`)}>{highlight.value}</dt>
+          <dd lang={languageFor(`hero.highlights[id=${highlight.id}].label`)}>{highlight.label}</dd>
         </div>
       ))}
     </dl>
@@ -35,26 +48,32 @@ const { content } = Astro.props;
 
   <section class="about-frc-page__section about-frc-page__section--overview" data-scroll-section>
     <div class="about-frc-page__section-heading">
-      <p class="about-frc-page__eyebrow">{content.overview.eyebrow}</p>
-      <h2>{content.overview.heading}</h2>
+      <p class="about-frc-page__eyebrow" lang={languageFor('overview.eyebrow')}>
+        {content.overview.eyebrow}
+      </p>
+      <h2 lang={languageFor('overview.heading')}>{content.overview.heading}</h2>
     </div>
     <div class="about-frc-page__prose about-frc-page__prose--large">
-      {content.overview.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      {content.overview.paragraphs.map((paragraph) => (
+        <p lang={languageFor(`overview.paragraphs[id=${paragraph.id}].text`)}>{paragraph.text}</p>
+      ))}
     </div>
   </section>
 
   <section class="about-frc-page__section" data-scroll-section>
     <div class="about-frc-page__section-heading">
-      <p class="about-frc-page__eyebrow">{content.competition.eyebrow}</p>
-      <h2>{content.competition.heading}</h2>
-      <p>{content.competition.introduction}</p>
+      <p class="about-frc-page__eyebrow" lang={languageFor('competition.eyebrow')}>
+        {content.competition.eyebrow}
+      </p>
+      <h2 lang={languageFor('competition.heading')}>{content.competition.heading}</h2>
+      <p lang={languageFor('competition.introduction')}>{content.competition.introduction}</p>
     </div>
     <ol class="about-frc-page__stage-list">
       {content.competition.stages.map((stage) => (
         <li>
           <span>{stage.index}</span>
-          <h3>{stage.heading}</h3>
-          <p>{stage.body}</p>
+          <h3 lang={languageFor(`competition.stages[id=${stage.id}].heading`)}>{stage.heading}</h3>
+          <p lang={languageFor(`competition.stages[id=${stage.id}].body`)}>{stage.body}</p>
         </li>
       ))}
     </ol>
@@ -62,19 +81,23 @@ const { content } = Astro.props;
 
   <section class="about-frc-page__section about-frc-page__section--impact" data-scroll-section>
     <div class="about-frc-page__section-heading">
-      <p class="about-frc-page__eyebrow">{content.impact.eyebrow}</p>
-      <h2>{content.impact.heading}</h2>
+      <p class="about-frc-page__eyebrow" lang={languageFor('impact.eyebrow')}>
+        {content.impact.eyebrow}
+      </p>
+      <h2 lang={languageFor('impact.heading')}>{content.impact.heading}</h2>
     </div>
     <div class="about-frc-page__prose">
-      {content.impact.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+      {content.impact.paragraphs.map((paragraph) => (
+        <p lang={languageFor(`impact.paragraphs[id=${paragraph.id}].text`)}>{paragraph.text}</p>
+      ))}
     </div>
     <dl class="about-frc-page__statistics">
       {content.impact.statistics.map((statistic) => (
         <div>
-          <dt>{statistic.value}</dt>
+          <dt lang={languageFor(`impact.statistics[id=${statistic.id}].value`)}>{statistic.value}</dt>
           <dd>
-            <strong>{statistic.label}</strong>
-            <span>{statistic.context}</span>
+            <strong lang={languageFor(`impact.statistics[id=${statistic.id}].label`)}>{statistic.label}</strong>
+            <span lang={languageFor(`impact.statistics[id=${statistic.id}].context`)}>{statistic.context}</span>
           </dd>
         </div>
       ))}
@@ -83,15 +106,17 @@ const { content } = Astro.props;
 
   <section class="about-frc-page__section" data-scroll-section>
     <div class="about-frc-page__section-heading">
-      <p class="about-frc-page__eyebrow">{content.development.eyebrow}</p>
-      <h2>{content.development.heading}</h2>
-      <p>{content.development.introduction}</p>
+      <p class="about-frc-page__eyebrow" lang={languageFor('development.eyebrow')}>
+        {content.development.eyebrow}
+      </p>
+      <h2 lang={languageFor('development.heading')}>{content.development.heading}</h2>
+      <p lang={languageFor('development.introduction')}>{content.development.introduction}</p>
     </div>
     <div class="about-frc-page__card-grid">
       {content.development.items.map((item) => (
         <article>
-          <h3>{item.heading}</h3>
-          <p>{item.body}</p>
+          <h3 lang={languageFor(`development.items[id=${item.id}].heading`)}>{item.heading}</h3>
+          <p lang={languageFor(`development.items[id=${item.id}].body`)}>{item.body}</p>
         </article>
       ))}
     </div>
@@ -99,79 +124,124 @@ const { content } = Astro.props;
 
   <section class="about-frc-page__section" data-scroll-section>
     <div class="about-frc-page__section-heading">
-      <p class="about-frc-page__eyebrow">{content.higherEducation.eyebrow}</p>
-      <h2>{content.higherEducation.heading}</h2>
-      <p>{content.higherEducation.introduction}</p>
+      <p class="about-frc-page__eyebrow" lang={languageFor('higherEducation.eyebrow')}>
+        {content.higherEducation.eyebrow}
+      </p>
+      <h2 lang={languageFor('higherEducation.heading')}>{content.higherEducation.heading}</h2>
+      <p lang={languageFor('higherEducation.introduction')}>
+        {content.higherEducation.introduction}
+      </p>
     </div>
     <div>
       <ol class="about-frc-page__case-list">
         {content.higherEducation.cases.map((item) => (
           <li>
-            <span>{item.year}</span>
+            <span lang={languageFor(`higherEducation.cases[id=${item.id}].year`)}>{item.year}</span>
             <div>
-              <h3>{item.heading}</h3>
-              <p>{item.body}</p>
+              <h3 lang={languageFor(`higherEducation.cases[id=${item.id}].heading`)}>{item.heading}</h3>
+              <p lang={languageFor(`higherEducation.cases[id=${item.id}].body`)}>{item.body}</p>
             </div>
           </li>
         ))}
       </ol>
-      <p class="about-frc-page__disclaimer">{content.higherEducation.disclaimer}</p>
+      <p class="about-frc-page__disclaimer" lang={languageFor('higherEducation.disclaimer')}>
+        {content.higherEducation.disclaimer}
+      </p>
     </div>
   </section>
 
   <section class="about-frc-page__section about-frc-page__section--scholarships" data-scroll-section>
     <div class="about-frc-page__section-heading">
-      <p class="about-frc-page__eyebrow">{content.scholarships.eyebrow}</p>
-      <h2>{content.scholarships.heading}</h2>
+      <p class="about-frc-page__eyebrow" lang={languageFor('scholarships.eyebrow')}>
+        {content.scholarships.eyebrow}
+      </p>
+      <h2 lang={languageFor('scholarships.heading')}>{content.scholarships.heading}</h2>
     </div>
     <div class="about-frc-page__scholarship-layout">
       <div class="about-frc-page__prose">
-        {content.scholarships.paragraphs.map((paragraph) => <p>{paragraph}</p>)}
+        {content.scholarships.paragraphs.map((paragraph) => (
+          <p lang={languageFor(`scholarships.paragraphs[id=${paragraph.id}].text`)}>{paragraph.text}</p>
+        ))}
       </div>
       <aside class="about-frc-page__scholarship-highlight">
-        <strong>{content.scholarships.highlight.value}</strong>
-        <span>{content.scholarships.highlight.label}</span>
-        <small>{content.scholarships.highlight.note}</small>
+        <strong lang={languageFor('scholarships.highlight.value')}>
+          {content.scholarships.highlight.value}
+        </strong>
+        <span lang={languageFor('scholarships.highlight.label')}>
+          {content.scholarships.highlight.label}
+        </span>
+        <small lang={languageFor('scholarships.highlight.note')}>
+          {content.scholarships.highlight.note}
+        </small>
       </aside>
     </div>
   </section>
 
   <section class="about-frc-page__section about-frc-page__section--partners" data-scroll-section>
     <div class="about-frc-page__section-heading">
-      <p class="about-frc-page__eyebrow">{content.partners.eyebrow}</p>
-      <h2>{content.partners.heading}</h2>
-      <p>{content.partners.introduction}</p>
+      <p class="about-frc-page__eyebrow" lang={languageFor('partners.eyebrow')}>
+        {content.partners.eyebrow}
+      </p>
+      <h2 lang={languageFor('partners.heading')}>{content.partners.heading}</h2>
+      <p lang={languageFor('partners.introduction')}>{content.partners.introduction}</p>
     </div>
-    <ul class="about-frc-page__partner-grid" aria-label={content.partners.heading}>
+    <ul
+      class="about-frc-page__partner-grid"
+      aria-label={content.partners.heading}
+      lang={languageFor('partners.heading')}
+    >
       {content.partners.items.map((partner) => (
         <li data-surface={partner.surface ?? 'light'}>
           {partner.website ? (
             <a href={partner.website} target="_blank" rel="noreferrer">
-              <PartnerMark partner={partner} />
+              <PartnerMark
+                partner={partner}
+                logoAltLanguage={languageFor(`partners.items[id=${partner.id}].logo.alt`)}
+                nameLanguage={languageFor(`partners.items[id=${partner.id}].name`)}
+              />
             </a>
           ) : (
-            <PartnerMark partner={partner} />
+            <PartnerMark
+              partner={partner}
+              logoAltLanguage={languageFor(`partners.items[id=${partner.id}].logo.alt`)}
+              nameLanguage={languageFor(`partners.items[id=${partner.id}].name`)}
+            />
           )}
         </li>
       ))}
     </ul>
-    <p class="about-frc-page__disclaimer">{content.partners.disclaimer}</p>
+    <p class="about-frc-page__disclaimer" lang={languageFor('partners.disclaimer')}>
+      {content.partners.disclaimer}
+    </p>
   </section>
 
   <section class="about-frc-page__section about-frc-page__section--sources" data-scroll-section>
     <div class="about-frc-page__section-heading">
-      <p class="about-frc-page__eyebrow">{content.sources.eyebrow}</p>
-      <h2>{content.sources.heading}</h2>
-      <p>{content.sources.introduction}</p>
+      <p class="about-frc-page__eyebrow" lang={languageFor('sources.eyebrow')}>
+        {content.sources.eyebrow}
+      </p>
+      <h2 lang={languageFor('sources.heading')}>{content.sources.heading}</h2>
+      <p lang={languageFor('sources.introduction')}>{content.sources.introduction}</p>
     </div>
     <ol class="about-frc-page__source-list">
       {content.sources.items.map((source) => (
         <li>
-          <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a>
-          <span>{source.organization}</span>
+          <a
+            href={source.url}
+            target="_blank"
+            rel="noreferrer"
+            lang={languageFor(`sources.items[id=${source.id}].title`)}
+          >
+            {source.title}
+          </a>
+          <span lang={languageFor(`sources.items[id=${source.id}].organization`)}>
+            {source.organization}
+          </span>
         </li>
       ))}
     </ol>
-    <p class="about-frc-page__review-date">{content.sources.reviewedOn}</p>
+    <p class="about-frc-page__review-date" lang={languageFor('sources.reviewedOn')}>
+      {content.sources.reviewedOn}
+    </p>
   </section>
 </main>

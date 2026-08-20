@@ -18,7 +18,7 @@ The complete sanitized legacy framework and skin history is connected to the `To
 ## Use as a Template
 
 1. Download or fork this repository.
-2. Replace the files inside `content/` with your own text and media while keeping the documented structure.
+2. Replace the locale files and media inside `content/` while keeping the documented structure and stable content IDs.
 3. Install dependencies and start the local development server.
 
 ```bash
@@ -28,6 +28,21 @@ npm run dev
 
 The local website is available at `http://localhost:4321` by default. The project requires Node.js 24.
 
+## Localized Content
+
+The current release generates two explicit language trees with the same English slugs:
+
+- Simplified Chinese: `/zh-cn/` and `/zh-cn/about-frc/`.
+- English: `/en/` and `/en/about-frc/`.
+
+The unprefixed entry routes detect the preferred language. A previously selected language stored in `localStorage` takes priority; otherwise, any Chinese browser language, including Traditional Chinese variants, selects Simplified Chinese. English and every non-Chinese, empty, or invalid browser language select English. Browser detection itself is not saved as a manual preference. Visiting an explicit `/zh-cn/` or `/en/` URL always takes priority and updates the saved choice.
+
+Manual language switching keeps the current English slug, query string, and fragment. The chosen language is retained across browser sessions. A single Traditional Chinese locale for Hong Kong, Macau, and Taiwan is planned at `/zh-hant/`, but that route is not generated yet.
+
+Simplified Chinese is the complete base content. English files are independent overlays. If an English field or paragraph is blank or absent, only that field falls back to Simplified Chinese without showing a translation notice to visitors. Lists are merged by stable `id`, so translated items do not depend on their position. Locale files can override an image or video reference; otherwise, both languages share the base media.
+
+`npm run check:translations` reports missing English fields for maintainers without failing development, checks, or builds. While any required English field is missing, generated English pages receive `noindex` automatically; indexing is enabled automatically after all required English fields are complete.
+
 ## Content Source Priority
 
 The build selects one complete content source in the following order:
@@ -35,7 +50,7 @@ The build selects one complete content source in the following order:
 1. `GH_FRC_CONTENT_DIR`, when explicitly configured.
 2. The public example `content/` folder in this repository.
 
-This keeps public and preview builds on the replaceable example content by default, even when GHFRC's private content repository exists beside the project locally. Set `GH_FRC_CONTENT_DIR` explicitly when a trusted build needs the private content. The selected source must contain `config/site.yaml`, `config/about-frc.yaml`, and every media file referenced by those configurations; the build does not mix files from different content sources.
+This keeps public and preview builds on the replaceable example content by default, even when GHFRC's private content repository exists beside the project locally. A private content repository is never discovered implicitly: a trusted build must set `GH_FRC_CONTENT_DIR` explicitly. The selected source must contain all four locale files under `config/locales/zh-CN/` and `config/locales/en/`, plus every media file they reference; the build does not mix files from different content sources.
 
 ## Verification
 
@@ -71,7 +86,7 @@ GHFRC 官网是公开的网站代码库，也是可复用的网站模板。框�
 ## 作为模板使用
 
 1. 下载或 Fork 本仓库。
-2. 保持文档约定的结构，用自己的文字和媒体替换 `content/` 中的文件。
+2. 保持文档约定的结构和稳定内容 ID，用自己的文字和媒体替换 `content/` 中的语言文件与媒体。
 3. 安装依赖并启动本地开发服务器。
 
 ```bash
@@ -81,6 +96,21 @@ npm run dev
 
 本地网站默认使用 `http://localhost:4321`，项目要求使用 Node.js 24。
 
+## 多语言内容
+
+当前版本只生成两套使用相同英文 slug 的明确语言路径：
+
+- 简体中文：`/zh-cn/` 和 `/zh-cn/about-frc/`。
+- 英文：`/en/` 和 `/en/about-frc/`。
+
+无语言前缀的入口负责自动判断语言。保存在 `localStorage` 中的手动选择优先；没有已保存选择时，任何中文浏览器语言（包括繁体中文变体）均进入简体中文，英文以及所有非中文、空值或无效语言均进入英文。浏览器自动判断结果本身不会保存为手动偏好。直接访问 `/zh-cn/` 或 `/en/` 明确语言 URL 时，该 URL 始终优先，并会更新已保存的选择。
+
+手动切换语言时会保留当前英文 slug、查询参数和页面片段，选择结果跨浏览器会话长期保存。未来将为香港、澳门和台湾提供统一的繁体中文路径 `/zh-hant/`，但当前版本不生成该路径。
+
+简体中文是完整基础内容，英文文件是相互独立的覆盖层。某个英文字段或段落为空或缺失时，只为该字段回退到简体中文，不向访客显示待翻译提示。列表依靠稳定 `id` 合并，不依赖项目顺序。各语言文件可以覆盖图片或视频引用；未覆盖时与基础内容共用媒体。
+
+`npm run check:translations` 会为维护者列出缺少的英文字段，但不会阻断开发、检查或构建。只要仍有任一必需英文字段缺失，生成的英文页面就会自动加入 `noindex`；所有必需英文字段完成后，系统会自动允许收录。
+
 ## 内容来源优先级
 
 构建时按照以下顺序选择一套完整内容来源：
@@ -88,7 +118,7 @@ npm run dev
 1. 明确设置的 `GH_FRC_CONTENT_DIR`。
 2. 本仓库中的公开示例 `content/` 文件夹。
 
-这样，即使 GHFRC 私有内容仓库位于本项目旁边，公开构建和预览构建默认仍会使用可替换的示例内容。只有受信任的构建需要使用私有内容时，才明确设置 `GH_FRC_CONTENT_DIR`。所选来源必须同时包含 `config/site.yaml`、`config/about-frc.yaml` 以及这些配置引用的全部媒体文件，构建过程不会混用不同来源中的文件。
+这样，即使 GHFRC 私有内容仓库位于本项目旁边，公开构建和预览构建默认仍会使用可替换的示例内容。系统绝不会隐式发现私有内容仓库；只有受信任的构建需要使用私有内容时，才明确设置 `GH_FRC_CONTENT_DIR`。所选来源必须包含 `config/locales/zh-CN/` 与 `config/locales/en/` 下的四个语言文件，以及这些文件引用的全部媒体，构建过程不会混用不同来源中的文件。
 
 ## 验证
 
