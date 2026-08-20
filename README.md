@@ -35,7 +35,7 @@ The build selects one complete content source in the following order:
 1. `GH_FRC_CONTENT_DIR`, when explicitly configured.
 2. The public example `content/` folder in this repository.
 
-This keeps public and preview builds on the replaceable example content by default, even when GHFRC's private content repository exists beside the project locally. Set `GH_FRC_CONTENT_DIR` explicitly when a trusted build needs the private content. The selected source must contain `config/site.yaml`, `config/about-frc.yaml`, and every media file referenced by those configurations; the build does not mix files from different content sources.
+This keeps public builds on the replaceable example content by default, even when GHFRC's private content repository exists beside the project locally. Set `GH_FRC_CONTENT_DIR` explicitly when a trusted build needs the private content. The selected source must contain `config/site.yaml`, exactly eight primary Markdown files under `pages/`, the `robots/` and `news/` collection directories, and every media file referenced by those documents. Before each build, the staging script clears the previous staged content and copies only validated, explicitly referenced media from the selected source, so files from different content sets cannot be mixed.
 
 ## Verification
 
@@ -88,7 +88,7 @@ npm run dev
 1. 明确设置的 `GH_FRC_CONTENT_DIR`。
 2. 本仓库中的公开示例 `content/` 文件夹。
 
-这样，即使 GHFRC 私有内容仓库位于本项目旁边，公开构建和预览构建默认仍会使用可替换的示例内容。只有受信任的构建需要使用私有内容时，才明确设置 `GH_FRC_CONTENT_DIR`。所选来源必须同时包含 `config/site.yaml`、`config/about-frc.yaml` 以及这些配置引用的全部媒体文件，构建过程不会混用不同来源中的文件。
+这样，即使 GHFRC 私有内容仓库位于本项目旁边，公开构建默认仍会使用可替换的示例内容。只有受信任的构建需要使用私有内容时，才明确设置 `GH_FRC_CONTENT_DIR`。所选来源必须包含 `config/site.yaml`、`pages/` 下严格对应 8 个主要页面的 Markdown 文件、`robots/` 与 `news/` 内容集合目录，以及这些文档明确引用的全部媒体文件。每次构建前，暂存脚本都会先清空上一次的暂存内容，再从当前内容来源复制经过校验且被明确引用的媒体，因此不会混用不同内容集中的文件。
 
 ## 验证
 

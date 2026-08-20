@@ -1,7 +1,8 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 
-type Partner = CollectionEntry<'aboutFrc'>['data']['partners']['items'][number];
+type PageData = CollectionEntry<'page'>['data'];
+type Partner = NonNullable<PageData['partners']>['items'][number];
 
 interface Props {
   partner: Partner;

@@ -26,25 +26,17 @@ describe('color scheme pre-paint bootstrap', () => {
     document.documentElement.removeAttribute('data-color-scheme');
   });
 
-  it('applies a valid session choice before the interface initializes', () => {
+  it('ignores an earlier manual choice and restores the system preference on reload', () => {
     sessionStorage.setItem('ghfrc-color-scheme', 'dark');
-
-    runColorSchemeBootstrap();
-
-    expect(document.documentElement.dataset.colorScheme).toBe('dark');
-  });
-
-  it('removes invalid session data and leaves the system preference active', () => {
-    sessionStorage.setItem('ghfrc-color-scheme', 'sepia');
     document.documentElement.dataset.colorScheme = 'light';
 
     runColorSchemeBootstrap();
 
-    expect(sessionStorage.getItem('ghfrc-color-scheme')).toBeNull();
     expect(document.documentElement.dataset.colorScheme).toBeUndefined();
+    expect(sessionStorage.getItem('ghfrc-color-scheme')).toBe('dark');
   });
 
-  it('leaves the system preference active when session storage is unavailable', () => {
+  it('does not depend on browser storage', () => {
     document.documentElement.dataset.colorScheme = 'light';
     vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
       throw new DOMException('Storage unavailable');
@@ -139,7 +131,7 @@ describe('color scheme controls', () => {
     expect(document.documentElement.dataset.colorScheme).toBeUndefined();
   });
 
-  it('lets the visitor switch modes and keeps the choice for the current session', () => {
+  it('lets the visitor switch modes without storing the choice', () => {
     installColorSchemePreference(false);
     interactionHandle = initializeColorSchemeControl(document, window);
 
@@ -147,7 +139,7 @@ describe('color scheme controls', () => {
     toggle.click();
 
     expect(document.documentElement.dataset.colorScheme).toBe('dark');
-    expect(sessionStorage.getItem('ghfrc-color-scheme')).toBe('dark');
+    expect(sessionStorage.getItem('ghfrc-color-scheme')).toBeNull();
     expect(toggle.getAttribute('aria-label')).toBe('切换至浅色模式');
 
     interactionHandle.destroy();
@@ -157,28 +149,8 @@ describe('color scheme controls', () => {
 
     interactionHandle = initializeColorSchemeControl(document, window);
 
-    expect(document.documentElement.dataset.colorScheme).toBe('dark');
-    expect(toggle.getAttribute('aria-label')).toBe('切换至浅色模式');
-  });
-
-  it('returns to the system preference when a new browsing session starts', () => {
-    installColorSchemePreference(false);
-    interactionHandle = initializeColorSchemeControl(document, window);
-
-    document.querySelector<HTMLButtonElement>('[data-color-scheme-toggle]')!.click();
-    expect(document.documentElement.dataset.colorScheme).toBe('dark');
-
-    interactionHandle.destroy();
-    interactionHandle = undefined;
-    sessionStorage.clear();
-    document.documentElement.removeAttribute('data-color-scheme');
-
-    interactionHandle = initializeColorSchemeControl(document, window);
-
     expect(document.documentElement.dataset.colorScheme).toBeUndefined();
-    expect(
-      document.querySelector<HTMLButtonElement>('[data-color-scheme-toggle]')!.getAttribute('aria-label'),
-    ).toBe('切换至深色模式');
+    expect(toggle.getAttribute('aria-label')).toBe('切换至深色模式');
   });
 
   it('tracks system preference changes until the visitor chooses a mode', () => {
@@ -197,7 +169,7 @@ describe('color scheme controls', () => {
     expect(toggle.getAttribute('aria-label')).toBe('切换至深色模式');
   });
 
-  it('keeps working when session storage is unavailable', () => {
+  it('keeps working when browser storage is unavailable', () => {
     installColorSchemePreference(false);
     vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
       throw new DOMException('Storage unavailable');
