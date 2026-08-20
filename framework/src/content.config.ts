@@ -14,12 +14,31 @@ const pagesContentDirectory = pathToFileURL(resolve(contentRoot, 'pages'));
 const robotsContentDirectory = pathToFileURL(resolve(contentRoot, 'robots'));
 const newsContentDirectory = pathToFileURL(resolve(contentRoot, 'news'));
 
-const mediaSchema = z.object({
+const mediaBaseShape = {
   src: z.string().startsWith('/content/'),
   alt: z.string().min(1),
   intrinsicWidth: z.number().int().positive(),
   intrinsicHeight: z.number().int().positive(),
+};
+
+const imageMediaSchema = z.object({
+  ...mediaBaseShape,
+  type: z.literal('image').default('image'),
 });
+
+const videoMediaSchema = z.object({
+  ...mediaBaseShape,
+  type: z.literal('video'),
+  poster: z.string().startsWith('/content/').optional(),
+  captions: z.array(z.object({
+    src: z.string().startsWith('/content/'),
+    srclang: z.string().min(2),
+    label: z.string().min(1),
+    default: z.boolean().optional(),
+  })).optional(),
+});
+
+const mediaSchema = z.union([videoMediaSchema, imageMediaSchema]);
 
 const emptyStateSchema = z.object({
   eyebrow: z.string().min(1),
@@ -34,10 +53,7 @@ const site = defineCollection({
     title: z.string().min(1),
     description: z.string().min(1),
     logo: z.object({
-      src: mediaSchema.shape.src,
-      alt: mediaSchema.shape.alt,
-      intrinsicWidth: mediaSchema.shape.intrinsicWidth,
-      intrinsicHeight: mediaSchema.shape.intrinsicHeight,
+      ...mediaBaseShape,
     }),
     accessibility: z.object({
       skipToContent: z.string().min(1),
@@ -142,7 +158,7 @@ const page = defineCollection({
         name: z.string().min(1),
         website: z.url().optional(),
         surface: z.enum(['light', 'dark']).optional(),
-        logo: mediaSchema.optional(),
+        logo: imageMediaSchema.optional(),
       })).min(1),
       disclaimer: z.string().min(1),
     }).optional(),

@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from 'astro:content';
 
+import EmptyState from './EmptyState.astro';
 import MediaFrame from './MediaFrame.astro';
 import PartnerMark from './PartnerMark.astro';
 
@@ -120,13 +121,7 @@ const detailLinkLabel = page.detailLinkLabel ?? page.home.linkLabel;
               <MediaFrame media={season.media} placeholderLabel={season.event} />
             </article>
           ))
-        ) : emptyState ? (
-          <div class="empty-state">
-            <p class="page-eyebrow">{emptyState.eyebrow}</p>
-            <h2>{emptyState.title}</h2>
-            <p>{emptyState.body}</p>
-          </div>
-        ) : null}
+        ) : emptyState ? <EmptyState state={emptyState} /> : null}
       </section>
     )
   }
@@ -155,13 +150,7 @@ const detailLinkLabel = page.detailLinkLabel ?? page.home.linkLabel;
               </article>
             ))}
           </div>
-        ) : emptyState ? (
-          <div class="empty-state">
-            <p class="page-eyebrow">{emptyState.eyebrow}</p>
-            <h2>{emptyState.title}</h2>
-            <p>{emptyState.body}</p>
-          </div>
-        ) : null}
+        ) : emptyState ? <EmptyState state={emptyState} /> : null}
       </section>
     )
   }
@@ -180,13 +169,7 @@ const detailLinkLabel = page.detailLinkLabel ?? page.home.linkLabel;
               </div>
             ))}
           </dl>
-        ) : emptyState ? (
-          <div class="empty-state">
-            <p class="page-eyebrow">{emptyState.eyebrow}</p>
-            <h2>{emptyState.title}</h2>
-            <p>{emptyState.body}</p>
-          </div>
-        ) : null}
+        ) : emptyState ? <EmptyState state={emptyState} /> : null}
       </section>
     )
   }
@@ -194,11 +177,7 @@ const detailLinkLabel = page.detailLinkLabel ?? page.home.linkLabel;
   {
     page.layout === 'placeholder' && emptyState && (
       <section class="placeholder-page" data-scroll-section>
-        <div class="empty-state">
-          <p class="page-eyebrow">{emptyState.eyebrow}</p>
-          <h2>{emptyState.title}</h2>
-          <p>{emptyState.body}</p>
-        </div>
+        <EmptyState state={emptyState} />
       </section>
     )
   }

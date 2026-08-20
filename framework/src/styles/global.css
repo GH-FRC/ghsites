@@ -1,4 +1,4 @@
-@import '../../../skins/default/skin.css';
+@import '../../../skins/active.css';
 @import './home.css';
 @import './site-page.css';
 
@@ -478,6 +478,13 @@ video {
     font-weight: 560;
     line-height: 1.3;
     text-decoration: none;
+  }
+
+  .site-header__compact-navigation a[aria-current='page'] {
+    font-weight: 700;
+    text-decoration: underline;
+    text-decoration-thickness: 1px;
+    text-underline-offset: 6px;
   }
 
   .site-footer__inner {
