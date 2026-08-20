@@ -1,0 +1,59 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, getEntry, render } from 'astro:content';
+
+import EntryDetailPage from '../../components/EntryDetailPage.astro';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+
+interface Props {
+  entry: CollectionEntry<'robot'>;
+}
+
+export async function getStaticPaths() {
+  const entries = await getCollection('robot');
+
+  return entries.flatMap((entry) => (
+    entry.data.entryType === 'robot' && entry.data.published
+      ? [{ params: { slug: entry.id }, props: { entry } }]
+      : []
+  ));
+}
+
+const { entry } = Astro.props;
+const [siteEntry, robotsPage] = await Promise.all([
+  getEntry('site', 'site'),
+  getEntry('page', 'robots'),
+]);
+
+if (!siteEntry || !robotsPage) {
+  throw new Error('The robot detail page content is incomplete.');
+}
+
+if (entry.data.entryType !== 'robot') {
+  throw new Error('A robot guide entry cannot be rendered as a robot detail page.');
+}
+
+const { Content } = await render(entry);
+const site = siteEntry.data;
+---
+
+<SiteLayout
+  site={site}
+  currentPage="robots"
+  title={`${entry.data.title} | ${site.title}`}
+  description={entry.data.description}
+>
+  <EntryDetailPage
+    breadcrumbLabel={site.accessibility.breadcrumbNavigation}
+    homeLabel={site.accessibility.homeLabel}
+    sectionLabel={robotsPage.data.hero.title}
+    sectionHref="/robots/"
+    eyebrow={entry.data.season}
+    title={entry.data.title}
+    introduction={entry.data.summary}
+    media={entry.data.poster}
+    mediaLabel={entry.data.title}
+  >
+    <Content />
+  </EntryDetailPage>
+</SiteLayout>

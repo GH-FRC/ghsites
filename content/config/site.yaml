@@ -8,7 +8,10 @@ site:
     intrinsicWidth: 400
     intrinsicHeight: 138
   accessibility:
+    skipToContent: 跳到主要内容
     mainNavigation: 主要导航
+    breadcrumbNavigation: 面包屑导航
+    homeLabel: 首页
     returnToTop: 返回页面顶部
     returnToHome: 返回首页
     switchToDarkMode: 切换至深色模式
@@ -23,7 +26,10 @@ site:
     sponsors: 赞助商
     contact: 联系我们
   hero:
+    eyebrow: 示例队伍官网
     title: GHFRC
+    introduction: 首页介绍文字预留区
+    mediaLabel: 首页图片或视频预留区
     introPlaceholder: 首页介绍文字预留区
     mediaPlaceholder: 首页图片或视频预留区
   sections:

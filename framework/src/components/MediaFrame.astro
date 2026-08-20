@@ -1,0 +1,35 @@
+---
+import PlaceholderBlock from './PlaceholderBlock.astro';
+
+interface MediaReference {
+  src: string;
+  alt: string;
+  intrinsicWidth: number;
+  intrinsicHeight: number;
+}
+
+interface Props {
+  media?: MediaReference;
+  placeholderLabel: string;
+  eager?: boolean;
+}
+
+const { media, placeholderLabel, eager = false } = Astro.props;
+---
+
+{
+  media ? (
+    <figure class="media-frame">
+      <img
+        src={media.src}
+        alt={media.alt}
+        width={media.intrinsicWidth}
+        height={media.intrinsicHeight}
+        loading={eager ? 'eager' : 'lazy'}
+        decoding="async"
+      />
+    </figure>
+  ) : (
+    <PlaceholderBlock label={placeholderLabel} kind="media" />
+  )
+}
