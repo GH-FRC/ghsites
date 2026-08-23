@@ -8,15 +8,14 @@ describe('localized content media schemas', () => {
       localizedVideoSchema.parse({
         type: 'video',
         src: '/content/videos/overview-en.mp4',
-        title: 'Team overview',
-        poster: {
-          src: '/content/images/overview-en.jpg',
-        },
-        tracks: [
+        alt: 'Team overview',
+        intrinsicWidth: 1920,
+        intrinsicHeight: 1080,
+        poster: '/content/images/overview-en.jpg',
+        captions: [
           {
             id: 'english-captions',
             src: '/content/captions/overview-en.vtt',
-            kind: 'captions',
             srclang: 'en',
             label: 'English captions',
           },
@@ -25,20 +24,23 @@ describe('localized content media schemas', () => {
     ).toMatchObject({
       type: 'video',
       src: '/content/videos/overview-en.mp4',
-      title: 'Team overview',
+      alt: 'Team overview',
     });
   });
 
   it('accepts localized video media through the real home-page content interface', () => {
     expect(
       siteSchema.shape.hero.parse({
+        eyebrow: 'Team website',
         title: 'GHFRC',
-        introPlaceholder: 'Introduction',
-        mediaPlaceholder: 'Media',
+        introduction: 'Introduction',
+        mediaLabel: 'Media',
         media: {
           type: 'video',
           src: '/content/videos/overview-en.mp4',
-          title: 'Team overview',
+          alt: 'Team overview',
+          intrinsicWidth: 1920,
+          intrinsicHeight: 1080,
         },
       }).media,
     ).toMatchObject({

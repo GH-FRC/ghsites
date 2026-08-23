@@ -1,0 +1,31 @@
+:root {
+  --color-background: light-dark(#ffffff, #111111);
+  --color-surface: light-dark(#f4f4f2, #1b1b1a);
+  --color-surface-strong: light-dark(#e8e8e5, #242422);
+  --color-text: light-dark(#111111, #f5f5f3);
+  --color-muted: light-dark(#666666, #ababaa);
+  --color-border: light-dark(#b9b9b5, #555553);
+  --color-border-strong: light-dark(#111111, #d8d8d5);
+  --color-footer-background: light-dark(#111111, #f5f5f3);
+  --color-footer-text: light-dark(#ffffff, #111111);
+  --color-footer-muted: light-dark(#c8c8c8, #555553);
+  --color-logo-background: #ffffff;
+  --color-toggle-hover: light-dark(#e8e8e5, #2a2a28);
+  --color-partner-light-background: #ffffff;
+  --color-partner-light-text: #111111;
+  --color-partner-dark-background: #111111;
+  --color-partner-dark-text: #ffffff;
+  --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --motion-fast: 160ms;
+  --motion-medium: 240ms;
+  --motion-easing: cubic-bezier(0.2, 0.8, 0.2, 1);
+  color-scheme: light dark;
+}
+
+:root[data-color-scheme='dark'] {
+  color-scheme: dark;
+}
+
+:root[data-color-scheme='light'] {
+  color-scheme: light;
+}

@@ -1,40 +1,66 @@
 import { resolve } from 'node:path';
-import { fileURLToPath } from 'node:url';
+import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { defineCollection } from 'astro:content';
-import { file } from 'astro/loaders';
+import { file, glob } from 'astro/loaders';
 
-import { aboutFrcSchema, localeOverlaySchema, siteSchema } from './content-schema';
+import {
+  localeOverlaySchema,
+  newsSchema,
+  pageSchema,
+  robotSchema,
+  siteSchema,
+} from './content-schema';
 
 const projectRoot = fileURLToPath(new URL('../../', import.meta.url));
 const contentRoot = process.env.GH_FRC_CONTENT_DIR
   ? resolve(projectRoot, process.env.GH_FRC_CONTENT_DIR)
   : resolve(projectRoot, 'content');
-const zhCnContentRoot = resolve(contentRoot, 'config', 'locales', 'zh-CN');
-const enContentRoot = resolve(contentRoot, 'config', 'locales', 'en');
-const siteContentFile = resolve(zhCnContentRoot, 'site.yaml');
-const siteEnContentFile = resolve(enContentRoot, 'site.yaml');
-const aboutFrcContentFile = resolve(zhCnContentRoot, 'about-frc.yaml');
-const aboutFrcEnContentFile = resolve(enContentRoot, 'about-frc.yaml');
+
+function contentUrl(...segments: string[]) {
+  return pathToFileURL(resolve(contentRoot, ...segments));
+}
 
 const site = defineCollection({
-  loader: file(siteContentFile),
+  loader: file(resolve(contentRoot, 'config', 'locales', 'zh-CN', 'site.yaml')),
   schema: siteSchema,
 });
 
 const siteEn = defineCollection({
-  loader: file(siteEnContentFile),
+  loader: file(resolve(contentRoot, 'config', 'locales', 'en', 'site.yaml')),
   schema: localeOverlaySchema,
 });
 
-const aboutFrc = defineCollection({
-  loader: file(aboutFrcContentFile),
-  schema: aboutFrcSchema,
+const page = defineCollection({
+  loader: glob({
+    base: contentUrl('pages', 'zh-CN'),
+    pattern: '*.md',
+  }),
+  schema: pageSchema,
 });
 
-const aboutFrcEn = defineCollection({
-  loader: file(aboutFrcEnContentFile),
+const pageEn = defineCollection({
+  loader: glob({
+    base: contentUrl('pages', 'en'),
+    pattern: '*.md',
+  }),
   schema: localeOverlaySchema,
 });
 
-export const collections = { aboutFrc, aboutFrcEn, site, siteEn };
+const robot = defineCollection({
+  loader: glob({
+    base: contentUrl('robots'),
+    pattern: '*.md',
+  }),
+  schema: robotSchema,
+});
+
+const news = defineCollection({
+  loader: glob({
+    base: contentUrl('news'),
+    pattern: '*.md',
+  }),
+  schema: newsSchema,
+});
+
+export const collections = { news, page, pageEn, robot, site, siteEn };

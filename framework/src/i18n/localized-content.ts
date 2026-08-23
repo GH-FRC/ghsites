@@ -25,11 +25,20 @@ const NON_TRANSLATABLE_CONTENT_KEYS: ReadonlySet<string> = new Set([
   'intrinsicHeight',
   'url',
   'website',
+  'href',
   'surface',
   'index',
   'kind',
   'srclang',
   'type',
+  'poster',
+  'navigationId',
+  'order',
+  'layout',
+  'entryType',
+  'published',
+  'publishedAt',
+  'default',
 ]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -46,7 +55,15 @@ const LOCALIZED_MEDIA_KEYS: Record<LocalizedMediaType, ReadonlySet<string>> = {
     'intrinsicWidth',
     'intrinsicHeight',
   ]),
-  video: new Set(['type', 'src', 'title', 'poster', 'tracks']),
+  video: new Set([
+    'type',
+    'src',
+    'alt',
+    'intrinsicWidth',
+    'intrinsicHeight',
+    'poster',
+    'captions',
+  ]),
 };
 
 function getLocalizedMediaType(value: unknown): LocalizedMediaType | undefined {

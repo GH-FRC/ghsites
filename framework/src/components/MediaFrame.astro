@@ -1,0 +1,73 @@
+---
+import PlaceholderBlock from './PlaceholderBlock.astro';
+import { isVideoMedia, type MediaReference } from '../media-reference';
+
+interface Props {
+  media?: MediaReference;
+  placeholderLabel: string;
+  placeholderKindLabel?: string;
+  mediaTextLanguage?: string;
+  placeholderLanguage?: string;
+  placeholderKindLanguage?: string;
+  eager?: boolean;
+}
+
+const {
+  media,
+  placeholderLabel,
+  placeholderKindLabel,
+  mediaTextLanguage,
+  placeholderLanguage,
+  placeholderKindLanguage,
+  eager = false,
+} = Astro.props;
+---
+
+{
+  media ? (
+    <figure class="media-frame">
+      {isVideoMedia(media) ? (
+        <video
+          src={media.src}
+          poster={media.poster}
+          width={media.intrinsicWidth}
+          height={media.intrinsicHeight}
+          preload={eager ? 'metadata' : 'none'}
+          aria-label={media.alt}
+          lang={mediaTextLanguage}
+          controls
+          playsinline
+        >
+          {media.captions?.map((caption) => (
+            <track
+              kind="captions"
+              src={caption.src}
+              srclang={caption.srclang}
+              label={caption.label}
+              default={caption.default}
+            />
+          ))}
+          {media.alt}
+        </video>
+      ) : (
+        <img
+          src={media.src}
+          alt={media.alt}
+          lang={mediaTextLanguage}
+          width={media.intrinsicWidth}
+          height={media.intrinsicHeight}
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      )}
+    </figure>
+  ) : (
+    <PlaceholderBlock
+      label={placeholderLabel}
+      kind="media"
+      kindLabel={placeholderKindLabel}
+      kindLabelLanguage={placeholderKindLanguage}
+      labelLanguage={placeholderLanguage}
+    />
+  )
+}

@@ -1,0 +1,84 @@
+---
+import type { SiteContent } from '../content-schema';
+import LocalizedSiteHeader from '../components/LocalizedSiteHeader.astro';
+import SiteFooter from '../components/SiteFooter.astro';
+import { htmlLanguageForLocale, type Locale } from '../i18n/locales';
+import type { SiteNavigationContext } from '../site-structure';
+import BaseLayout from './BaseLayout.astro';
+
+interface Props {
+  site: SiteContent;
+  siteFallbackPaths: ReadonlySet<string>;
+  locale: Locale;
+  currentPage: SiteNavigationContext;
+  pagePath?: string;
+  title: string;
+  description: string;
+  noIndex?: boolean;
+  titleLanguage?: string;
+  descriptionLanguage?: string;
+}
+
+const {
+  site,
+  siteFallbackPaths,
+  locale,
+  currentPage,
+  pagePath = '',
+  title,
+  description,
+  noIndex = false,
+  titleLanguage,
+  descriptionLanguage,
+} = Astro.props;
+const normalizedPagePath = pagePath ? `${pagePath.replace(/^\/+|\/+$/g, '')}/` : '';
+const currentPath = `/${locale}/${normalizedPagePath}`;
+const fallbackLanguage = (path: string) => (
+  siteFallbackPaths.has(path) ? 'zh-CN' : undefined
+);
+---
+
+<BaseLayout
+  title={title}
+  description={description}
+  locale={locale}
+  pagePath={pagePath}
+  noIndex={noIndex}
+  achievementUnlockedMessage={site.achievementMessages.unlocked}
+  achievementUnlockedLanguage={
+    fallbackLanguage('achievementMessages.unlocked') ?? htmlLanguageForLocale(locale)
+  }
+  titleLanguage={titleLanguage}
+  descriptionLanguage={descriptionLanguage}
+>
+  <a
+    class="skip-link"
+    href="#main-content"
+    lang={fallbackLanguage('accessibility.skipToContent')}
+  >
+    {site.accessibility.skipToContent}
+  </a>
+
+  <LocalizedSiteHeader
+    site={site}
+    fallbackPaths={siteFallbackPaths}
+    locale={locale}
+    context={currentPage}
+    currentPath={currentPath}
+  />
+
+  <slot />
+
+  <SiteFooter
+    title={site.footer.title}
+    placeholder={site.footer.placeholder}
+    titleLanguage={fallbackLanguage('footer.title')}
+    placeholderLanguage={fallbackLanguage('footer.placeholder')}
+  />
+
+  <script>
+    import { initializeSiteInteractions } from '../scripts/site-interactions';
+
+    initializeSiteInteractions();
+  </script>
+</BaseLayout>

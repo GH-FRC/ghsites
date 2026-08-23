@@ -1,0 +1,78 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+
+import EntryDetailPage from '../../../components/EntryDetailPage.astro';
+import { loadLocalizedWebsiteContent } from '../../../i18n/content-loader';
+import { SUPPORTED_LOCALES, type Locale } from '../../../i18n/locales';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+
+interface Props {
+  locale: Locale;
+  entry: CollectionEntry<'news'>;
+}
+
+export async function getStaticPaths() {
+  const entries = await getCollection('news');
+
+  return SUPPORTED_LOCALES.flatMap((locale) => (
+    entries.flatMap((entry) => (
+      entry.data.entryType === 'news' && entry.data.published
+        ? [{ params: { locale, slug: entry.id }, props: { locale, entry } }]
+        : []
+    ))
+  ));
+}
+
+const { locale, entry } = Astro.props;
+
+if (entry.data.entryType !== 'news') {
+  throw new Error('A news guide entry cannot be rendered as a news detail page.');
+}
+
+const localizedContent = await loadLocalizedWebsiteContent(locale);
+const newsPage = localizedContent.pages.find((page) => page.id === 'news');
+
+if (!newsPage) {
+  throw new Error('The news page content is missing.');
+}
+
+const { Content } = await render(entry);
+const site = localizedContent.site.content;
+const contentLanguage = locale === 'en' ? 'zh-CN' : undefined;
+const siteFallbackLanguage = (path: string) => (
+  localizedContent.site.fallbackPaths.has(path) ? 'zh-CN' : undefined
+);
+---
+
+<SiteLayout
+  site={site}
+  siteFallbackPaths={localizedContent.site.fallbackPaths}
+  locale={locale}
+  currentPage="news"
+  pagePath={`news/${entry.id}`}
+  title={`${entry.data.title} | ${site.title}`}
+  description={entry.data.description}
+  noIndex={locale === 'en'}
+  titleLanguage={contentLanguage}
+  descriptionLanguage={contentLanguage}
+>
+  <EntryDetailPage
+    breadcrumbLabel={site.accessibility.breadcrumbNavigation}
+    breadcrumbLanguage={siteFallbackLanguage('accessibility.breadcrumbNavigation')}
+    homeLabel={site.accessibility.homeLabel}
+    homeHref={`/${locale}/`}
+    sectionLabel={newsPage.data.content.hero.title}
+    sectionHref={`/${locale}/news/`}
+    eyebrow={entry.data.publishedAt.toLocaleDateString(locale === 'en' ? 'en' : 'zh-CN')}
+    title={entry.data.title}
+    introduction={entry.data.summary}
+    media={entry.data.cover}
+    mediaLabel={entry.data.title}
+    contentLanguage={contentLanguage}
+    placeholderKindLabel={site.placeholderKinds.media}
+    placeholderKindLanguage={siteFallbackLanguage('placeholderKinds.media')}
+  >
+    <Content />
+  </EntryDetailPage>
+</SiteLayout>

@@ -1,0 +1,15 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+interface Props {
+  state: NonNullable<CollectionEntry<'page'>['data']['emptyState']>;
+}
+
+const { state } = Astro.props;
+---
+
+<div class="empty-state">
+  <p class="page-eyebrow">{state.eyebrow}</p>
+  <h2>{state.title}</h2>
+  <p>{state.body}</p>
+</div>

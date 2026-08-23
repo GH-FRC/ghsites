@@ -10,39 +10,81 @@ const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const contentRoot = process.env.GH_FRC_CONTENT_DIR
   ? resolve(projectRoot, process.env.GH_FRC_CONTENT_DIR)
   : join(projectRoot, 'content');
-
-const localizedContentFiles = [
-  { id: 'site', fileName: 'site.yaml', entryName: 'site' },
-  { id: 'aboutFrc', fileName: 'about-frc.yaml', entryName: 'aboutFrc' },
+const pageIds = [
+  'achievements',
+  'contact',
+  'frc',
+  'news',
+  'robots',
+  'sponsors',
+  'team',
+  'xplore',
 ];
 
-async function readLocalizedEntry(locale, definition) {
-  const filePath = join(
-    contentRoot,
-    'config',
-    'locales',
-    locale,
-    definition.fileName,
-  );
+async function readYamlEntry(filePath, entryName) {
   const document = parse(await readFile(filePath, 'utf8'));
-  return document?.[definition.entryName];
-}
+  const entry = document?.[entryName];
 
-const reports = await Promise.all(localizedContentFiles.map(async (definition) => {
-  const [base, english] = await Promise.all([
-    readLocalizedEntry('zh-CN', definition),
-    readLocalizedEntry('en', definition),
-  ]);
-
-  if (!base || typeof base !== 'object' || !english || typeof english !== 'object') {
-    throw new Error(`Translation check failed: ${definition.id} locale entries are invalid.`);
+  if (!entry || typeof entry !== 'object') {
+    throw new Error(`Translation check failed: invalid entry in ${filePath}.`);
   }
 
-  const result = resolveLocalizedContent(base, english);
-  return result.missingTranslations.map((path) => `${definition.id}.${path}`);
-}));
+  return entry;
+}
+function parseMarkdown(sourceText, filePath) {
+  const frontmatter = sourceText.match(/^---\r?\n([\s\S]*?)\r?\n---(?:\r?\n|$)/u);
 
-const missingTranslations = reports.flat();
+  if (!frontmatter) {
+    throw new Error(`Translation check failed: missing frontmatter in ${filePath}.`);
+  }
+
+  const data = parse(frontmatter[1]) ?? {};
+
+  if (typeof data !== 'object' || Array.isArray(data)) {
+    throw new Error(`Translation check failed: invalid frontmatter in ${filePath}.`);
+  }
+
+  return {
+    data,
+    body: sourceText.slice(frontmatter[0].length).trim(),
+  };
+}
+
+async function readMarkdown(locale, pageId) {
+  const filePath = join(contentRoot, 'pages', locale, `${pageId}.md`);
+  return parseMarkdown(await readFile(filePath, 'utf8'), filePath);
+}
+
+const [siteBase, siteEnglish] = await Promise.all([
+  readYamlEntry(
+    join(contentRoot, 'config', 'locales', 'zh-CN', 'site.yaml'),
+    'site',
+  ),
+  readYamlEntry(
+    join(contentRoot, 'config', 'locales', 'en', 'site.yaml'),
+    'site',
+  ),
+]);
+const missingTranslations = resolveLocalizedContent(
+  siteBase,
+  siteEnglish,
+).missingTranslations.map((path) => `site.${path}`);
+
+for (const pageId of pageIds) {
+  const [base, english] = await Promise.all([
+    readMarkdown('zh-CN', pageId),
+    readMarkdown('en', pageId),
+  ]);
+  const result = resolveLocalizedContent(base.data, english.data);
+
+  missingTranslations.push(
+    ...result.missingTranslations.map((path) => `pages.${pageId}.${path}`),
+  );
+
+  if (base.body && !english.body) {
+    missingTranslations.push(`pages.${pageId}.body`);
+  }
+}
 
 if (missingTranslations.length === 0) {
   console.log('English translation check: complete. English pages may be indexed.');

@@ -6,22 +6,27 @@ import {
   type Locale,
 } from '../i18n/locales';
 import { buildLanguageSwitchPath } from '../scripts/language-preference';
-import { buildSiteNavigationItems, siteSectionPlan } from '../site-structure';
+import {
+  buildSiteNavigationItems,
+  sitePagePlan,
+  type SiteNavigationContext,
+} from '../site-structure';
 
 import SiteHeader from './SiteHeader.astro';
 
 interface Props {
-  context: 'home' | 'about-frc';
+  context: SiteNavigationContext;
+  currentPath: string;
   fallbackPaths: ReadonlySet<string>;
   locale: Locale;
   site: SiteContent;
 }
 
-const { context, fallbackPaths, locale, site } = Astro.props;
+const { context, currentPath, fallbackPaths, locale, site } = Astro.props;
 const navigationItems = buildSiteNavigationItems(site.navigation, context, locale).map(
   (item, index) => ({
     ...item,
-    language: fallbackPaths.has(`navigation.${siteSectionPlan[index].id}`)
+    language: fallbackPaths.has(`navigation.${sitePagePlan[index].id}`)
       ? 'zh-CN'
       : undefined,
   }),
@@ -30,7 +35,6 @@ const targetLocale = languageSwitchTargetFor(locale);
 const targetHtmlLanguage = htmlLanguageForLocale(targetLocale);
 const isHome = context === 'home';
 const homeLinkKey = isHome ? 'returnToTop' : 'returnToHome';
-const currentPath = isHome ? `/${locale}/` : `/${locale}/about-frc/`;
 ---
 
 <SiteHeader
@@ -62,5 +66,5 @@ const currentPath = isHome ? `/${locale}/` : `/${locale}/about-frc/`;
     targetLanguageName: site.languageSwitcher.options[targetLocale],
     targetShortLabel: site.languageSwitcher.shortOptions[targetLocale],
   }}
-  homeHref={isHome ? undefined : `/${locale}/`}
+  homeHref={isHome ? '#page-top' : `/${locale}/`}
 />

@@ -1,0 +1,26 @@
+---
+import { getCollection } from 'astro:content';
+
+import LanguageRedirectPage from '../../components/LanguageRedirectPage.astro';
+
+interface Props {
+  pagePath: string;
+}
+
+export async function getStaticPaths() {
+  const entries = await getCollection('news');
+
+  return entries.flatMap((entry) => (
+    entry.data.entryType === 'news' && entry.data.published
+      ? [{
+          params: { slug: entry.id },
+          props: { pagePath: `news/${entry.id}` },
+        }]
+      : []
+  ));
+}
+
+const { pagePath } = Astro.props;
+---
+
+<LanguageRedirectPage pagePath={pagePath} />

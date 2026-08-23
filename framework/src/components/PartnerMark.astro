@@ -1,15 +1,14 @@
 ---
-import type { AboutFrcContent } from '../content-schema';
+import type { CollectionEntry } from 'astro:content';
 
-type Partner = AboutFrcContent['partners']['items'][number];
+type PageData = CollectionEntry<'page'>['data'];
+type Partner = NonNullable<PageData['partners']>['items'][number];
 
 interface Props {
   partner: Partner;
-  logoAltLanguage?: string;
-  nameLanguage?: string;
 }
 
-const { partner, logoAltLanguage, nameLanguage } = Astro.props;
+const { partner } = Astro.props;
 ---
 
 {
@@ -17,12 +16,11 @@ const { partner, logoAltLanguage, nameLanguage } = Astro.props;
     <img
       src={partner.logo.src}
       alt={partner.logo.alt}
-      lang={logoAltLanguage}
       width={partner.logo.intrinsicWidth}
       height={partner.logo.intrinsicHeight}
       loading="lazy"
     />
   ) : (
-    <span lang={nameLanguage}>{partner.name}</span>
+    <span>{partner.name}</span>
   )
 }

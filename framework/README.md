@@ -1,30 +1,41 @@
 # Framework
 
-本模块负责 GHFRC 官网的页面结构、组件、导航行为、内容接口和基础黑白样式。
+The framework module owns the GHFRC website's page structure, components, routes, navigation behavior, responsive layout, accessibility foundation, and content interfaces. It does not store GHFRC's private production content or define the visual identity of future skins.
 
-本模块不保存 GHFRC 的内部正式内容，也不包含正式皮肤。
+The current implementation includes:
+
+- An Astro static site with a homepage overview and eight primary pages.
+- Simplified Chinese and English routes with automatic browser-language entry pages and a persistent manual language choice.
+- Independent English content overlays with field-level structured-content fallback and whole-body Markdown fallback to Simplified Chinese.
+- Canonical, `hreflang`, and incomplete-translation `noindex` metadata for localized pages.
+- Future-ready robot and news detail routes driven by Markdown collections.
+- Shared header, footer, breadcrumbs, metadata, compact navigation, and keyboard-accessible controls.
+- Responsive layouts for phone, iPad, and desktop widths, with a compact menu at narrow widths.
+- A light and dark mode control that follows the operating system on every page load; a manual choice affects only the current document and is not stored.
+- Header behavior that hides while scrolling down, returns while scrolling up, and remains available during navigation-triggered scrolling.
+- Legacy redirects from the former homepage hashes and `/about-frc/` route into the corresponding localized pages.
+- Content validation, safe media staging, static-output verification, and interaction tests.
+- Optional integration with the independent `achievements/` runtime through stable page markers; removing that module does not prevent the framework from building.
+
+Run development, testing, checking, and build commands from the project root so the selected content is validated and staged before Astro runs.
+
+# 框架
+
+框架模块负责 GHFRC 官网的页面结构、组件、路由、导航行为、响应式布局、无障碍基础和内容接口。它不保存 GHFRC 的私有正式内容，也不定义未来皮肤的具体视觉风格。
 
 当前实现包括：
 
-- 以长首页为主体的 Astro 静态网站。
-- 只生成 `/zh-cn/` 与 `/en/` 两套语言路径，并在两种语言中使用相同的英文 slug；例如 `/zh-cn/about-frc/` 与 `/en/about-frc/`。
-- 无前缀入口根据长期保存的手动选择或浏览器语言跳转；任何中文语言（包括繁体中文）进入简体中文，所有非中文语言进入英文，浏览器自动判断结果不会保存为手动偏好，明确语言 URL 始终优先。
-- 导航栏语言切换器保留当前 slug、查询参数和页面片段，并将选择长期保存在 `localStorage` 中。
-- 独立的“关于 FRC”介绍页面，以及从首页导航进入、从 Logo 返回对应语言首页的跨页面导航。
-- TypeScript 内容接口与交互脚本。
-- 从所选 `content/` 模块读取 `config/locales/zh-CN/` 与 `config/locales/en/` 下 `site.yaml` 和 `about-frc.yaml` 的 Astro Content Collection。
-- 以简体中文为完整基础内容，按稳定 `id` 合并英文覆盖文件；英文字段或段落缺失时只回退对应简体中文内容。
-- 各语言可独立覆盖图片与视频；未覆盖时共用简体中文媒体。
-- 自动报告缺少的英文字段但不阻断构建，并在英文内容未完整时为英文页面加入 `noindex`。
-- 使用 CSS Custom Properties 定义的基础黑白框架样式。
-- 导航定位、Logo 返回顶部和标题栏滚动行为测试。
-- 跟随系统设置并支持会话内手动切换的深色／浅色模式。
-- 根据可用宽度在横向导航和紧凑下拉导航之间切换的响应式布局。
-- 手机、iPad 与桌面宽度下的首页和独立页面内容重排、媒体约束和触控目标。
-- 通过页面区域标记和可选 loader 接入独立的 `achievements/` 模块；完整移除该模块不会阻止框架构建。
+- 由首页汇总页和 8 个主要页面组成的 Astro 静态网站。
+- 简体中文与英文内容路由、浏览器语言自动入口，以及长期保存的访客手动语言选择。
+- 独立英文内容覆盖，并对结构化字段进行逐字段简体中文回退、对空白 Markdown 正文进行整篇简体中文回退。
+- 本地化页面的规范链接、`hreflang` 及翻译未完成时的 `noindex` 元数据。
+- 由 Markdown 内容集合驱动、可供未来使用的机器人和新闻详情路由。
+- 全站共用的标题栏、页脚、面包屑、页面元数据、紧凑导航和键盘可操作控件。
+- 适配手机、iPad 和桌面宽度的响应式布局，并在窄屏使用紧凑菜单。
+- 每次加载页面时重新跟随操作系统的深色／浅色模式；访客手动切换只影响当前页面，不会保存。
+- 向下滚动时隐藏、向上滚动时返回，并在导航触发滚动期间保持可用的标题栏行为。
+- 从旧首页 Hash 和 `/about-frc/` 路径进入对应本地化页面的兼容跳转。
+- 内容校验、安全媒体暂存、静态产物检查和交互测试。
+- 通过稳定的页面标记可选接入独立 `achievements/` 运行时；完整移除该模块也不会阻止框架构建。
 
-未来将以 `/zh-hant/` 为香港、澳门和台湾提供统一繁体中文；当前版本不生成该语言路径。
-
-框架不会自动查找同级私有内容仓库。只有在受信任环境中明确设置 `GH_FRC_CONTENT_DIR` 时，构建才会改用该目录中的完整内容来源。
-
-请从总项目目录运行开发、测试、检查和构建命令，以确保内容暂存步骤同时执行。
+请从项目根目录运行开发、测试、检查和构建命令，以确保 Astro 启动前已经校验并暂存所选内容。

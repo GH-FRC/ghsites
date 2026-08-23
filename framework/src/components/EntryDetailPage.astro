@@ -1,0 +1,79 @@
+---
+import MediaFrame from './MediaFrame.astro';
+
+interface MediaReference {
+  src: string;
+  alt: string;
+  intrinsicWidth: number;
+  intrinsicHeight: number;
+}
+
+interface Props {
+  breadcrumbLabel: string;
+  homeLabel: string;
+  sectionLabel: string;
+  sectionHref: string;
+  eyebrow: string;
+  title: string;
+  introduction: string;
+  media?: MediaReference;
+  mediaLabel: string;
+  homeHref: string;
+  contentLanguage?: string;
+  breadcrumbLanguage?: string;
+  placeholderKindLabel?: string;
+  placeholderKindLanguage?: string;
+}
+
+const {
+  breadcrumbLabel,
+  homeLabel,
+  sectionLabel,
+  sectionHref,
+  eyebrow,
+  title,
+  introduction,
+  media,
+  mediaLabel,
+  homeHref,
+  contentLanguage,
+  breadcrumbLanguage,
+  placeholderKindLabel,
+  placeholderKindLanguage,
+} = Astro.props;
+---
+
+<main class="entry-detail" id="main-content">
+  <nav class="site-page__breadcrumb" aria-label={breadcrumbLabel} lang={breadcrumbLanguage}>
+    <a href={homeHref}>{homeLabel}</a>
+    <span aria-hidden="true">/</span>
+    <a href={sectionHref}>{sectionLabel}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page" lang={contentLanguage}>{title}</span>
+  </nav>
+
+  <header class="entry-detail__hero" id="page-top" lang={contentLanguage} data-scroll-section>
+    <div>
+      <p class="page-eyebrow">{eyebrow}</p>
+      <h1>{title}</h1>
+      <p>{introduction}</p>
+    </div>
+    <MediaFrame
+      media={media}
+      placeholderLabel={mediaLabel}
+      placeholderKindLabel={placeholderKindLabel}
+      placeholderLanguage={contentLanguage}
+      placeholderKindLanguage={placeholderKindLanguage}
+      mediaTextLanguage={contentLanguage}
+      eager
+    />
+  </header>
+
+  <article
+    class="entry-detail__body site-page__prose"
+    lang={contentLanguage}
+    data-scroll-section
+  >
+    <slot />
+  </article>
+</main>

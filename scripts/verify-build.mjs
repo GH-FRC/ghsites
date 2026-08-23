@@ -1,0 +1,179 @@
+import assert from 'node:assert/strict';
+import { access, readFile, readdir } from 'node:fs/promises';
+import { dirname, extname, join, resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
+
+const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
+const distRoot = join(projectRoot, 'framework', 'dist');
+const pageSlugs = [
+  'frc',
+  'xplore',
+  'team',
+  'robots',
+  'achievements',
+  'news',
+  'sponsors',
+  'contact',
+];
+const automaticRoutes = ['', 'about-frc', ...pageSlugs];
+const localizedRoutes = ['zh-cn', 'en'].flatMap((locale) => (
+  ['', ...pageSlugs].map((slug) => [locale, slug].filter(Boolean).join('/'))
+));
+const expectedHtmlFiles = [
+  ...automaticRoutes.map((route) => route ? `${route}/index.html` : 'index.html'),
+  ...localizedRoutes.map((route) => `${route}/index.html`),
+];
+
+async function fileExists(filePath) {
+  try {
+    await access(filePath);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
+function countMatches(source, pattern) {
+  return [...source.matchAll(pattern)].length;
+}
+
+function toOutputPath(publicReference) {
+  const referenceUrl = new URL(publicReference, 'https://ghfrc.org/');
+  const pathname = decodeURIComponent(referenceUrl.pathname);
+
+  if (pathname === '/') {
+    return join(distRoot, 'index.html');
+  }
+
+  if (pathname.endsWith('/') || extname(pathname) === '') {
+    return join(distRoot, pathname.slice(1), 'index.html');
+  }
+
+  return join(distRoot, pathname.slice(1));
+}
+
+async function collectFiles(directory) {
+  const entries = await readdir(directory, { withFileTypes: true });
+  const files = [];
+
+  for (const entry of entries) {
+    const entryPath = join(directory, entry.name);
+
+    if (entry.isDirectory()) {
+      files.push(...await collectFiles(entryPath));
+    } else if (entry.isFile()) {
+      files.push(entryPath);
+    }
+  }
+
+  return files;
+}
+
+for (const relativePath of expectedHtmlFiles) {
+  assert.equal(
+    await fileExists(join(distRoot, relativePath)),
+    true,
+    `Missing generated page: ${relativePath}`,
+  );
+}
+
+for (const route of localizedRoutes) {
+  const relativePath = `${route}/index.html`;
+  const html = await readFile(join(distRoot, relativePath), 'utf8');
+  const locale = route.split('/')[0];
+  const htmlLanguage = locale === 'en' ? 'en' : 'zh-CN';
+  const pagePath = route.slice(locale.length + 1);
+  const oppositeLocale = locale === 'en' ? 'zh-cn' : 'en';
+  const expectedSwitchPath = `/${oppositeLocale}/${pagePath ? `${pagePath}/` : ''}`;
+
+  assert.equal(countMatches(html, /<title(?:\s|>)/gu), 1, `${relativePath} must have one title.`);
+  assert.equal(
+    countMatches(html, /<meta name="description" content="[^"]+"(?:\s[^>]*)?>/gu),
+    1,
+    `${relativePath} must have one description.`,
+  );
+  assert.match(
+    html,
+    new RegExp(`<html[^>]*lang="${htmlLanguage}"`, 'u'),
+    `${relativePath} must declare ${htmlLanguage}.`,
+  );
+  assert.equal(countMatches(html, /<h1(?:\s|>)/gu), 1, `${relativePath} must have one h1.`);
+  assert.match(html, /data-site-header/u, `${relativePath} must include the shared header.`);
+  assert.match(html, /data-language-switch/u, `${relativePath} must include language switching.`);
+  assert.match(
+    html,
+    new RegExp(`href="${expectedSwitchPath}"[^>]*data-language-switch`, 'u'),
+    `${relativePath} must switch to the matching localized route.`,
+  );
+  assert.match(html, /hreflang="zh-CN"/u, `${relativePath} must advertise zh-CN.`);
+  assert.match(html, /hreflang="en"/u, `${relativePath} must advertise English.`);
+  assert.match(html, /hreflang="x-default"/u, `${relativePath} must advertise x-default.`);
+  assert.doesNotMatch(html, /hreflang="zh-Hant"/u, 'Traditional Chinese must remain disabled.');
+
+  if (locale === 'en') {
+    assert.match(
+      html,
+      /<meta name="robots" content="noindex, follow">/u,
+      `${relativePath} must remain noindex while English content is incomplete.`,
+    );
+  }
+
+  const publicReferences = [...html.matchAll(/(?:href|src)="([^"]+)"/gu)]
+    .map((match) => match[1])
+    .filter((reference) => reference.startsWith('/') && !reference.startsWith('//'));
+
+  for (const reference of publicReferences) {
+    assert.equal(
+      await fileExists(toOutputPath(reference)),
+      true,
+      `${relativePath} contains a broken internal reference: ${reference}`,
+    );
+  }
+}
+
+for (const route of automaticRoutes) {
+  const relativePath = route ? `${route}/index.html` : 'index.html';
+  const html = await readFile(join(distRoot, relativePath), 'utf8');
+
+  assert.match(html, /__ghfrc_auto_language/u, `${relativePath} must select a language.`);
+  assert.doesNotMatch(html, /data-site-header/u, `${relativePath} must remain a redirect entry.`);
+}
+
+for (const locale of ['zh-cn', 'en']) {
+  const homepageHtml = await readFile(join(distRoot, locale, 'index.html'), 'utf8');
+  let previousRoutePosition = -1;
+
+  for (const slug of pageSlugs) {
+    const route = `/${locale}/${slug}/`;
+    const routePosition = homepageHtml.indexOf(`href="${route}"`);
+    assert.ok(routePosition > previousRoutePosition, `${locale} homepage order is incorrect at ${route}.`);
+    previousRoutePosition = routePosition;
+  }
+
+  const sponsorsHtml = await readFile(join(distRoot, locale, 'sponsors', 'index.html'), 'utf8');
+  assert.match(sponsorsHtml, /class="empty-state"/u, 'Sponsors must retain its empty state.');
+
+  const robotsHtml = await readFile(join(distRoot, locale, 'robots', 'index.html'), 'utf8');
+  assert.match(robotsHtml, /poster-card poster-card--empty/u, 'Robots must show one generic poster when empty.');
+
+  const newsHtml = await readFile(join(distRoot, locale, 'news', 'index.html'), 'utf8');
+  assert.match(newsHtml, /class="empty-state"/u, 'News must retain its empty state.');
+}
+
+assert.equal(await fileExists(join(distRoot, 'zh-hant')), false, 'zh-Hant routes must not be generated.');
+
+const outputFiles = await collectFiles(distRoot);
+for (const outputFile of outputFiles) {
+  assert.doesNotMatch(outputFile, /\.(?:lfs|mov)$/iu, 'Internal media entered the build output.');
+
+  if (outputFile.endsWith('.html') || outputFile.endsWith('.js') || outputFile.endsWith('.css')) {
+    const outputText = await readFile(outputFile, 'utf8');
+    assert.doesNotMatch(
+      outputText,
+      /particle-skin-ui-reference|git-lfs\.github\.com\/spec/iu,
+      `Internal reference text entered ${outputFile}.`,
+    );
+  }
+}
+
+console.log(`Verified ${expectedHtmlFiles.length} generated pages and ${outputFiles.length} output files.`);

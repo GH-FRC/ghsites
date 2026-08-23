@@ -1,0 +1,97 @@
+---
+import { getCollection, render } from 'astro:content';
+
+import SitePage from '../../components/SitePage.astro';
+import { loadLocalizedWebsiteContent } from '../../i18n/content-loader';
+import { SUPPORTED_LOCALES, type Locale } from '../../i18n/locales';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { sitePagePlan, type SitePageId } from '../../site-structure';
+
+interface Props {
+  locale: Locale;
+  navigationId: SitePageId;
+  contentId: string;
+}
+
+export function getStaticPaths() {
+  return SUPPORTED_LOCALES.flatMap((locale) => (
+    sitePagePlan.map((plan) => ({
+      params: { locale, page: plan.contentId },
+      props: {
+        locale,
+        navigationId: plan.id,
+        contentId: plan.contentId,
+      },
+    }))
+  ));
+}
+
+const { locale, navigationId, contentId } = Astro.props;
+const [localizedContent, robotEntries, newsEntries] = await Promise.all([
+  loadLocalizedWebsiteContent(locale),
+  getCollection('robot'),
+  getCollection('news'),
+]);
+const localizedPage = localizedContent.pages.find((page) => page.id === contentId);
+
+if (
+  !localizedPage
+  || localizedPage.data.content.navigationId !== navigationId
+) {
+  throw new Error(`The localized ${contentId} page content is missing or invalid.`);
+}
+
+const robots = robotEntries
+  .flatMap((entry) => (
+    entry.data.entryType === 'robot' && entry.data.published
+      ? [{ id: entry.id, data: entry.data }]
+      : []
+  ))
+  .sort((left, right) => right.data.season.localeCompare(left.data.season, 'zh-CN'));
+const news = newsEntries
+  .flatMap((entry) => (
+    entry.data.entryType === 'news' && entry.data.published
+      ? [{ id: entry.id, data: entry.data }]
+      : []
+  ))
+  .sort((left, right) => right.data.publishedAt.getTime() - left.data.publishedAt.getTime());
+const { Content } = await render(localizedPage.bodyEntry);
+const site = localizedContent.site.content;
+const pageContent = localizedPage.data.content;
+const siteFallbackLanguage = (path: string) => (
+  localizedContent.site.fallbackPaths.has(path) ? 'zh-CN' : undefined
+);
+const pageFallbackLanguage = (path: string) => (
+  localizedPage.data.fallbackPaths.has(path) ? 'zh-CN' : undefined
+);
+---
+
+<SiteLayout
+  site={site}
+  siteFallbackPaths={localizedContent.site.fallbackPaths}
+  locale={locale}
+  currentPage={navigationId}
+  pagePath={contentId}
+  title={pageContent.meta.title}
+  description={pageContent.meta.description}
+  noIndex={locale === 'en' && !localizedContent.isEnglishComplete}
+  titleLanguage={pageFallbackLanguage('meta.title')}
+  descriptionLanguage={pageFallbackLanguage('meta.description')}
+>
+  <SitePage
+    page={pageContent}
+    fallbackPaths={localizedPage.data.fallbackPaths}
+    bodyLanguage={localizedPage.bodyLanguage}
+    locale={locale}
+    breadcrumbLabel={site.accessibility.breadcrumbNavigation}
+    breadcrumbLanguage={siteFallbackLanguage('accessibility.breadcrumbNavigation')}
+    homeLabel={site.accessibility.homeLabel}
+    homeLabelLanguage={siteFallbackLanguage('accessibility.homeLabel')}
+    placeholderKindLabel={site.placeholderKinds.media}
+    placeholderKindLanguage={siteFallbackLanguage('placeholderKinds.media')}
+    robots={robots}
+    news={news}
+  >
+    <Content />
+  </SitePage>
+</SiteLayout>

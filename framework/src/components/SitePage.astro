@@ -1,0 +1,350 @@
+---
+import type { CollectionEntry } from 'astro:content';
+
+import type { PageContent } from '../content-schema';
+import type { Locale } from '../i18n/locales';
+import EmptyState from './EmptyState.astro';
+import MediaFrame from './MediaFrame.astro';
+import PartnerMark from './PartnerMark.astro';
+
+interface Props {
+  page: PageContent;
+  fallbackPaths: ReadonlySet<string>;
+  bodyLanguage?: string;
+  locale: Locale;
+  breadcrumbLabel: string;
+  breadcrumbLanguage?: string;
+  homeLabel: string;
+  homeLabelLanguage?: string;
+  placeholderKindLabel: string;
+  placeholderKindLanguage?: string;
+  robots: Array<{
+    id: string;
+    data: Extract<CollectionEntry<'robot'>['data'], { entryType: 'robot' }>;
+  }>;
+  news: Array<{
+    id: string;
+    data: Extract<CollectionEntry<'news'>['data'], { entryType: 'news' }>;
+  }>;
+}
+
+const {
+  page,
+  fallbackPaths,
+  bodyLanguage,
+  locale,
+  breadcrumbLabel,
+  breadcrumbLanguage,
+  homeLabel,
+  homeLabelLanguage,
+  placeholderKindLabel,
+  placeholderKindLanguage,
+  robots,
+  news,
+} = Astro.props;
+const emptyState = page.emptyState;
+const detailLinkLabel = page.detailLinkLabel ?? page.home.linkLabel;
+const fieldLanguage = (path: string) => {
+  if (locale !== 'en') {
+    return undefined;
+  }
+
+  return fallbackPaths.has(path) ? 'zh-CN' : 'en';
+};
+const fallbackGroupLanguage = (prefix: string) => (
+  locale === 'en' && [...fallbackPaths].some((path) => path.startsWith(prefix))
+    ? 'zh-CN'
+    : undefined
+);
+---
+
+<main class:list={['site-page', `site-page--${page.layout}`]} id="main-content">
+  <nav
+    class="site-page__breadcrumb"
+    aria-label={breadcrumbLabel}
+    lang={breadcrumbLanguage}
+  >
+    <a href={`/${locale}/`} lang={homeLabelLanguage}>{homeLabel}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page" lang={fieldLanguage('hero.title')}>{page.hero.title}</span>
+  </nav>
+
+  <header class="site-page__hero" id="page-top" data-scroll-section>
+    <div class="site-page__hero-copy">
+      <p class="page-eyebrow" lang={fieldLanguage('hero.eyebrow')}>{page.hero.eyebrow}</p>
+      <h1 lang={fieldLanguage('hero.title')}>{page.hero.title}</h1>
+      <p class="site-page__introduction" lang={fieldLanguage('hero.introduction')}>
+        {page.hero.introduction}
+      </p>
+    </div>
+
+    {
+      page.hero.mediaLabel && (
+        <div class="site-page__hero-media">
+          <MediaFrame
+            media={page.hero.media}
+            placeholderLabel={page.hero.mediaLabel}
+            placeholderKindLabel={placeholderKindLabel}
+            placeholderLanguage={fieldLanguage('hero.mediaLabel')}
+            placeholderKindLanguage={placeholderKindLanguage}
+            mediaTextLanguage={fieldLanguage('hero.media.alt')}
+            eager
+          />
+        </div>
+      )
+    }
+
+    {
+      page.highlights && page.highlights.length > 0 && (
+        <dl class="site-page__highlights">
+          {page.highlights.map((highlight) => (
+            <div>
+              <dt lang={fieldLanguage(`highlights[id=${highlight.id}].value`)}>
+                {highlight.value}
+              </dt>
+              <dd lang={fieldLanguage(`highlights[id=${highlight.id}].label`)}>
+                {highlight.label}
+              </dd>
+            </div>
+          ))}
+        </dl>
+      )
+    }
+  </header>
+
+  <section class="site-page__body" data-scroll-section>
+    <div class="site-page__prose" lang={bodyLanguage}>
+      <slot />
+    </div>
+  </section>
+
+  {
+    page.layout === 'robots' && (
+      <section
+        class="poster-stack"
+        aria-label={page.hero.title}
+        lang={robots.length > 0 && locale === 'en' ? 'zh-CN' : fieldLanguage('hero.title')}
+        data-scroll-section
+      >
+        {robots.length > 0 ? (
+          robots.map((robot) => (
+            <article class="poster-card">
+              <div class="poster-card__media">
+                <MediaFrame
+                  media={robot.data.poster}
+                  placeholderLabel={robot.data.title}
+                  placeholderKindLabel={placeholderKindLabel}
+                  placeholderKindLanguage={placeholderKindLanguage}
+                  mediaTextLanguage={locale === 'en' ? 'zh-CN' : undefined}
+                />
+              </div>
+              <div class="poster-card__copy">
+                <p class="page-eyebrow">{robot.data.season}</p>
+                <h2>{robot.data.title}</h2>
+                <p>{robot.data.summary}</p>
+                <a class="text-link" href={`/${locale}/robots/${robot.id}/`}>
+                  <span>{detailLinkLabel}</span>
+                  <span aria-hidden="true">↗</span>
+                </a>
+              </div>
+            </article>
+          ))
+        ) : emptyState ? (
+          <article
+            class="poster-card poster-card--empty"
+            lang={fallbackGroupLanguage('emptyState.')}
+          >
+            <div class="poster-card__media">
+              <MediaFrame
+                placeholderLabel={emptyState.eyebrow}
+                placeholderKindLabel={placeholderKindLabel}
+                placeholderKindLanguage={placeholderKindLanguage}
+                placeholderLanguage={fieldLanguage('emptyState.eyebrow')}
+              />
+            </div>
+            <div class="poster-card__copy">
+              <p class="page-eyebrow">{emptyState.eyebrow}</p>
+              <h2>{emptyState.title}</h2>
+              <p>{emptyState.body}</p>
+            </div>
+          </article>
+        ) : null}
+      </section>
+    )
+  }
+
+  {
+    page.layout === 'competition-results' && (
+      <section class="season-showcase" aria-label={page.hero.title} data-scroll-section>
+        {page.seasons && page.seasons.length > 0 ? (
+          page.seasons.map((season) => (
+            <article class="season-poster">
+              <div class="season-poster__copy">
+                <p class="page-eyebrow" lang={fieldLanguage(`seasons[id=${season.id}].season`)}>
+                  {season.season}
+                </p>
+                <h2 lang={fieldLanguage(`seasons[id=${season.id}].event`)}>{season.event}</h2>
+                <p lang={fieldLanguage(`seasons[id=${season.id}].summary`)}>{season.summary}</p>
+                {season.awards.length > 0 && (
+                  <ul lang={fallbackGroupLanguage(`seasons[id=${season.id}].awards`)}>
+                    {season.awards.map((award) => <li>{award}</li>)}
+                  </ul>
+                )}
+              </div>
+              <MediaFrame
+                media={season.media}
+                placeholderLabel={season.event}
+                placeholderKindLabel={placeholderKindLabel}
+                placeholderKindLanguage={placeholderKindLanguage}
+                placeholderLanguage={fieldLanguage(`seasons[id=${season.id}].event`)}
+                mediaTextLanguage={fieldLanguage(`seasons[id=${season.id}].media.alt`)}
+              />
+            </article>
+          ))
+        ) : emptyState ? (
+          <div lang={fallbackGroupLanguage('emptyState.')}><EmptyState state={emptyState} /></div>
+        ) : null}
+      </section>
+    )
+  }
+
+  {
+    page.layout === 'news' && (
+      <section
+        class="news-index"
+        aria-label={page.hero.title}
+        lang={news.length > 0 && locale === 'en' ? 'zh-CN' : undefined}
+        data-scroll-section
+      >
+        {news.length > 0 ? (
+          <div class="news-index__grid">
+            {news.map((article) => (
+              <article class="news-card">
+                {article.data.cover && (
+                  <MediaFrame
+                    media={article.data.cover}
+                    placeholderLabel={article.data.title}
+                    placeholderKindLabel={placeholderKindLabel}
+                    placeholderKindLanguage={placeholderKindLanguage}
+                    mediaTextLanguage={locale === 'en' ? 'zh-CN' : undefined}
+                  />
+                )}
+                <div class="news-card__copy">
+                  <time datetime={article.data.publishedAt.toISOString()}>
+                    {article.data.publishedAt.toLocaleDateString(locale === 'en' ? 'en' : 'zh-CN')}
+                  </time>
+                  <h2>{article.data.title}</h2>
+                  <p>{article.data.summary}</p>
+                  <a class="text-link" href={`/${locale}/news/${article.id}/`}>
+                    <span>{detailLinkLabel}</span>
+                    <span aria-hidden="true">↗</span>
+                  </a>
+                </div>
+              </article>
+            ))}
+          </div>
+        ) : emptyState ? (
+          <div lang={fallbackGroupLanguage('emptyState.')}><EmptyState state={emptyState} /></div>
+        ) : null}
+      </section>
+    )
+  }
+
+  {
+    page.layout === 'contact' && (
+      <section class="contact-panel" aria-label={page.hero.title} data-scroll-section>
+        {page.contactMethods && page.contactMethods.length > 0 ? (
+          <dl>
+            {page.contactMethods.map((method) => (
+              <div>
+                <dt lang={fieldLanguage(`contactMethods[id=${method.id}].label`)}>
+                  {method.label}
+                </dt>
+                <dd lang={fieldLanguage(`contactMethods[id=${method.id}].value`)}>
+                  {method.href ? <a href={method.href}>{method.value}</a> : method.value}
+                </dd>
+              </div>
+            ))}
+          </dl>
+        ) : emptyState ? (
+          <div lang={fallbackGroupLanguage('emptyState.')}><EmptyState state={emptyState} /></div>
+        ) : null}
+      </section>
+    )
+  }
+
+  {
+    page.layout === 'placeholder' && emptyState && (
+      <section class="placeholder-page" lang={fallbackGroupLanguage('emptyState.')} data-scroll-section>
+        <EmptyState state={emptyState} />
+      </section>
+    )
+  }
+
+  {
+    page.partners && (
+      <section class="site-page__support" data-scroll-section>
+        <header>
+          <p class="page-eyebrow" lang={fieldLanguage('partners.eyebrow')}>
+            {page.partners.eyebrow}
+          </p>
+          <h2 lang={fieldLanguage('partners.heading')}>{page.partners.heading}</h2>
+          <p lang={fieldLanguage('partners.introduction')}>{page.partners.introduction}</p>
+        </header>
+        <ul class="partner-grid" aria-label={page.partners.heading}>
+          {page.partners.items.map((partner) => (
+            <li
+              data-surface={partner.surface ?? 'light'}
+              lang={fieldLanguage(`partners.items[id=${partner.id}].name`)}
+            >
+              {partner.website ? (
+                <a href={partner.website} target="_blank" rel="noreferrer">
+                  <PartnerMark partner={partner} />
+                </a>
+              ) : (
+                <PartnerMark partner={partner} />
+              )}
+            </li>
+          ))}
+        </ul>
+        <p class="site-page__note" lang={fieldLanguage('partners.disclaimer')}>
+          {page.partners.disclaimer}
+        </p>
+      </section>
+    )
+  }
+
+  {
+    page.sources && (
+      <section class="site-page__sources" data-scroll-section>
+        <header>
+          <p class="page-eyebrow" lang={fieldLanguage('sources.eyebrow')}>
+            {page.sources.eyebrow}
+          </p>
+          <h2 lang={fieldLanguage('sources.heading')}>{page.sources.heading}</h2>
+          <p lang={fieldLanguage('sources.introduction')}>{page.sources.introduction}</p>
+        </header>
+        <ol>
+          {page.sources.items.map((source) => (
+            <li>
+              <a
+                href={source.url}
+                target="_blank"
+                rel="noreferrer"
+                lang={fieldLanguage(`sources.items[id=${source.id}].title`)}
+              >
+                {source.title}
+              </a>
+              <span lang={fieldLanguage(`sources.items[id=${source.id}].organization`)}>
+                {source.organization}
+              </span>
+            </li>
+          ))}
+        </ol>
+        <p class="site-page__note" lang={fieldLanguage('sources.reviewedOn')}>
+          {page.sources.reviewedOn}
+        </p>
+      </section>
+    )
+  }
+</main>

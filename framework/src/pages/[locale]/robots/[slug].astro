@@ -1,0 +1,78 @@
+---
+import type { CollectionEntry } from 'astro:content';
+import { getCollection, render } from 'astro:content';
+
+import EntryDetailPage from '../../../components/EntryDetailPage.astro';
+import { loadLocalizedWebsiteContent } from '../../../i18n/content-loader';
+import { SUPPORTED_LOCALES, type Locale } from '../../../i18n/locales';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+
+interface Props {
+  locale: Locale;
+  entry: CollectionEntry<'robot'>;
+}
+
+export async function getStaticPaths() {
+  const entries = await getCollection('robot');
+
+  return SUPPORTED_LOCALES.flatMap((locale) => (
+    entries.flatMap((entry) => (
+      entry.data.entryType === 'robot' && entry.data.published
+        ? [{ params: { locale, slug: entry.id }, props: { locale, entry } }]
+        : []
+    ))
+  ));
+}
+
+const { locale, entry } = Astro.props;
+
+if (entry.data.entryType !== 'robot') {
+  throw new Error('A robot guide entry cannot be rendered as a robot detail page.');
+}
+
+const localizedContent = await loadLocalizedWebsiteContent(locale);
+const robotsPage = localizedContent.pages.find((page) => page.id === 'robots');
+
+if (!robotsPage) {
+  throw new Error('The robots page content is missing.');
+}
+
+const { Content } = await render(entry);
+const site = localizedContent.site.content;
+const contentLanguage = locale === 'en' ? 'zh-CN' : undefined;
+const siteFallbackLanguage = (path: string) => (
+  localizedContent.site.fallbackPaths.has(path) ? 'zh-CN' : undefined
+);
+---
+
+<SiteLayout
+  site={site}
+  siteFallbackPaths={localizedContent.site.fallbackPaths}
+  locale={locale}
+  currentPage="robots"
+  pagePath={`robots/${entry.id}`}
+  title={`${entry.data.title} | ${site.title}`}
+  description={entry.data.description}
+  noIndex={locale === 'en'}
+  titleLanguage={contentLanguage}
+  descriptionLanguage={contentLanguage}
+>
+  <EntryDetailPage
+    breadcrumbLabel={site.accessibility.breadcrumbNavigation}
+    breadcrumbLanguage={siteFallbackLanguage('accessibility.breadcrumbNavigation')}
+    homeLabel={site.accessibility.homeLabel}
+    homeHref={`/${locale}/`}
+    sectionLabel={robotsPage.data.content.hero.title}
+    sectionHref={`/${locale}/robots/`}
+    eyebrow={entry.data.season}
+    title={entry.data.title}
+    introduction={entry.data.summary}
+    media={entry.data.poster}
+    mediaLabel={entry.data.title}
+    contentLanguage={contentLanguage}
+    placeholderKindLabel={site.placeholderKinds.media}
+    placeholderKindLanguage={siteFallbackLanguage('placeholderKinds.media')}
+  >
+    <Content />
+  </EntryDetailPage>
+</SiteLayout>

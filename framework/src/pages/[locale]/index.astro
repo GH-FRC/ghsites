@@ -1,0 +1,81 @@
+---
+import HomePage from '../../components/HomePage.astro';
+import { loadLocalizedWebsiteContent } from '../../i18n/content-loader';
+import { SUPPORTED_LOCALES, type Locale } from '../../i18n/locales';
+import SiteLayout from '../../layouts/SiteLayout.astro';
+import { localizedPageHref, sitePagePlan } from '../../site-structure';
+
+interface Props {
+  locale: Locale;
+}
+
+export function getStaticPaths() {
+  return SUPPORTED_LOCALES.map((locale) => ({
+    params: { locale },
+    props: { locale },
+  }));
+}
+
+const { locale } = Astro.props;
+const localizedContent = await loadLocalizedWebsiteContent(locale);
+const site = localizedContent.site.content;
+const pageById = new Map(localizedContent.pages.map((page) => [page.id, page]));
+const pages = sitePagePlan.map((plan) => {
+  const localizedPage = pageById.get(plan.contentId);
+
+  if (
+    !localizedPage
+    || localizedPage.data.content.navigationId !== plan.id
+    || localizedPage.data.content.order !== plan.order
+  ) {
+    throw new Error(
+      `The ${plan.contentId} page content is missing or assigned to the wrong navigation item.`,
+    );
+  }
+
+  return {
+    id: plan.id,
+    href: localizedPageHref(locale, plan.contentId),
+    page: localizedPage.data.content,
+    fallbackPaths: localizedPage.data.fallbackPaths,
+  };
+});
+const fallbackLanguage = (path: string) => (
+  localizedContent.site.fallbackPaths.has(path) ? 'zh-CN' : undefined
+);
+---
+
+<SiteLayout
+  site={site}
+  siteFallbackPaths={localizedContent.site.fallbackPaths}
+  locale={locale}
+  currentPage="home"
+  title={site.title}
+  description={site.description}
+  noIndex={locale === 'en' && !localizedContent.isEnglishComplete}
+  titleLanguage={fallbackLanguage('title')}
+  descriptionLanguage={fallbackLanguage('description')}
+>
+  <HomePage
+    hero={site.hero}
+    heroFallbackPaths={localizedContent.site.fallbackPaths}
+    pages={pages}
+    placeholderKindLabel={site.placeholderKinds.media}
+    placeholderKindLanguage={fallbackLanguage('placeholderKinds.media')}
+  />
+
+  <script>
+    import { initializeOptionalAchievementSystem } from '../../scripts/optional-achievements';
+    import { initializeLegacySectionNavigation } from '../../scripts/legacy-navigation';
+
+    if (!initializeLegacySectionNavigation()) {
+      const notificationText = document.documentElement.dataset.achievementUnlockedMessage;
+      const notificationLanguage = document.documentElement.dataset.achievementUnlockedLanguage;
+
+      void initializeOptionalAchievementSystem(undefined, {
+        notificationLanguage,
+        notificationText,
+      });
+    }
+  </script>
+</SiteLayout>

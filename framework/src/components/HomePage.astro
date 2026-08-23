@@ -1,0 +1,103 @@
+---
+import type { PageContent, SiteContent } from '../content-schema';
+import type { SitePageId } from '../site-structure';
+import MediaFrame from './MediaFrame.astro';
+
+interface HomePageItem {
+  id: SitePageId;
+  href: string;
+  page: PageContent;
+  fallbackPaths: ReadonlySet<string>;
+}
+
+interface Props {
+  hero: SiteContent['hero'];
+  heroFallbackPaths: ReadonlySet<string>;
+  pages: HomePageItem[];
+  placeholderKindLabel: string;
+  placeholderKindLanguage?: string;
+}
+
+const {
+  hero,
+  heroFallbackPaths,
+  pages,
+  placeholderKindLabel,
+  placeholderKindLanguage,
+} = Astro.props;
+const fallbackLanguage = (
+  paths: ReadonlySet<string>,
+  path: string,
+) => paths.has(path) ? 'zh-CN' : undefined;
+---
+
+<main class="home-page" id="main-content">
+  <section class="home-hero" id="page-top" data-scroll-section>
+    <div class="home-hero__inner">
+      <div class="home-hero__copy">
+        <p class="page-eyebrow" lang={fallbackLanguage(heroFallbackPaths, 'hero.eyebrow')}>
+          {hero.eyebrow}
+        </p>
+        <h1 lang={fallbackLanguage(heroFallbackPaths, 'hero.title')}>{hero.title}</h1>
+        <p lang={fallbackLanguage(heroFallbackPaths, 'hero.introduction')}>
+          {hero.introduction}
+        </p>
+      </div>
+      <div class="home-hero__media">
+        <MediaFrame
+          media={hero.media}
+          placeholderLabel={hero.mediaLabel}
+          placeholderKindLabel={placeholderKindLabel}
+          placeholderLanguage={fallbackLanguage(heroFallbackPaths, 'hero.mediaLabel')}
+          placeholderKindLanguage={placeholderKindLanguage}
+          mediaTextLanguage={fallbackLanguage(heroFallbackPaths, 'hero.media.alt')}
+          eager
+        />
+      </div>
+    </div>
+  </section>
+
+  {
+    pages.map(({ id, href, page, fallbackPaths }, index) => (
+      <section
+        class:list={['home-showcase', index % 2 === 1 && 'home-showcase--reverse']}
+        id={id}
+        data-achievement-section={id}
+        data-scroll-section
+      >
+        <div class="home-showcase__inner">
+          <div class="home-showcase__copy">
+            <span class="home-showcase__index" aria-hidden="true">
+              {String(index + 1).padStart(2, '0')}
+            </span>
+            <h2 lang={fallbackLanguage(fallbackPaths, 'home.title')}>{page.home.title}</h2>
+            <p lang={fallbackLanguage(fallbackPaths, 'home.summary')}>{page.home.summary}</p>
+            <a
+              class="text-link"
+              href={href}
+              lang={fallbackLanguage(fallbackPaths, 'home.linkLabel')}
+            >
+              <span>{page.home.linkLabel}</span>
+              <span aria-hidden="true">↗</span>
+            </a>
+          </div>
+          <a
+            class="home-showcase__media-link"
+            href={href}
+            aria-label={page.home.title}
+            lang={fallbackLanguage(fallbackPaths, 'home.title')}
+          >
+            <MediaFrame
+              media={page.home.media}
+              placeholderLabel={page.home.mediaLabel}
+              placeholderKindLabel={placeholderKindLabel}
+              placeholderLanguage={fallbackLanguage(fallbackPaths, 'home.mediaLabel')}
+              placeholderKindLanguage={placeholderKindLanguage}
+              mediaTextLanguage={fallbackLanguage(fallbackPaths, 'home.media.alt')}
+            />
+          </a>
+        </div>
+      </section>
+    ))
+  }
+</main>

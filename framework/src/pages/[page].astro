@@ -1,0 +1,19 @@
+---
+import LanguageRedirectPage from '../components/LanguageRedirectPage.astro';
+import { sitePagePlan } from '../site-structure';
+
+interface Props {
+  pagePath: string;
+}
+
+export function getStaticPaths() {
+  return sitePagePlan.map(({ contentId }) => ({
+    params: { page: contentId },
+    props: { pagePath: contentId },
+  }));
+}
+
+const { pagePath } = Astro.props;
+---
+
+<LanguageRedirectPage pagePath={pagePath} />

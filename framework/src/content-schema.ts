@@ -1,44 +1,41 @@
 import { z } from 'astro/zod';
 
-const identifiedTextSchema = z.object({
-  id: z.string().min(1),
-  text: z.string().min(1),
-});
-
-export const localizedImageSchema = z.object({
+const mediaBaseShape = {
   src: z.string().startsWith('/content/'),
   alt: z.string().min(1),
   intrinsicWidth: z.number().int().positive(),
   intrinsicHeight: z.number().int().positive(),
+};
+
+export const localizedImageSchema = z.object({
+  ...mediaBaseShape,
+  type: z.literal('image').default('image'),
+});
+
+const captionSchema = z.object({
+  id: z.string().min(1),
+  src: z.string().startsWith('/content/'),
+  srclang: z.string().min(2),
+  label: z.string().min(1),
+  default: z.boolean().optional(),
 });
 
 export const localizedVideoSchema = z.object({
+  ...mediaBaseShape,
   type: z.literal('video'),
-  src: z.string().startsWith('/content/'),
-  title: z.string().min(1),
-  poster: z.object({
-    src: z.string().startsWith('/content/'),
-  }).optional(),
-  tracks: z.array(z.object({
-    id: z.string().min(1),
-    src: z.string().startsWith('/content/'),
-    kind: z.enum(['captions', 'subtitles']),
-    srclang: z.string().min(2),
-    label: z.string().min(1),
-  })).optional(),
+  poster: z.string().startsWith('/content/').optional(),
+  captions: z.array(captionSchema).optional(),
 });
 
 export const localizedMediaSchema = z.union([
-  localizedImageSchema.extend({ type: z.literal('image') }),
   localizedVideoSchema,
+  localizedImageSchema,
 ]);
 
-const sectionSchema = z.object({
-  heading: z.string().min(1),
-  bodyPlaceholder: z.string().min(1),
-  mediaPlaceholder: z.string().min(1).optional(),
-  media: localizedMediaSchema.optional(),
-  itemPlaceholders: z.array(identifiedTextSchema),
+const emptyStateSchema = z.object({
+  eyebrow: z.string().min(1),
+  title: z.string().min(1),
+  body: z.string().min(1),
 });
 
 export const siteSchema = z.object({
@@ -47,7 +44,10 @@ export const siteSchema = z.object({
   description: z.string().min(1),
   logo: localizedImageSchema,
   accessibility: z.object({
+    skipToContent: z.string().min(1),
     mainNavigation: z.string().min(1),
+    breadcrumbNavigation: z.string().min(1),
+    homeLabel: z.string().min(1),
     returnToTop: z.string().min(1),
     returnToHome: z.string().min(1),
     switchToDarkMode: z.string().min(1),
@@ -65,6 +65,9 @@ export const siteSchema = z.object({
       en: z.string().min(1),
     }),
   }),
+  achievementMessages: z.object({
+    unlocked: z.string().min(1),
+  }),
   placeholderKinds: z.object({
     text: z.string().min(1),
     media: z.string().min(1),
@@ -72,9 +75,6 @@ export const siteSchema = z.object({
     news: z.string().min(1),
     sponsor: z.string().min(1),
     contact: z.string().min(1),
-  }),
-  achievementMessages: z.object({
-    unlocked: z.string().min(1),
   }),
   navigation: z.object({
     'about-frc': z.string().min(1),
@@ -87,20 +87,11 @@ export const siteSchema = z.object({
     contact: z.string().min(1),
   }),
   hero: z.object({
+    eyebrow: z.string().min(1),
     title: z.string().min(1),
-    introPlaceholder: z.string().min(1),
-    mediaPlaceholder: z.string().min(1),
+    introduction: z.string().min(1),
+    mediaLabel: z.string().min(1),
     media: localizedMediaSchema.optional(),
-  }),
-  sections: z.object({
-    'about-frc': sectionSchema,
-    'about-xplore': sectionSchema,
-    'about-gh-frc': sectionSchema,
-    robots: sectionSchema,
-    achievements: sectionSchema,
-    news: sectionSchema,
-    sponsors: sectionSchema,
-    contact: sectionSchema,
   }),
   footer: z.object({
     title: z.string().min(1),
@@ -108,87 +99,65 @@ export const siteSchema = z.object({
   }),
 });
 
-const paragraphListSchema = z.array(identifiedTextSchema).min(1);
-
-export const aboutFrcSchema = z.object({
+export const pageSchema = z.object({
+  navigationId: z.enum([
+    'about-frc',
+    'about-xplore',
+    'about-gh-frc',
+    'robots',
+    'achievements',
+    'news',
+    'sponsors',
+    'contact',
+  ]),
+  order: z.number().int().min(1).max(8),
+  layout: z.enum([
+    'editorial',
+    'robots',
+    'competition-results',
+    'news',
+    'placeholder',
+    'contact',
+  ]),
   meta: z.object({
     title: z.string().min(1),
     description: z.string().min(1),
-  }),
-  breadcrumb: z.object({
-    ariaLabel: z.string().min(1),
-    homeLabel: z.string().min(1),
-    currentLabel: z.string().min(1),
   }),
   hero: z.object({
     eyebrow: z.string().min(1),
     title: z.string().min(1),
     introduction: z.string().min(1),
-    highlights: z.array(z.object({
-      id: z.string().min(1),
-      value: z.string().min(1),
-      label: z.string().min(1),
-    })).min(1),
+    mediaLabel: z.string().min(1).optional(),
+    media: localizedMediaSchema.optional(),
   }),
-  overview: z.object({
-    eyebrow: z.string().min(1),
-    heading: z.string().min(1),
-    paragraphs: paragraphListSchema,
+  home: z.object({
+    title: z.string().min(1),
+    summary: z.string().min(1),
+    linkLabel: z.string().min(1),
+    mediaLabel: z.string().min(1),
+    media: localizedMediaSchema.optional(),
   }),
-  competition: z.object({
-    eyebrow: z.string().min(1),
-    heading: z.string().min(1),
-    introduction: z.string().min(1),
-    stages: z.array(z.object({
-      id: z.string().min(1),
-      index: z.string().min(1),
-      heading: z.string().min(1),
-      body: z.string().min(1),
-    })).min(1),
-  }),
-  impact: z.object({
-    eyebrow: z.string().min(1),
-    heading: z.string().min(1),
-    paragraphs: paragraphListSchema,
-    statistics: z.array(z.object({
-      id: z.string().min(1),
-      value: z.string().min(1),
-      label: z.string().min(1),
-      context: z.string().min(1),
-    })).min(1),
-  }),
-  development: z.object({
-    eyebrow: z.string().min(1),
-    heading: z.string().min(1),
-    introduction: z.string().min(1),
-    items: z.array(z.object({
-      id: z.string().min(1),
-      heading: z.string().min(1),
-      body: z.string().min(1),
-    })).min(1),
-  }),
-  higherEducation: z.object({
-    eyebrow: z.string().min(1),
-    heading: z.string().min(1),
-    introduction: z.string().min(1),
-    cases: z.array(z.object({
-      id: z.string().min(1),
-      year: z.string().min(1),
-      heading: z.string().min(1),
-      body: z.string().min(1),
-    })).min(1),
-    disclaimer: z.string().min(1),
-  }),
-  scholarships: z.object({
-    eyebrow: z.string().min(1),
-    heading: z.string().min(1),
-    paragraphs: paragraphListSchema,
-    highlight: z.object({
-      value: z.string().min(1),
-      label: z.string().min(1),
-      note: z.string().min(1),
-    }),
-  }),
+  highlights: z.array(z.object({
+    id: z.string().min(1),
+    value: z.string().min(1),
+    label: z.string().min(1),
+  })).optional(),
+  emptyState: emptyStateSchema.optional(),
+  detailLinkLabel: z.string().min(1).optional(),
+  seasons: z.array(z.object({
+    id: z.string().min(1),
+    season: z.string().min(1),
+    event: z.string().min(1),
+    summary: z.string().min(1),
+    awards: z.array(z.string().min(1)),
+    media: localizedMediaSchema.optional(),
+  })).optional(),
+  contactMethods: z.array(z.object({
+    id: z.string().min(1),
+    label: z.string().min(1),
+    value: z.string().min(1),
+    href: z.string().min(1).optional(),
+  })).optional(),
   partners: z.object({
     eyebrow: z.string().min(1),
     heading: z.string().min(1),
@@ -201,7 +170,7 @@ export const aboutFrcSchema = z.object({
       logo: localizedImageSchema.optional(),
     })).min(1),
     disclaimer: z.string().min(1),
-  }),
+  }).optional(),
   sources: z.object({
     eyebrow: z.string().min(1),
     heading: z.string().min(1),
@@ -213,11 +182,41 @@ export const aboutFrcSchema = z.object({
       organization: z.string().min(1),
       url: z.url(),
     })).min(1),
-  }),
+  }).optional(),
 });
+
+export const robotSchema = z.discriminatedUnion('entryType', [
+  z.object({
+    entryType: z.literal('guide'),
+  }),
+  z.object({
+    entryType: z.literal('robot'),
+    title: z.string().min(1),
+    season: z.string().min(1),
+    summary: z.string().min(1),
+    description: z.string().min(1),
+    poster: localizedMediaSchema,
+    published: z.boolean().default(true),
+  }),
+]);
+
+export const newsSchema = z.discriminatedUnion('entryType', [
+  z.object({
+    entryType: z.literal('guide'),
+  }),
+  z.object({
+    entryType: z.literal('news'),
+    title: z.string().min(1),
+    summary: z.string().min(1),
+    description: z.string().min(1),
+    publishedAt: z.coerce.date(),
+    cover: localizedMediaSchema.optional(),
+    published: z.boolean().default(true),
+  }),
+]);
 
 export const localeOverlaySchema = z.record(z.string(), z.unknown());
 
 export type SiteContent = z.infer<typeof siteSchema>;
-export type AboutFrcContent = z.infer<typeof aboutFrcSchema>;
+export type PageContent = z.infer<typeof pageSchema>;
 export type LocalizedMedia = z.infer<typeof localizedMediaSchema>;

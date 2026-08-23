@@ -1,5 +1,13 @@
 site:
   accessibility:
+    skipToContent: Skip to main content
+    mainNavigation: Main navigation
+    breadcrumbNavigation: Breadcrumb navigation
+    homeLabel: Home
+    returnToTop: Return to the top of the page
+    returnToHome: Return to the home page
+    switchToDarkMode: Switch to dark mode
+    switchToLightMode: Switch to light mode
     languageNavigation: Language selection
   languageSwitcher:
     currentLanguage: Current language
@@ -9,6 +17,8 @@ site:
     shortOptions:
       zh-cn: 中
       en: EN
+  achievementMessages:
+    unlocked: Achievement unlocked
   placeholderKinds:
     text: Text area
     media: Image or video area
@@ -16,5 +26,3 @@ site:
     news: News area
     sponsor: Sponsor Logo area
     contact: Official contact information area
-  achievementMessages:
-    unlocked: Achievement unlocked

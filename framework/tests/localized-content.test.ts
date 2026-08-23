@@ -59,13 +59,14 @@ describe('localized content resolution', () => {
       video: {
         type: 'video' as const,
         src: '/content/videos/overview-zh.mp4',
-        title: '队伍介绍',
-        poster: { src: '/content/images/overview-shared.jpg' },
-        tracks: [
+        alt: '队伍介绍',
+        intrinsicWidth: 1920,
+        intrinsicHeight: 1080,
+        poster: '/content/images/overview-shared.jpg',
+        captions: [
           {
             id: 'captions',
             src: '/content/captions/overview-zh.vtt',
-            kind: 'captions',
             srclang: 'zh-CN',
             label: '中文字幕',
           },
@@ -83,8 +84,8 @@ describe('localized content resolution', () => {
       },
       video: {
         src: '/content/videos/overview-en.mp4',
-        title: 'Team overview',
-        tracks: [
+        alt: 'Team overview',
+        captions: [
           {
             id: 'captions',
             src: '/content/captions/overview-en.vtt',
@@ -110,13 +111,14 @@ describe('localized content resolution', () => {
     expect(result.content.video).toEqual({
       type: 'video',
       src: '/content/videos/overview-en.mp4',
-      title: 'Team overview',
-      poster: { src: '/content/images/overview-shared.jpg' },
-      tracks: [
+      alt: 'Team overview',
+      intrinsicWidth: 1920,
+      intrinsicHeight: 1080,
+      poster: '/content/images/overview-shared.jpg',
+      captions: [
         {
           id: 'captions',
           src: '/content/captions/overview-en.vtt',
-          kind: 'captions',
           srclang: 'en',
           label: 'English captions',
         },
@@ -138,7 +140,9 @@ describe('localized content resolution', () => {
         media: {
           type: 'video',
           src: '/content/videos/overview-en.mp4',
-          title: 'Team overview',
+          alt: 'Team overview',
+          intrinsicWidth: 1920,
+          intrinsicHeight: 1080,
         },
       },
     } as unknown as Parameters<typeof resolveLocalizedContent<typeof base>>[1];
@@ -151,7 +155,9 @@ describe('localized content resolution', () => {
         media: {
           type: 'video',
           src: '/content/videos/overview-en.mp4',
-          title: 'Team overview',
+          alt: 'Team overview',
+          intrinsicWidth: 1920,
+          intrinsicHeight: 1080,
         },
       },
     });
@@ -175,12 +181,13 @@ describe('localized content resolution', () => {
         media: {
           type: 'video',
           src: '/content/videos/overview-en.mp4',
-          title: 'Team overview',
-          tracks: [
+          alt: 'Team overview',
+          intrinsicWidth: 1920,
+          intrinsicHeight: 1080,
+          captions: [
             {
               id: 'captions',
               src: '/content/captions/overview-en.vtt',
-              kind: 'captions',
               srclang: 'en',
               label: 'English captions',
             },
@@ -194,19 +201,19 @@ describe('localized content resolution', () => {
     expect(result.content.hero.media).toEqual({
       type: 'video',
       src: '/content/videos/overview-en.mp4',
-      title: 'Team overview',
-      tracks: [
+      alt: 'Team overview',
+      intrinsicWidth: 1920,
+      intrinsicHeight: 1080,
+      captions: [
         {
           id: 'captions',
           src: '/content/captions/overview-en.vtt',
-          kind: 'captions',
           srclang: 'en',
           label: 'English captions',
         },
       ],
     });
-    expect(result.content.hero.media).not.toHaveProperty('alt');
-    expect(result.content.hero.media).not.toHaveProperty('intrinsicWidth');
+    expect(result.content.hero.media).not.toHaveProperty('poster');
     expect(result.missingTranslations).toEqual([]);
   });
 
