@@ -1,8 +1,5 @@
 ---
-interface NavigationItem {
-  target: string;
-  label: string;
-}
+import type { HomeNavigationItem } from '../navigation';
 
 interface Props {
   logo: {
@@ -11,7 +8,7 @@ interface Props {
     intrinsicWidth: number;
     intrinsicHeight: number;
   };
-  navigationItems: NavigationItem[];
+  navigationItems: HomeNavigationItem[];
   mainNavigationLabel: string;
   returnToTopLabel: string;
   switchToDarkModeLabel: string;
@@ -49,7 +46,14 @@ const {
         {
           navigationItems.map((item) => (
             <li>
-              <a href={`#${item.target}`} data-section-link>{item.label}</a>
+              <a
+                href={item.href}
+                target={item.opensInNewTab ? '_blank' : undefined}
+                rel={item.opensInNewTab ? 'noopener noreferrer' : undefined}
+                data-section-link={item.opensInNewTab ? undefined : ''}
+              >
+                {item.label}
+              </a>
             </li>
           ))
         }

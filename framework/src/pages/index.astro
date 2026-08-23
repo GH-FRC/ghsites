@@ -6,6 +6,7 @@ import HeroSection from '../components/HeroSection.astro';
 import SiteFooter from '../components/SiteFooter.astro';
 import SiteHeader from '../components/SiteHeader.astro';
 import BaseLayout from '../layouts/BaseLayout.astro';
+import { createHomeNavigationItems } from '../navigation';
 
 const siteEntry = await getEntry('site', 'site');
 
@@ -26,10 +27,7 @@ const sectionPlan = [
   { id: 'contact', index: '09', variant: 'contact' },
 ] as const;
 
-const navigationItems = sectionPlan.map(({ id }) => ({
-  target: id,
-  label: site.navigation[id],
-}));
+const navigationItems = createHomeNavigationItems(sectionPlan, site.navigation);
 ---
 
 <BaseLayout title={site.title} description={site.description} language={site.language}>
