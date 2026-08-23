@@ -368,7 +368,7 @@ video {
   }
 
   .site-header__inner {
-    grid-template-columns: 44px minmax(0, 1fr) 44px;
+    grid-template-columns: minmax(0, 1fr) 44px 44px;
     column-gap: 8px;
   }
 
@@ -424,7 +424,7 @@ video {
 
   .site-header__brand {
     width: min(174px, calc(100vw - 104px));
-    justify-self: end;
+    justify-self: start;
   }
 
   .site-header__brand img {
