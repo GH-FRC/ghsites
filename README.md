@@ -12,7 +12,11 @@ The repository contains only replaceable example content. GHFRC's real website c
 - `engineering-logs/`: project-wide same-day goals and completed work.
 - `docs/`: implementation specifications and cross-module documentation.
 
-The complete sanitized legacy framework and skin history is connected to the `Tony` branch. The public history excludes GHFRC's real content. Use a regular merge commit when merging `Tony` into `main`; do not squash or rebase if the legacy topology must remain visible.
+The complete sanitized legacy framework and skin history is connected to the `preview` branch. The public history excludes GHFRC's real content. Use a regular Merge commit when merging `preview` into `stable`; do not use Squash and merge or Rebase and merge if the legacy topology must remain visible.
+
+The stable website is published at `https://ghfrc.pages.dev`. A trusted GitHub Actions workflow in the private content repository builds the latest public `stable` framework together with the latest private `stable` content, then uploads only the generated static output to Cloudflare Pages. A public `stable` update securely triggers that private workflow, while a private `stable` update starts it directly.
+
+Changes to `stable` must be introduced through a Pull Request. The `Stable pull request checks` workflow validates Astro content and code, runs the automated tests, builds the public example website, and rejects internal reference media before the Pull Request can be merged.
 
 ## Use as a Template
 
@@ -32,10 +36,9 @@ The local website is available at `http://localhost:4321` by default. The projec
 The build selects one complete content source in the following order:
 
 1. `GH_FRC_CONTENT_DIR`, when explicitly configured.
-2. A sibling folder named `ghfrc-website-content`, when present.
-3. The public example `content/` folder in this repository.
+2. The public example `content/` folder in this repository.
 
-This allows the public project to run independently while letting GHFRC use its private sibling content repository locally. The selected source must contain both `config/site.yaml` and the required media files; the build does not mix files from different content sources.
+This keeps public and preview builds on the replaceable example content by default, even when GHFRC's private content repository exists beside the project locally. Set `GH_FRC_CONTENT_DIR` explicitly when a trusted build needs the private content. The selected source must contain both `config/site.yaml` and the required media files; the build does not mix files from different content sources.
 
 ## Verification
 
@@ -63,7 +66,11 @@ GHFRC 官网是公开的网站代码库，也是可复用的网站模板。框�
 - `engineering-logs/`：项目所有模块当天的目标与实际完成工作。
 - `docs/`：实施规格和跨模块文档。
 
-经过净化的旧框架与皮肤完整历史已经连接到 `Tony` 分支，公开历史不包含 GHFRC 真实内容。将 `Tony` 合并到 `main` 时应使用普通 Merge commit；如需保留旧历史拓扑，不要使用 Squash 或 Rebase。
+经过净化的旧框架与皮肤完整历史已经连接到 `preview` 分支，公开历史不包含 GHFRC 真实内容。将 `preview` 合并到 `stable` 时应使用普通 Merge commit；如需保留旧历史拓扑，不要使用 Squash and merge 或 Rebase and merge。
+
+稳定版官网发布于 `https://ghfrc.pages.dev`。私有内容仓库中的受信任 GitHub Actions 工作流会将最新公开 `stable` 框架与最新私有 `stable` 内容组合构建，然后仅将生成的静态产物上传至 Cloudflare Pages。公开 `stable` 更新时会安全触发该私有工作流，私有 `stable` 更新时则会直接启动该工作流。
+
+对 `stable` 的改动必须通过 Pull Request 引入。`Stable pull request checks` 工作流会校验 Astro 内容与代码、运行自动化测试、构建公开示例官网，并拒绝内部参考媒体；检查通过后才能合并 Pull Request。
 
 ## 作为模板使用
 
@@ -83,10 +90,9 @@ npm run dev
 构建时按照以下顺序选择一套完整内容来源：
 
 1. 明确设置的 `GH_FRC_CONTENT_DIR`。
-2. 同级目录中的 `ghfrc-website-content` 文件夹。
-3. 本仓库中的公开示例 `content/` 文件夹。
+2. 本仓库中的公开示例 `content/` 文件夹。
 
-因此，公开项目可以独立运行，GHFRC 本地开发时也可以自动使用同级私有内容仓库。所选来源必须同时包含 `config/site.yaml` 和所需媒体文件，构建过程不会混用不同来源中的文件。
+这样，即使 GHFRC 私有内容仓库位于本项目旁边，公开构建和预览构建默认仍会使用可替换的示例内容。只有受信任的构建需要使用私有内容时，才明确设置 `GH_FRC_CONTENT_DIR`。所选来源必须同时包含 `config/site.yaml` 和所需媒体文件，构建过程不会混用不同来源中的文件。
 
 ## 验证
 
