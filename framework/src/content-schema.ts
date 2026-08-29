@@ -43,6 +43,10 @@ export const siteSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
   logo: localizedImageSchema,
+  favicon: z.object({
+    light: localizedImageSchema,
+    dark: localizedImageSchema,
+  }),
   accessibility: z.object({
     skipToContent: z.string().min(1),
     mainNavigation: z.string().min(1),

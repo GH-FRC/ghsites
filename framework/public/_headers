@@ -1,0 +1,6 @@
+/zh-cn/xplore/*
+  Cache-Control: no-store
+/en/xplore/*
+  Cache-Control: no-store
+/xplore/*
+  Cache-Control: no-store
