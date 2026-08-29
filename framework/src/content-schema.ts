@@ -130,6 +130,7 @@ export const pageSchema = z.object({
     title: z.string().min(1),
     introduction: z.string().min(1),
     mediaLabel: z.string().min(1).optional(),
+    mediaCaption: z.string().min(1).optional(),
     media: localizedMediaSchema.optional(),
   }),
   home: z.object({

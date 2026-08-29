@@ -1,6 +1,7 @@
 @import '../../../skins/active.css';
 @import './home.css';
 @import './site-page.css';
+@import './profile.css';
 
 :root {
   --header-height: 78px;

@@ -58,7 +58,7 @@ const fallbackGroupLanguage = (prefix: string) => (
 );
 ---
 
-<main class:list={['site-page', `site-page--${page.layout}`]} id="main-content">
+<main class:list={['site-page', `site-page--${page.layout}`]} data-page-id={page.navigationId} id="main-content">
   <nav
     class="site-page__breadcrumb"
     aria-label={breadcrumbLabel}
@@ -90,6 +90,11 @@ const fallbackGroupLanguage = (prefix: string) => (
             mediaTextLanguage={fieldLanguage('hero.media.alt')}
             eager
           />
+          {page.hero.media && page.hero.mediaCaption && (
+            <p class="site-page__media-caption" lang={fieldLanguage('hero.mediaCaption')}>
+              {page.hero.mediaCaption}
+            </p>
+          )}
         </div>
       )
     }
