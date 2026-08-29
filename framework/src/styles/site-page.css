@@ -300,7 +300,7 @@
 
 .poster-card__copy > p:not(.page-eyebrow),
 .season-poster__copy > p:not(.page-eyebrow),
-.empty-state > p:last-child {
+.empty-state > p:not(.page-eyebrow) {
   max-width: 34ch;
   margin: 28px 0 0;
   color: var(--color-muted);

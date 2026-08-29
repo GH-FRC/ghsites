@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import { localizedVideoSchema, siteSchema } from '../src/content-schema';
+import { localizedVideoSchema, pageSchema, siteSchema } from '../src/content-schema';
 
 describe('localized content media schemas', () => {
   it('accepts a language-specific video, poster, and caption track', () => {
@@ -47,5 +47,29 @@ describe('localized content media schemas', () => {
       type: 'video',
       src: '/content/videos/overview-en.mp4',
     });
+  });
+
+  it('accepts a complete internal action on an empty state', () => {
+    expect(
+      pageSchema.shape.emptyState.parse({
+        eyebrow: 'Sponsors',
+        title: 'No sponsors yet',
+        body: 'We are looking for our first sponsor.',
+        actionLabel: 'Become our first sponsor',
+        actionHref: '/en/contact/',
+      }),
+    ).toMatchObject({
+      actionLabel: 'Become our first sponsor',
+      actionHref: '/en/contact/',
+    });
+  });
+
+  it('rejects an incomplete empty-state action', () => {
+    expect(() => pageSchema.shape.emptyState.parse({
+      eyebrow: 'Sponsors',
+      title: 'No sponsors yet',
+      body: 'We are looking for our first sponsor.',
+      actionLabel: 'Become our first sponsor',
+    })).toThrow();
   });
 });

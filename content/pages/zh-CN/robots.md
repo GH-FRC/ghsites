@@ -8,7 +8,7 @@ meta:
 hero:
   eyebrow: Robots
   title: 机器人
-  introduction: 机器人介绍内容预留区。
+  introduction: 当前尚无已发布的机器人资料。
   mediaLabel: 机器人图片或视频预留区
 home:
   title: 机器人
@@ -18,6 +18,6 @@ home:
 detailLinkLabel: 进一步了解
 emptyState:
   eyebrow: Robots
-  title: 机器人内容预留区
-  body: 添加正式机器人资料后，此处将显示大型海报及详情入口。
+  title: 暂无机器人
+  body: 机器人资料正在准备中，正式发布后将在此展示。
 ---

@@ -17,6 +17,8 @@ home:
   mediaLabel: 赞助商标志预留区
 emptyState:
   eyebrow: Sponsors
-  title: 赞助商内容预留区
-  body: 本页面暂不展示赞助商资料。
+  title: 暂无赞助商
+  body: 我们正在寻找愿意支持青少年工程教育与机器人创新的合作伙伴。
+  actionLabel: 成为 GHFRC 的首位赞助商
+  actionHref: /zh-cn/contact/
 ---

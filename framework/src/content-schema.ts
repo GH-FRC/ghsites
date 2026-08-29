@@ -36,7 +36,12 @@ const emptyStateSchema = z.object({
   eyebrow: z.string().min(1),
   title: z.string().min(1),
   body: z.string().min(1),
-});
+  actionLabel: z.string().min(1).optional(),
+  actionHref: z.string().startsWith('/').optional(),
+}).refine(
+  ({ actionLabel, actionHref }) => Boolean(actionLabel) === Boolean(actionHref),
+  { message: 'Empty-state actions require both actionLabel and actionHref.' },
+);
 
 export const siteSchema = z.object({
   language: z.literal('zh-CN'),
