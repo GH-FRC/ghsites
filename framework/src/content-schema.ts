@@ -43,6 +43,10 @@ export const siteSchema = z.object({
   title: z.string().min(1),
   description: z.string().min(1),
   logo: localizedImageSchema,
+  favicon: z.object({
+    light: localizedImageSchema,
+    dark: localizedImageSchema,
+  }),
   accessibility: z.object({
     skipToContent: z.string().min(1),
     mainNavigation: z.string().min(1),
@@ -78,7 +82,6 @@ export const siteSchema = z.object({
   }),
   navigation: z.object({
     'about-frc': z.string().min(1),
-    'about-xplore': z.string().min(1),
     'about-gh-frc': z.string().min(1),
     robots: z.string().min(1),
     achievements: z.string().min(1),
@@ -102,7 +105,6 @@ export const siteSchema = z.object({
 export const pageSchema = z.object({
   navigationId: z.enum([
     'about-frc',
-    'about-xplore',
     'about-gh-frc',
     'robots',
     'achievements',
@@ -110,7 +112,7 @@ export const pageSchema = z.object({
     'sponsors',
     'contact',
   ]),
-  order: z.number().int().min(1).max(8),
+  order: z.number().int().min(1).max(7),
   layout: z.enum([
     'editorial',
     'robots',

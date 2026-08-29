@@ -1,6 +1,6 @@
 ---
 navigationId: achievements
-order: 5
+order: 4
 layout: competition-results
 meta:
   title: 赛事成果 | 示例队伍官网

@@ -185,9 +185,9 @@ export async function discoverContentSourceFiles(contentRoot) {
     const pagesDirectory = join(contentRoot, 'pages', locale);
     const pageFiles = await discoverMarkdownFiles(pagesDirectory);
 
-    if (pageFiles.length !== 8) {
+    if (pageFiles.length !== 7) {
       throw new Error(
-        `Content preparation failed: expected 8 ${locale} Markdown page files in ${pagesDirectory}, found ${pageFiles.length}.`,
+        `Content preparation failed: expected 7 ${locale} Markdown page files in ${pagesDirectory}, found ${pageFiles.length}.`,
       );
     }
 

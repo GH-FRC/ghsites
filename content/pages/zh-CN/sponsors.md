@@ -1,6 +1,6 @@
 ---
 navigationId: sponsors
-order: 7
+order: 6
 layout: placeholder
 meta:
   title: 赞助商 | 示例队伍官网
