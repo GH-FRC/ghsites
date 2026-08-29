@@ -130,7 +130,7 @@ for (const route of localizedRoutes) {
     );
   }
 
-  const publicReferences = [...html.matchAll(/(?:href|src)="([^"]+)"/gu)]
+  const publicReferences = [...html.matchAll(/(?:href|src|data-light-icon|data-dark-icon)="([^"]+)"/gu)]
     .map((match) => match[1])
     .filter((reference) => reference.startsWith('/') && !reference.startsWith('//'));
 
