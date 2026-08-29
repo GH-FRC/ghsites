@@ -8,10 +8,16 @@ site:
     intrinsicWidth: 400
     intrinsicHeight: 138
   favicon:
-    src: /content/images/placeholder-logo.png
-    alt: 示例队伍标签页图标
-    intrinsicWidth: 400
-    intrinsicHeight: 138
+    light:
+      src: /content/images/placeholder-logo.png
+      alt: 示例队伍浅色标签页图标
+      intrinsicWidth: 400
+      intrinsicHeight: 138
+    dark:
+      src: /content/images/placeholder-logo.png
+      alt: 示例队伍深色标签页图标
+      intrinsicWidth: 400
+      intrinsicHeight: 138
   accessibility:
     skipToContent: 跳到主要内容
     mainNavigation: 主要导航

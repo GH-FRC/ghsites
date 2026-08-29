@@ -97,6 +97,19 @@ for (const route of localizedRoutes) {
   );
   assert.equal(countMatches(html, /<h1(?:\s|>)/gu), 1, `${relativePath} must have one h1.`);
   assert.match(html, /data-site-header/u, `${relativePath} must include the shared header.`);
+  for (const [scheme, color] of [['light', '#ffffff'], ['dark', '#000000']]) {
+    assert.ok(
+      html.includes(`<meta name="theme-color" content="${color}" media="(prefers-color-scheme: ${scheme})">`),
+      `${relativePath} must provide the ${scheme} browser theme color.`,
+    );
+    assert.ok(
+      [...html.matchAll(/<link rel="icon"[^>]+>/gu)].some(([tag]) => (
+        tag.includes('data-browser-tab-icon')
+        && tag.includes(`data-${scheme}-icon="/content/`)
+      )),
+      `${relativePath} must provide a content-supplied ${scheme} favicon.`,
+    );
+  }
   assert.match(html, /data-language-switch/u, `${relativePath} must include language switching.`);
   assert.match(
     html,
@@ -116,7 +129,7 @@ for (const route of localizedRoutes) {
     );
   }
 
-  const publicReferences = [...html.matchAll(/(?:href|src)="([^"]+)"/gu)]
+  const publicReferences = [...html.matchAll(/(?:href|src|data-light-icon|data-dark-icon)="([^"]+)"/gu)]
     .map((match) => match[1])
     .filter((reference) => reference.startsWith('/') && !reference.startsWith('//'));
 
