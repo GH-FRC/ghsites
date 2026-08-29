@@ -1,6 +1,6 @@
 ---
 navigationId: contact
-order: 8
+order: 5
 layout: contact
 meta:
   title: 联系我们 | 示例队伍官网

@@ -91,7 +91,21 @@ video {
   display: block;
   width: 174px;
   height: auto;
-  background: var(--color-logo-background);
+  background: transparent;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-color-scheme]) .site-header__brand img {
+    filter: invert(1);
+  }
+}
+
+:root[data-color-scheme='dark'] .site-header__brand img {
+  filter: invert(1);
+}
+
+:root[data-color-scheme='light'] .site-header__brand img {
+  filter: none;
 }
 
 .site-header__navigation {

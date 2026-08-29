@@ -7,6 +7,11 @@ site:
     alt: 示例队伍 Logo
     intrinsicWidth: 400
     intrinsicHeight: 138
+  favicon:
+    src: /content/images/placeholder-logo.png
+    alt: 示例队伍标签页图标
+    intrinsicWidth: 400
+    intrinsicHeight: 138
   accessibility:
     skipToContent: 跳到主要内容
     mainNavigation: 主要导航
@@ -36,11 +41,8 @@ site:
     contact: 官方联系信息区域
   navigation:
     about-frc: 关于 FRC
-    about-xplore: 关于 X.PLORE
     about-gh-frc: 关于 GHFRC
     robots: 机器人
-    achievements: 赛事成果
-    news: 新闻动态
     sponsors: 赞助商
     contact: 联系我们
   hero:

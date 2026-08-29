@@ -1,6 +1,6 @@
 ---
 navigationId: about-gh-frc
-order: 3
+order: 2
 layout: editorial
 meta:
   title: 关于 GHFRC | 示例队伍官网

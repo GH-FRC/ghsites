@@ -1,0 +1,12 @@
+/xplore/ / 301
+/zh-cn/xplore/ /zh-cn/ 301
+/en/xplore/ /en/ 301
+/achievements/ / 301
+/zh-cn/achievements/ /zh-cn/ 301
+/en/achievements/ /en/ 301
+/news/ / 301
+/zh-cn/news/ /zh-cn/ 301
+/en/news/ /en/ 301
+/news/* / 301
+/zh-cn/news/* /zh-cn/ 301
+/en/news/* /en/ 301

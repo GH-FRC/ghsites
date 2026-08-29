@@ -1,6 +1,6 @@
 ---
 navigationId: news
-order: 6
+order: 5
 layout: news
 meta:
   title: 新闻动态 | 示例队伍官网

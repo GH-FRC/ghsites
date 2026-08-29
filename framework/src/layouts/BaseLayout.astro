@@ -12,6 +12,7 @@ import {
 interface Props {
   title: string;
   description: string;
+  faviconSrc: string;
   locale: Locale;
   pagePath?: string;
   noIndex?: boolean;
@@ -24,6 +25,7 @@ interface Props {
 const {
   title,
   description,
+  faviconSrc,
   locale,
   pagePath = '',
   noIndex = false,
@@ -56,6 +58,7 @@ const languagePreferenceScript = createLocaleVisitScript(locale);
     <meta name="description" content={description} lang={descriptionLanguage} />
     {shouldPreventIndexing && <meta name="robots" content="noindex, follow" />}
     <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/png" href={faviconSrc} />
     <link rel="canonical" href={canonicalUrl} />
     {
       languageAlternates.map((alternate) => (

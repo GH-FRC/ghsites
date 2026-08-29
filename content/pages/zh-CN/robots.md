@@ -1,6 +1,6 @@
 ---
 navigationId: robots
-order: 4
+order: 3
 layout: robots
 meta:
   title: 机器人 | 示例队伍官网

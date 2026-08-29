@@ -4,6 +4,7 @@ interface NavigationItem {
   label: string;
   isCurrent?: boolean;
   language?: string;
+  opensInNewTab?: boolean;
 }
 
 interface Props {
@@ -21,6 +22,8 @@ const { navigationItems } = Astro.props;
           href={item.href}
           aria-current={item.isCurrent ? 'page' : undefined}
           lang={item.language}
+          target={item.opensInNewTab ? '_blank' : undefined}
+          rel={item.opensInNewTab ? 'noopener noreferrer' : undefined}
           data-section-link={item.href.startsWith('#') ? '' : undefined}
         >
           {item.label}
