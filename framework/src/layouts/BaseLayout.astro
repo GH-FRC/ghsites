@@ -12,7 +12,8 @@ import {
 interface Props {
   title: string;
   description: string;
-  faviconSrc: string;
+  faviconLightSrc: string;
+  faviconDarkSrc: string;
   locale: Locale;
   pagePath?: string;
   noIndex?: boolean;
@@ -25,7 +26,8 @@ interface Props {
 const {
   title,
   description,
-  faviconSrc,
+  faviconLightSrc,
+  faviconDarkSrc,
   locale,
   pagePath = '',
   noIndex = false,
@@ -58,7 +60,16 @@ const languagePreferenceScript = createLocaleVisitScript(locale);
     <meta name="description" content={description} lang={descriptionLanguage} />
     {shouldPreventIndexing && <meta name="robots" content="noindex, follow" />}
     <meta name="color-scheme" content="light dark" />
-    <link rel="icon" type="image/png" href={faviconSrc} />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <link
+      rel="icon"
+      type="image/png"
+      href={faviconLightSrc}
+      data-browser-tab-icon
+      data-light-icon={faviconLightSrc}
+      data-dark-icon={faviconDarkSrc}
+    />
     <link rel="canonical" href={canonicalUrl} />
     {
       languageAlternates.map((alternate) => (
@@ -72,6 +83,11 @@ const languagePreferenceScript = createLocaleVisitScript(locale);
   </head>
   <body>
     <slot />
+    <script>
+      import { initializeBrowserTab } from '../scripts/browser-tab';
+
+      initializeBrowserTab(document, window);
+    </script>
     <script>
       import { initializeColorSchemeControl } from '../scripts/color-scheme';
 
