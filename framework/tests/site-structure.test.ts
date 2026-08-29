@@ -9,7 +9,6 @@ import {
 
 const labels = {
   'about-frc': '关于 FRC',
-  'about-xplore': '关于 X.PLORE',
   'about-gh-frc': '关于 GHFRC',
   robots: '机器人',
   achievements: '赛事成果',
@@ -19,10 +18,9 @@ const labels = {
 };
 
 describe('site page structure', () => {
-  it('publishes all eight navigation destinations as independent routes', () => {
+  it('publishes all seven Preview navigation destinations as independent routes', () => {
     expect(sitePagePlan.map(({ id, contentId }) => [id, contentId])).toEqual([
       ['about-frc', 'frc'],
-      ['about-xplore', 'xplore'],
       ['about-gh-frc', 'team'],
       ['robots', 'robots'],
       ['achievements', 'achievements'],
@@ -48,7 +46,7 @@ describe('site page structure', () => {
 
   it('maps legacy homepage section hashes to their independent routes', () => {
     expect(resolveLegacySectionRoute('#about-frc')).toBe('/frc/');
-    expect(resolveLegacySectionRoute('#about-xplore')).toBe('/xplore/');
+    expect(resolveLegacySectionRoute('#about-xplore')).toBeUndefined();
     expect(resolveLegacySectionRoute('#about-gh-frc')).toBe('/team/');
     expect(resolveLegacySectionRoute('#robots')).toBe('/robots/');
     expect(resolveLegacySectionRoute('#achievements')).toBe('/achievements/');

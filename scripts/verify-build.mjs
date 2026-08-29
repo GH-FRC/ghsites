@@ -7,7 +7,6 @@ const projectRoot = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const distRoot = join(projectRoot, 'framework', 'dist');
 const pageSlugs = [
   'frc',
-  'xplore',
   'team',
   'robots',
   'achievements',

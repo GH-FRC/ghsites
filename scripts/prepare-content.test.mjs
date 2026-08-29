@@ -101,7 +101,6 @@ test('discovers configured Markdown source trees recursively', async (t) => {
 
   const pageNames = [
     'frc',
-    'xplore',
     'team',
     'robots',
     'achievements',
@@ -140,7 +139,7 @@ test('discovers configured Markdown source trees recursively', async (t) => {
   );
 });
 
-test('requires exactly eight page Markdown files for every enabled locale', async (t) => {
+test('requires exactly seven page Markdown files for every enabled locale', async (t) => {
   const contentRoot = await mkdtemp(join(tmpdir(), 'ghfrc-content-pages-'));
   t.after(() => rm(contentRoot, { force: true, recursive: true }));
 
@@ -159,7 +158,7 @@ test('requires exactly eight page Markdown files for every enabled locale', asyn
     'utf8',
   );
 
-  for (let pageNumber = 1; pageNumber <= 7; pageNumber += 1) {
+  for (let pageNumber = 1; pageNumber <= 6; pageNumber += 1) {
     await writeFile(
       join(contentRoot, 'pages', 'zh-CN', `page-${pageNumber}.md`),
       `page ${pageNumber}\n`,
@@ -167,7 +166,7 @@ test('requires exactly eight page Markdown files for every enabled locale', asyn
     );
   }
 
-  for (let pageNumber = 1; pageNumber <= 8; pageNumber += 1) {
+  for (let pageNumber = 1; pageNumber <= 7; pageNumber += 1) {
     await writeFile(
       join(contentRoot, 'pages', 'en', `page-${pageNumber}.md`),
       `page ${pageNumber}\n`,
@@ -177,7 +176,7 @@ test('requires exactly eight page Markdown files for every enabled locale', asyn
 
   await assert.rejects(
     discoverContentSourceFiles(contentRoot),
-    /expected 8 zh-CN Markdown page files in .*\/pages\/zh-CN, found 7/,
+    /expected 7 zh-CN Markdown page files in .*\/pages\/zh-CN, found 6/,
   );
 });
 
@@ -218,7 +217,7 @@ test('rejects symbolic links in recursively discovered text sources', async (t) 
     'utf8',
   );
 
-  for (let pageNumber = 1; pageNumber <= 8; pageNumber += 1) {
+  for (let pageNumber = 1; pageNumber <= 7; pageNumber += 1) {
     await writeFile(
       join(contentRoot, 'pages', 'zh-CN', `page-${pageNumber}.md`),
       `page ${pageNumber}\n`,

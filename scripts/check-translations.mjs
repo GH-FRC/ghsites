@@ -18,7 +18,6 @@ const pageIds = [
   'robots',
   'sponsors',
   'team',
-  'xplore',
 ];
 
 async function readYamlEntry(filePath, entryName) {
