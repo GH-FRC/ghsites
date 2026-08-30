@@ -98,6 +98,7 @@ export const siteSchema = z.object({
     introduction: z.string().min(1),
     mediaLabel: z.string().min(1),
     media: localizedMediaSchema.optional(),
+    showPlaceholder: z.boolean().optional().default(true),
   }),
   footer: z.object({
     title: z.string().min(1),
@@ -135,6 +136,7 @@ export const pageSchema = z.object({
     mediaLabel: z.string().min(1).optional(),
     mediaCaption: z.string().min(1).optional(),
     media: localizedMediaSchema.optional(),
+    showPlaceholder: z.boolean().optional().default(true),
   }),
   home: z.object({
     title: z.string().min(1),
@@ -142,6 +144,7 @@ export const pageSchema = z.object({
     linkLabel: z.string().min(1),
     mediaLabel: z.string().min(1),
     media: localizedMediaSchema.optional(),
+    showPlaceholder: z.boolean().optional().default(true),
   }),
   highlights: z.array(z.object({
     id: z.string().min(1),

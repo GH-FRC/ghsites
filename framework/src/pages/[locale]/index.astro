@@ -65,17 +65,8 @@ const fallbackLanguage = (path: string) => (
   />
 
   <script>
-    import { initializeOptionalAchievementSystem } from '../../scripts/optional-achievements';
     import { initializeLegacySectionNavigation } from '../../scripts/legacy-navigation';
 
-    if (!initializeLegacySectionNavigation()) {
-      const notificationText = document.documentElement.dataset.achievementUnlockedMessage;
-      const notificationLanguage = document.documentElement.dataset.achievementUnlockedLanguage;
-
-      void initializeOptionalAchievementSystem(undefined, {
-        notificationLanguage,
-        notificationText,
-      });
-    }
+    initializeLegacySectionNavigation();
   </script>
 </SiteLayout>

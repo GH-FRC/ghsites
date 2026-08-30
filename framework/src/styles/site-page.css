@@ -124,6 +124,18 @@
   min-height: 480px;
 }
 
+.site-page__hero--text-only {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.site-page__hero--text-only .site-page__hero-copy {
+  max-width: 960px;
+}
+
+.site-page__hero--text-only .site-page__introduction {
+  max-width: 52ch;
+}
+
 .site-page__highlights {
   display: grid;
   grid-column: 1 / -1;

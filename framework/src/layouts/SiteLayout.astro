@@ -2,7 +2,7 @@
 import type { SiteContent } from '../content-schema';
 import LocalizedSiteHeader from '../components/LocalizedSiteHeader.astro';
 import SiteFooter from '../components/SiteFooter.astro';
-import { htmlLanguageForLocale, type Locale } from '../i18n/locales';
+import type { Locale } from '../i18n/locales';
 import type { SiteNavigationContext } from '../site-structure';
 import BaseLayout from './BaseLayout.astro';
 
@@ -46,10 +46,6 @@ const fallbackLanguage = (path: string) => (
   locale={locale}
   pagePath={pagePath}
   noIndex={noIndex}
-  achievementUnlockedMessage={site.achievementMessages.unlocked}
-  achievementUnlockedLanguage={
-    fallbackLanguage('achievementMessages.unlocked') ?? htmlLanguageForLocale(locale)
-  }
   titleLanguage={titleLanguage}
   descriptionLanguage={descriptionLanguage}
 >

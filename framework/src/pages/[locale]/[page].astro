@@ -56,6 +56,8 @@ const news = newsEntries
   ))
   .sort((left, right) => right.data.publishedAt.getTime() - left.data.publishedAt.getTime());
 const { Content } = await render(localizedPage.bodyEntry);
+const hasBody = typeof localizedPage.bodyEntry.body === 'string'
+  && localizedPage.bodyEntry.body.trim().length > 0;
 const site = localizedContent.site.content;
 const pageContent = localizedPage.data.content;
 const siteFallbackLanguage = (path: string) => (
@@ -89,6 +91,7 @@ const pageFallbackLanguage = (path: string) => (
     homeLabelLanguage={siteFallbackLanguage('accessibility.homeLabel')}
     placeholderKindLabel={site.placeholderKinds.media}
     placeholderKindLanguage={siteFallbackLanguage('placeholderKinds.media')}
+    hasBody={hasBody}
     robots={robots}
     news={news}
   >

@@ -18,6 +18,7 @@ interface Props {
   homeLabelLanguage?: string;
   placeholderKindLabel: string;
   placeholderKindLanguage?: string;
+  hasBody: boolean;
   robots: Array<{
     id: string;
     data: Extract<CollectionEntry<'robot'>['data'], { entryType: 'robot' }>;
@@ -39,11 +40,15 @@ const {
   homeLabelLanguage,
   placeholderKindLabel,
   placeholderKindLanguage,
+  hasBody,
   robots,
   news,
 } = Astro.props;
 const emptyState = page.emptyState;
 const detailLinkLabel = page.detailLinkLabel ?? page.home.linkLabel;
+const showHeroMedia = Boolean(
+  page.hero.media || (page.hero.mediaLabel && page.hero.showPlaceholder),
+);
 const fieldLanguage = (path: string) => {
   if (locale !== 'en') {
     return undefined;
@@ -69,7 +74,14 @@ const fallbackGroupLanguage = (prefix: string) => (
     <span aria-current="page" lang={fieldLanguage('hero.title')}>{page.hero.title}</span>
   </nav>
 
-  <header class="site-page__hero" id="page-top" data-scroll-section>
+  <header
+    class:list={[
+      'site-page__hero',
+      !showHeroMedia && 'site-page__hero--text-only',
+    ]}
+    id="page-top"
+    data-scroll-section
+  >
     <div class="site-page__hero-copy">
       <p class="page-eyebrow" lang={fieldLanguage('hero.eyebrow')}>{page.hero.eyebrow}</p>
       <h1 lang={fieldLanguage('hero.title')}>{page.hero.title}</h1>
@@ -79,7 +91,7 @@ const fallbackGroupLanguage = (prefix: string) => (
     </div>
 
     {
-      page.hero.mediaLabel && (
+      showHeroMedia && page.hero.mediaLabel && (
         <div class="site-page__hero-media">
           <MediaFrame
             media={page.hero.media}
@@ -117,11 +129,15 @@ const fallbackGroupLanguage = (prefix: string) => (
     }
   </header>
 
-  <section class="site-page__body" data-scroll-section>
-    <div class="site-page__prose" lang={bodyLanguage}>
-      <slot />
-    </div>
-  </section>
+  {
+    hasBody && (
+      <section class="site-page__body" data-scroll-section>
+        <div class="site-page__prose" lang={bodyLanguage}>
+          <slot />
+        </div>
+      </section>
+    )
+  }
 
   {
     page.layout === 'robots' && (
@@ -155,24 +171,7 @@ const fallbackGroupLanguage = (prefix: string) => (
             </article>
           ))
         ) : emptyState ? (
-          <article
-            class="poster-card poster-card--empty"
-            lang={fallbackGroupLanguage('emptyState.')}
-          >
-            <div class="poster-card__media">
-              <MediaFrame
-                placeholderLabel={emptyState.eyebrow}
-                placeholderKindLabel={placeholderKindLabel}
-                placeholderKindLanguage={placeholderKindLanguage}
-                placeholderLanguage={fieldLanguage('emptyState.eyebrow')}
-              />
-            </div>
-            <div class="poster-card__copy">
-              <p class="page-eyebrow">{emptyState.eyebrow}</p>
-              <h2>{emptyState.title}</h2>
-              <p>{emptyState.body}</p>
-            </div>
-          </article>
+          <div lang={fallbackGroupLanguage('emptyState.')}><EmptyState state={emptyState} /></div>
         ) : null}
       </section>
     )

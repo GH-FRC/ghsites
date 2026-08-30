@@ -29,6 +29,7 @@ const fallbackLanguage = (
   paths: ReadonlySet<string>,
   path: string,
 ) => paths.has(path) ? 'zh-CN' : undefined;
+const showHeroMedia = Boolean(hero.media) || hero.showPlaceholder;
 ---
 
 <main class="home-page" id="main-content">
@@ -43,33 +44,40 @@ const fallbackLanguage = (
           {hero.introduction}
         </p>
       </div>
-      <div class="home-hero__media">
-        <MediaFrame
-          media={hero.media}
-          placeholderLabel={hero.mediaLabel}
-          placeholderKindLabel={placeholderKindLabel}
-          placeholderLanguage={fallbackLanguage(heroFallbackPaths, 'hero.mediaLabel')}
-          placeholderKindLanguage={placeholderKindLanguage}
-          mediaTextLanguage={fallbackLanguage(heroFallbackPaths, 'hero.media.alt')}
-          eager
-        />
-      </div>
+      {
+        showHeroMedia && (
+          <div class:list={[
+            'home-hero__media',
+            hero.media?.src.includes('/brand/ghfrc-logo-square-') && 'home-hero__media--brand',
+          ]}>
+            <MediaFrame
+              media={hero.media}
+              placeholderLabel={hero.mediaLabel}
+              placeholderKindLabel={placeholderKindLabel}
+              placeholderLanguage={fallbackLanguage(heroFallbackPaths, 'hero.mediaLabel')}
+              placeholderKindLanguage={placeholderKindLanguage}
+              mediaTextLanguage={fallbackLanguage(heroFallbackPaths, 'hero.media.alt')}
+              eager
+            />
+          </div>
+        )
+      }
     </div>
   </section>
 
   {
     pages.map(({ id, href, page, fallbackPaths }, index) => (
       <section
-        class:list={['home-showcase', index % 2 === 1 && 'home-showcase--reverse']}
+        class:list={[
+          'home-showcase',
+          index % 2 === 1 && 'home-showcase--reverse',
+          !page.home.media && !page.home.showPlaceholder && 'home-showcase--text-only',
+        ]}
         id={id}
-        data-achievement-section={id}
         data-scroll-section
       >
         <div class="home-showcase__inner">
           <div class="home-showcase__copy">
-            <span class="home-showcase__index" aria-hidden="true">
-              {String(index + 1).padStart(2, '0')}
-            </span>
             <h2 lang={fallbackLanguage(fallbackPaths, 'home.title')}>{page.home.title}</h2>
             <p lang={fallbackLanguage(fallbackPaths, 'home.summary')}>{page.home.summary}</p>
             <a
@@ -81,21 +89,25 @@ const fallbackLanguage = (
               <span aria-hidden="true">↗</span>
             </a>
           </div>
-          <a
-            class="home-showcase__media-link"
-            href={href}
-            aria-label={page.home.title}
-            lang={fallbackLanguage(fallbackPaths, 'home.title')}
-          >
-            <MediaFrame
-              media={page.home.media}
-              placeholderLabel={page.home.mediaLabel}
-              placeholderKindLabel={placeholderKindLabel}
-              placeholderLanguage={fallbackLanguage(fallbackPaths, 'home.mediaLabel')}
-              placeholderKindLanguage={placeholderKindLanguage}
-              mediaTextLanguage={fallbackLanguage(fallbackPaths, 'home.media.alt')}
-            />
-          </a>
+          {
+            (page.home.media || page.home.showPlaceholder) && (
+              <a
+                class="home-showcase__media-link"
+                href={href}
+                aria-label={page.home.title}
+                lang={fallbackLanguage(fallbackPaths, 'home.title')}
+              >
+                <MediaFrame
+                  media={page.home.media}
+                  placeholderLabel={page.home.mediaLabel}
+                  placeholderKindLabel={placeholderKindLabel}
+                  placeholderLanguage={fallbackLanguage(fallbackPaths, 'home.mediaLabel')}
+                  placeholderKindLanguage={placeholderKindLanguage}
+                  mediaTextLanguage={fallbackLanguage(fallbackPaths, 'home.media.alt')}
+                />
+              </a>
+            )
+          }
         </div>
       </section>
     ))

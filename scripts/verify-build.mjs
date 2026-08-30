@@ -122,12 +122,18 @@ for (const route of localizedRoutes) {
   assert.doesNotMatch(html, /hreflang="zh-Hant"/u, 'Traditional Chinese must remain disabled.');
 
   if (locale === 'en') {
-    assert.match(
+    assert.doesNotMatch(
       html,
       /<meta name="robots" content="noindex, follow">/u,
-      `${relativePath} must remain noindex while English content is incomplete.`,
+      `${relativePath} must be indexable after the English translation is complete.`,
     );
   }
+
+  assert.doesNotMatch(
+    html,
+    /(?:预留区|Image or video area|<div class="placeholder)/u,
+    `${relativePath} must not expose draft placeholders.`,
+  );
 
   const publicReferences = [...html.matchAll(/(?:href|src|data-light-icon|data-dark-icon)="([^"]+)"/gu)]
     .map((match) => match[1])
@@ -165,7 +171,12 @@ for (const locale of ['zh-cn', 'en']) {
   assert.match(sponsorsHtml, /class="empty-state"/u, 'Sponsors must retain its empty state.');
 
   const robotsHtml = await readFile(join(distRoot, locale, 'robots', 'index.html'), 'utf8');
-  assert.match(robotsHtml, /poster-card poster-card--empty/u, 'Robots must show one generic poster when empty.');
+  assert.match(robotsHtml, /class="empty-state"/u, 'Robots must show a formal empty state.');
+  assert.doesNotMatch(
+    robotsHtml,
+    /<div class="placeholder/u,
+    'Robots must not show a draft media placeholder.',
+  );
 
   for (const slug of inactivePageSlugs) {
     assert.equal(
