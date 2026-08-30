@@ -193,6 +193,19 @@ for (const locale of ['zh-cn', 'en']) {
     'Robots must not show a draft media placeholder.',
   );
 
+  const contactHtml = await readFile(join(distRoot, locale, 'contact', 'index.html'), 'utf8');
+  assert.match(contactHtml, /class="empty-state"/u, 'Contact must show its formal empty state.');
+  assert.doesNotMatch(
+    contactHtml,
+    /class="site-page__hero/u,
+    'Contact must not render the redundant page hero.',
+  );
+  assert.doesNotMatch(
+    contactHtml,
+    /预留区/u,
+    'Contact must not show draft placeholder copy.',
+  );
+
   for (const slug of inactivePageSlugs) {
     assert.equal(
       await fileExists(join(distRoot, locale, slug, 'index.html')),
