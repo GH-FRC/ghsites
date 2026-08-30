@@ -44,7 +44,12 @@ const {
 } = Astro.props;
 const emptyState = page.emptyState;
 const detailLinkLabel = page.detailLinkLabel ?? page.home.linkLabel;
-const compactEmptyState = page.navigationId === 'robots' || page.navigationId === 'sponsors';
+const compactEmptyState = page.navigationId === 'robots'
+  || page.navigationId === 'sponsors'
+  || (
+    page.navigationId === 'contact'
+    && (!page.contactMethods || page.contactMethods.length === 0)
+  );
 const fieldLanguage = (path: string) => {
   if (locale !== 'en') {
     return undefined;
@@ -252,7 +257,12 @@ const fallbackGroupLanguage = (prefix: string) => (
 
   {
     page.layout === 'contact' && (
-      <section class="contact-panel" aria-label={page.hero.title} data-scroll-section>
+      <section
+        class="contact-panel"
+        id={compactEmptyState ? 'page-top' : undefined}
+        aria-label={page.hero.title}
+        data-scroll-section
+      >
         {page.contactMethods && page.contactMethods.length > 0 ? (
           <dl>
             {page.contactMethods.map((method) => (
@@ -267,7 +277,9 @@ const fallbackGroupLanguage = (prefix: string) => (
             ))}
           </dl>
         ) : emptyState ? (
-          <div lang={fallbackGroupLanguage('emptyState.')}><EmptyState state={emptyState} /></div>
+          <div lang={fallbackGroupLanguage('emptyState.')}>
+            <EmptyState state={emptyState} headingLevel={compactEmptyState ? 'h1' : 'h2'} />
+          </div>
         ) : null}
       </section>
     )

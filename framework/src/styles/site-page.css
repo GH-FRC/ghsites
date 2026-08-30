@@ -380,6 +380,7 @@
 }
 
 .site-page--compact-empty .poster-stack,
+.site-page--compact-empty .contact-panel,
 .site-page--compact-empty .placeholder-page {
   display: grid;
   min-height: calc(100dvh - var(--header-height) - 73px);

@@ -183,6 +183,19 @@ for (const locale of ['zh-cn', 'en']) {
     'Robots must not render the redundant page hero.',
   );
 
+  const contactHtml = await readFile(join(distRoot, locale, 'contact', 'index.html'), 'utf8');
+  assert.match(contactHtml, /class="empty-state"/u, 'Contact must show its formal empty state.');
+  assert.doesNotMatch(
+    contactHtml,
+    /class="site-page__hero/u,
+    'Contact must not render the redundant page hero.',
+  );
+  assert.doesNotMatch(
+    contactHtml,
+    /预留区/u,
+    'Contact must not show draft placeholder copy.',
+  );
+
   const newsHtml = await readFile(join(distRoot, locale, 'news', 'index.html'), 'utf8');
   assert.match(newsHtml, /class="empty-state"/u, 'News must retain its empty state.');
 }
