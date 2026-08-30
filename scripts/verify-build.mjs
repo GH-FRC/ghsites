@@ -164,9 +164,24 @@ for (const locale of ['zh-cn', 'en']) {
 
   const sponsorsHtml = await readFile(join(distRoot, locale, 'sponsors', 'index.html'), 'utf8');
   assert.match(sponsorsHtml, /class="empty-state"/u, 'Sponsors must retain its empty state.');
+  assert.match(
+    sponsorsHtml,
+    new RegExp(`href="/${locale}/contact/"`, 'u'),
+    'Sponsors must link its partnership action to Contact.',
+  );
+  assert.doesNotMatch(
+    sponsorsHtml,
+    /class="site-page__hero/u,
+    'Sponsors must not render the redundant page hero.',
+  );
 
   const robotsHtml = await readFile(join(distRoot, locale, 'robots', 'index.html'), 'utf8');
-  assert.match(robotsHtml, /poster-card poster-card--empty/u, 'Robots must show one generic poster when empty.');
+  assert.match(robotsHtml, /class="empty-state"/u, 'Robots must show its formal empty state.');
+  assert.doesNotMatch(
+    robotsHtml,
+    /class="site-page__hero/u,
+    'Robots must not render the redundant page hero.',
+  );
 
   const newsHtml = await readFile(join(distRoot, locale, 'news', 'index.html'), 'utf8');
   assert.match(newsHtml, /class="empty-state"/u, 'News must retain its empty state.');

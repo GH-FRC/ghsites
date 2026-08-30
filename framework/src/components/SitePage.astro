@@ -44,6 +44,7 @@ const {
 } = Astro.props;
 const emptyState = page.emptyState;
 const detailLinkLabel = page.detailLinkLabel ?? page.home.linkLabel;
+const compactEmptyState = page.navigationId === 'robots' || page.navigationId === 'sponsors';
 const fieldLanguage = (path: string) => {
   if (locale !== 'en') {
     return undefined;
@@ -58,7 +59,15 @@ const fallbackGroupLanguage = (prefix: string) => (
 );
 ---
 
-<main class:list={['site-page', `site-page--${page.layout}`]} data-page-id={page.navigationId} id="main-content">
+<main
+  class:list={[
+    'site-page',
+    `site-page--${page.layout}`,
+    compactEmptyState && 'site-page--compact-empty',
+  ]}
+  data-page-id={page.navigationId}
+  id="main-content"
+>
   <nav
     class="site-page__breadcrumb"
     aria-label={breadcrumbLabel}
@@ -69,7 +78,7 @@ const fallbackGroupLanguage = (prefix: string) => (
     <span aria-current="page" lang={fieldLanguage('hero.title')}>{page.hero.title}</span>
   </nav>
 
-  <header class="site-page__hero" id="page-top" data-scroll-section>
+  {!compactEmptyState && <header class="site-page__hero" id="page-top" data-scroll-section>
     <div class="site-page__hero-copy">
       <p class="page-eyebrow" lang={fieldLanguage('hero.eyebrow')}>{page.hero.eyebrow}</p>
       <h1 lang={fieldLanguage('hero.title')}>{page.hero.title}</h1>
@@ -115,18 +124,19 @@ const fallbackGroupLanguage = (prefix: string) => (
         </dl>
       )
     }
-  </header>
+  </header>}
 
-  <section class="site-page__body" data-scroll-section>
+  {!compactEmptyState && <section class="site-page__body" data-scroll-section>
     <div class="site-page__prose" lang={bodyLanguage}>
       <slot />
     </div>
-  </section>
+  </section>}
 
   {
     page.layout === 'robots' && (
       <section
         class="poster-stack"
+        id={compactEmptyState ? 'page-top' : undefined}
         aria-label={page.hero.title}
         lang={robots.length > 0 && locale === 'en' ? 'zh-CN' : fieldLanguage('hero.title')}
         data-scroll-section
@@ -155,24 +165,9 @@ const fallbackGroupLanguage = (prefix: string) => (
             </article>
           ))
         ) : emptyState ? (
-          <article
-            class="poster-card poster-card--empty"
-            lang={fallbackGroupLanguage('emptyState.')}
-          >
-            <div class="poster-card__media">
-              <MediaFrame
-                placeholderLabel={emptyState.eyebrow}
-                placeholderKindLabel={placeholderKindLabel}
-                placeholderKindLanguage={placeholderKindLanguage}
-                placeholderLanguage={fieldLanguage('emptyState.eyebrow')}
-              />
-            </div>
-            <div class="poster-card__copy">
-              <p class="page-eyebrow">{emptyState.eyebrow}</p>
-              <h2>{emptyState.title}</h2>
-              <p>{emptyState.body}</p>
-            </div>
-          </article>
+          <div lang={fallbackGroupLanguage('emptyState.')}>
+            <EmptyState state={emptyState} headingLevel={compactEmptyState ? 'h1' : 'h2'} />
+          </div>
         ) : null}
       </section>
     )
@@ -280,8 +275,13 @@ const fallbackGroupLanguage = (prefix: string) => (
 
   {
     page.layout === 'placeholder' && emptyState && (
-      <section class="placeholder-page" lang={fallbackGroupLanguage('emptyState.')} data-scroll-section>
-        <EmptyState state={emptyState} />
+      <section
+        class="placeholder-page"
+        id={compactEmptyState ? 'page-top' : undefined}
+        lang={fallbackGroupLanguage('emptyState.')}
+        data-scroll-section
+      >
+        <EmptyState state={emptyState} headingLevel={compactEmptyState ? 'h1' : 'h2'} />
       </section>
     )
   }

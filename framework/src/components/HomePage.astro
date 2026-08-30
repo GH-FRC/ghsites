@@ -35,15 +35,15 @@ const fallbackLanguage = (
   <section class="home-hero" id="page-top" data-scroll-section>
     <div class="home-hero__inner">
       <div class="home-hero__copy">
-        <p class="page-eyebrow" lang={fallbackLanguage(heroFallbackPaths, 'hero.eyebrow')}>
-          {hero.eyebrow}
-        </p>
         <h1 lang={fallbackLanguage(heroFallbackPaths, 'hero.title')}>{hero.title}</h1>
         <p lang={fallbackLanguage(heroFallbackPaths, 'hero.introduction')}>
           {hero.introduction}
         </p>
       </div>
-      <div class="home-hero__media">
+      <div class:list={[
+        'home-hero__media',
+        hero.media?.src.includes('/brand/ghfrc-logo-square-') && 'home-hero__media--brand',
+      ]}>
         <MediaFrame
           media={hero.media}
           placeholderLabel={hero.mediaLabel}
