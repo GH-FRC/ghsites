@@ -1,10 +1,10 @@
 /* Keep the public profile readable without changing other editorial pages. */
 .site-page[data-page-id='about-gh-frc'] .site-page__hero {
-  grid-template-columns: minmax(0, 1.25fr) minmax(260px, 0.75fr);
-  align-items: center;
+  grid-template-columns: minmax(0, 1.08fr) minmax(360px, 0.92fr);
+  align-items: start;
   min-height: 0;
-  gap: clamp(40px, 6vw, 88px);
-  padding: clamp(56px, 6vw, 96px) 0 0;
+  gap: clamp(36px, 5vw, 72px);
+  padding: clamp(48px, 5vw, 72px) 0 0;
   border-bottom: 0;
 }
 
@@ -26,20 +26,24 @@
 
 .site-page[data-page-id='about-gh-frc'] .site-page__hero-media {
   width: 100%;
-  max-width: 360px;
+  max-width: 480px;
   justify-self: end;
 }
 
 .site-page[data-page-id='about-gh-frc'] .site-page__hero-media .media-frame {
+  position: relative;
   min-height: 0;
+  aspect-ratio: 4 / 5;
   border: 0;
   background: transparent;
 }
 
 .site-page[data-page-id='about-gh-frc'] .site-page__hero-media img {
-  height: auto;
-  aspect-ratio: 2 / 3;
-  object-fit: contain;
+  position: absolute;
+  inset: 0;
+  height: 100%;
+  object-fit: cover;
+  object-position: 50% 0;
 }
 
 .site-page__media-caption {
