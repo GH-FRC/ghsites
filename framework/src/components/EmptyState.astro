@@ -3,14 +3,16 @@ import type { CollectionEntry } from 'astro:content';
 
 interface Props {
   state: NonNullable<CollectionEntry<'page'>['data']['emptyState']>;
+  headingLevel?: 'h1' | 'h2';
 }
 
-const { state } = Astro.props;
+const { state, headingLevel = 'h2' } = Astro.props;
+const Heading = headingLevel;
 ---
 
 <div class="empty-state">
   <p class="page-eyebrow">{state.eyebrow}</p>
-  <h2>{state.title}</h2>
+  <Heading>{state.title}</Heading>
   <p>{state.body}</p>
   {
     state.actionLabel && state.actionHref && (

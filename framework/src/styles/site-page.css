@@ -302,6 +302,7 @@
 
 .poster-card__copy h2,
 .season-poster__copy h2,
+.empty-state h1,
 .empty-state h2 {
   margin: 0;
   font-size: clamp(46px, 5.5vw, 78px);
@@ -388,6 +389,26 @@
   padding: clamp(40px, 7vw, 96px);
   border: 1px solid var(--color-border-strong);
   background: var(--color-surface);
+}
+
+.site-page--compact-empty .poster-stack,
+.site-page--compact-empty .placeholder-page {
+  display: grid;
+  min-height: calc(100dvh - var(--header-height) - 73px);
+  padding: clamp(40px, 5vw, 72px) 0;
+  border-bottom: 0;
+  place-items: center;
+}
+
+.site-page--compact-empty .empty-state {
+  width: min(100%, 920px);
+  min-height: 0;
+  padding: clamp(40px, 6vw, 80px);
+}
+
+.site-page--compact-empty .empty-state h1 {
+  max-width: none;
+  font-size: clamp(44px, 5vw, 72px);
 }
 
 .contact-panel dl {

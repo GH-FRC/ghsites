@@ -26,12 +26,12 @@
 }
 
 .home-hero__copy h1 {
-  max-width: 8ch;
+  max-width: 10ch;
   margin: 0;
-  font-size: clamp(76px, 9vw, 144px);
+  font-size: clamp(64px, 7.6vw, 116px);
   font-weight: 620;
-  letter-spacing: -0.075em;
-  line-height: 0.86;
+  letter-spacing: -0.065em;
+  line-height: 0.94;
 }
 
 .home-hero__copy > p:last-child {
@@ -160,7 +160,7 @@
   }
 
   .home-hero__copy h1 {
-    font-size: clamp(72px, 15vw, 118px);
+    font-size: clamp(64px, 12vw, 104px);
   }
 
   .home-showcase__inner {
@@ -187,7 +187,7 @@
   }
 
   .home-hero__copy h1 {
-    font-size: clamp(62px, 20vw, 88px);
+    font-size: clamp(52px, 16vw, 76px);
   }
 
   .home-hero__copy > p:last-child {
