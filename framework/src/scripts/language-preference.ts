@@ -1,9 +1,10 @@
 import {
   browserLanguageToLocale,
-  BROWSER_LANGUAGE_LOCALES,
   DEFAULT_BROWSER_LOCALE,
   isLocale,
   SUPPORTED_LOCALES,
+  TRADITIONAL_CHINESE_LOCALE,
+  TRADITIONAL_CHINESE_REGIONS,
   type Locale,
 } from '../i18n/locales';
 
@@ -70,11 +71,14 @@ export function createLanguageRedirectScript(
   const serializedAutomaticLanguageQueryKey = JSON.stringify(
     AUTOMATIC_LANGUAGE_QUERY_KEY,
   );
-  const serializedBrowserLanguageLocales = JSON.stringify(
-    BROWSER_LANGUAGE_LOCALES,
-  );
   const serializedDefaultLocale = JSON.stringify(DEFAULT_BROWSER_LOCALE);
   const serializedSupportedLocales = JSON.stringify(SUPPORTED_LOCALES);
+  const serializedTraditionalChineseLocale = JSON.stringify(
+    TRADITIONAL_CHINESE_LOCALE,
+  );
+  const serializedTraditionalChineseRegions = JSON.stringify(
+    TRADITIONAL_CHINESE_REGIONS,
+  );
 
   return `(function () {
     var locale = ${serializedDefaultLocale};
@@ -100,12 +104,28 @@ export function createLanguageRedirectScript(
           : window.navigator.language;
 
       try {
-        var languageCode =
+        var browserLocale =
           typeof browserLanguage === 'string'
-            ? new Intl.Locale(browserLanguage).language.toLowerCase()
+            ? new Intl.Locale(browserLanguage)
+            : null;
+
+        if (browserLocale && browserLocale.language.toLowerCase() === 'zh') {
+          var script = browserLocale.script
+            ? browserLocale.script.toLowerCase()
             : '';
-        var browserLanguageLocales = ${serializedBrowserLanguageLocales};
-        locale = browserLanguageLocales[languageCode] || ${serializedDefaultLocale};
+          var region = browserLocale.region
+            ? browserLocale.region.toUpperCase()
+            : '';
+          var traditionalRegions = ${serializedTraditionalChineseRegions};
+
+          locale =
+            script === 'hant' ||
+            (script !== 'hans' && traditionalRegions.indexOf(region) >= 0)
+              ? ${serializedTraditionalChineseLocale}
+              : 'zh-cn';
+        } else {
+          locale = ${serializedDefaultLocale};
+        }
       } catch (error) {
         locale = ${serializedDefaultLocale};
       }

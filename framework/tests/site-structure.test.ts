@@ -48,6 +48,7 @@ describe('site page structure', () => {
 
   it('builds localized page paths with stable English slugs', () => {
     expect(localizedPageHref('zh-cn', 'frc')).toBe('/zh-cn/frc/');
+    expect(localizedPageHref('zh-hant', 'frc')).toBe('/zh-hant/frc/');
     expect(localizedPageHref('en', 'frc')).toBe('/en/frc/');
   });
 

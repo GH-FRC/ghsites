@@ -7,7 +7,11 @@ import {
   type PageContent,
   type SiteContent,
 } from '../content-schema';
-import type { Locale } from './locales';
+import {
+  SIMPLIFIED_CHINESE_LOCALE,
+  type HtmlLanguage,
+  type Locale,
+} from './locales';
 import {
   resolveLocalizedContent,
   type LocalizedContentOverlay,
@@ -23,8 +27,11 @@ export interface LocalizedResult<T> {
 export interface LocalizedPage {
   id: string;
   data: LocalizedResult<PageContent>;
-  bodyEntry: CollectionEntry<'page'> | CollectionEntry<'pageEn'>;
-  bodyLanguage?: 'zh-CN';
+  bodyEntry:
+    | CollectionEntry<'page'>
+    | CollectionEntry<'pageEn'>
+    | CollectionEntry<'pageZhHant'>;
+  bodyLanguage?: HtmlLanguage;
   bodyUsesFallback: boolean;
 }
 
@@ -53,45 +60,70 @@ function localize<T>(
 }
 
 function hasMarkdownBody(
-  entry: CollectionEntry<'page'> | CollectionEntry<'pageEn'> | undefined,
-): entry is CollectionEntry<'page'> | CollectionEntry<'pageEn'> {
+  entry:
+    | CollectionEntry<'page'>
+    | CollectionEntry<'pageEn'>
+    | CollectionEntry<'pageZhHant'>
+    | undefined,
+): entry is
+  | CollectionEntry<'page'>
+  | CollectionEntry<'pageEn'>
+  | CollectionEntry<'pageZhHant'> {
   return typeof entry?.body === 'string' && entry.body.trim().length > 0;
 }
 
 export async function loadLocalizedWebsiteContent(locale: Locale): Promise<{
   site: LocalizedResult<SiteContent>;
   pages: LocalizedPage[];
-  isEnglishComplete: boolean;
-  missingEnglishTranslations: string[];
+  isComplete: boolean;
+  missingTranslations: string[];
 }> {
-  const [siteEntry, siteEnEntry, pageEntries, pageEnEntries] = await Promise.all([
+  const [
+    siteEntry,
+    siteEnEntry,
+    siteZhHantEntry,
+    pageEntries,
+    pageEnEntries,
+    pageZhHantEntries,
+  ] = await Promise.all([
     getEntry('site', 'site'),
     getEntry('siteEn', 'site'),
+    getEntry('siteZhHant', 'site'),
     getCollection('page'),
     getCollection('pageEn'),
+    getCollection('pageZhHant'),
   ]);
 
-  if (!siteEntry || !siteEnEntry) {
+  if (!siteEntry || !siteEnEntry || !siteZhHantEntry) {
     throw new Error('The localized site content entries are incomplete.');
   }
 
-  const site = locale === 'zh-cn'
+  const siteOverlay = locale === 'en' ? siteEnEntry.data : siteZhHantEntry.data;
+  const site = locale === SIMPLIFIED_CHINESE_LOCALE
     ? completeBase(siteEntry.data)
-    : localize(siteEntry.data, siteEnEntry.data, (value) => siteSchema.parse(value));
+    : localize(siteEntry.data, siteOverlay, (value) => siteSchema.parse(value));
   const englishPageById = new Map(pageEnEntries.map((entry) => [entry.id, entry]));
+  const traditionalChinesePageById = new Map(
+    pageZhHantEntries.map((entry) => [entry.id, entry]),
+  );
   const pages = pageEntries.map((baseEntry): LocalizedPage => {
-    const englishEntry = englishPageById.get(baseEntry.id);
+    const localizedEntry = locale === 'en'
+      ? englishPageById.get(baseEntry.id)
+      : traditionalChinesePageById.get(baseEntry.id);
 
-    if (!englishEntry) {
-      throw new Error(`The English overlay for page "${baseEntry.id}" is missing.`);
+    if (locale !== SIMPLIFIED_CHINESE_LOCALE && !localizedEntry) {
+      throw new Error(`The ${locale} overlay for page "${baseEntry.id}" is missing.`);
     }
 
-    const data = locale === 'zh-cn'
+    const data = locale === SIMPLIFIED_CHINESE_LOCALE
       ? completeBase(baseEntry.data)
-      : localize(baseEntry.data, englishEntry.data, (value) => pageSchema.parse(value));
-    const useEnglishBody = locale === 'en' && hasMarkdownBody(englishEntry);
+      : localize(baseEntry.data, localizedEntry?.data, (value) => pageSchema.parse(value));
+    const useLocalizedBody = locale !== SIMPLIFIED_CHINESE_LOCALE
+      && hasMarkdownBody(localizedEntry);
     const baseHasBody = hasMarkdownBody(baseEntry);
-    const bodyUsesFallback = locale === 'en' && baseHasBody && !useEnglishBody;
+    const bodyUsesFallback = locale !== SIMPLIFIED_CHINESE_LOCALE
+      && baseHasBody
+      && !useLocalizedBody;
 
     return {
       id: baseEntry.id,
@@ -103,12 +135,12 @@ export async function loadLocalizedWebsiteContent(locale: Locale): Promise<{
             isComplete: false,
           }
         : data,
-      bodyEntry: useEnglishBody ? englishEntry : baseEntry,
+      bodyEntry: useLocalizedBody ? localizedEntry : baseEntry,
       bodyLanguage: bodyUsesFallback ? 'zh-CN' : undefined,
       bodyUsesFallback,
     };
   });
-  const missingEnglishTranslations = locale === 'en'
+  const missingTranslations = locale !== SIMPLIFIED_CHINESE_LOCALE
     ? [
         ...site.missingTranslations.map((path) => `site.${path}`),
         ...pages.flatMap((page) => (
@@ -120,7 +152,7 @@ export async function loadLocalizedWebsiteContent(locale: Locale): Promise<{
   return {
     site,
     pages,
-    isEnglishComplete: locale === 'en' && missingEnglishTranslations.length === 0,
-    missingEnglishTranslations,
+    isComplete: missingTranslations.length === 0,
+    missingTranslations,
   };
 }

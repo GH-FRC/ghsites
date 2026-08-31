@@ -54,43 +54,54 @@ async function readMarkdown(locale, pageId) {
   return parseMarkdown(await readFile(filePath, 'utf8'), filePath);
 }
 
-const [siteBase, siteEnglish] = await Promise.all([
-  readYamlEntry(
-    join(contentRoot, 'config', 'locales', 'zh-CN', 'site.yaml'),
-    'site',
-  ),
-  readYamlEntry(
-    join(contentRoot, 'config', 'locales', 'en', 'site.yaml'),
-    'site',
-  ),
-]);
-const missingTranslations = resolveLocalizedContent(
-  siteBase,
-  siteEnglish,
-).missingTranslations.map((path) => `site.${path}`);
+const siteBase = await readYamlEntry(
+  join(contentRoot, 'config', 'locales', 'zh-CN', 'site.yaml'),
+  'site',
+);
+const localeChecks = [
+  { directory: 'en', label: 'English', requiredComplete: false },
+  { directory: 'zh-Hant', label: 'Traditional Chinese', requiredComplete: true },
+];
 
-for (const pageId of pageIds) {
-  const [base, english] = await Promise.all([
-    readMarkdown('zh-CN', pageId),
-    readMarkdown('en', pageId),
-  ]);
-  const result = resolveLocalizedContent(base.data, english.data);
-
-  missingTranslations.push(
-    ...result.missingTranslations.map((path) => `pages.${pageId}.${path}`),
+for (const localeCheck of localeChecks) {
+  const siteOverlay = await readYamlEntry(
+    join(contentRoot, 'config', 'locales', localeCheck.directory, 'site.yaml'),
+    'site',
   );
+  const missingTranslations = resolveLocalizedContent(
+    siteBase,
+    siteOverlay,
+  ).missingTranslations.map((path) => `site.${path}`);
 
-  if (base.body && !english.body) {
-    missingTranslations.push(`pages.${pageId}.body`);
+  for (const pageId of pageIds) {
+    const [base, overlay] = await Promise.all([
+      readMarkdown('zh-CN', pageId),
+      readMarkdown(localeCheck.directory, pageId),
+    ]);
+    const result = resolveLocalizedContent(base.data, overlay.data);
+
+    missingTranslations.push(
+      ...result.missingTranslations.map((path) => `pages.${pageId}.${path}`),
+    );
+
+    if (base.body && !overlay.body) {
+      missingTranslations.push(`pages.${pageId}.body`);
+    }
   }
-}
 
-if (missingTranslations.length === 0) {
-  console.log('English translation check: complete. English pages may be indexed.');
-} else {
+  if (missingTranslations.length === 0) {
+    console.log(`${localeCheck.label} translation check: complete.`);
+    continue;
+  }
+
   console.log(
-    `English translation check: ${missingTranslations.length} field(s) still use Simplified Chinese fallback.`,
+    `${localeCheck.label} translation check: ${missingTranslations.length} field(s) still use Simplified Chinese fallback.`,
   );
   missingTranslations.forEach((path) => console.log(`- ${path}`));
-  console.log('English pages remain noindex until this report is empty.');
+
+  if (localeCheck.requiredComplete) {
+    process.exitCode = 1;
+  } else {
+    console.log('English pages remain noindex until this report is empty.');
+  }
 }

@@ -67,10 +67,12 @@ export const siteSchema = z.object({
     currentLanguage: z.string().min(1),
     options: z.object({
       'zh-cn': z.string().min(1),
+      'zh-hant': z.string().min(1),
       en: z.string().min(1),
     }),
     shortOptions: z.object({
       'zh-cn': z.string().min(1),
+      'zh-hant': z.string().min(1),
       en: z.string().min(1),
     }),
   }),

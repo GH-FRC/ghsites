@@ -9,6 +9,7 @@ import {
 } from 'node:path';
 
 const CONTENT_MEDIA_REFERENCE = /\/content\/[^\s"'`()<>\[\]{},?#]+/gu;
+const CONTENT_LOCALES = ['zh-CN', 'zh-Hant', 'en'];
 
 export function extractMediaReferences(sourceText) {
   return (sourceText.match(CONTENT_MEDIA_REFERENCE) ?? [])
@@ -173,7 +174,7 @@ async function discoverMarkdownFiles(directory, { optional = false } = {}) {
 }
 
 export async function discoverContentSourceFiles(contentRoot) {
-  const localizedSiteConfigs = ['zh-CN', 'en'].map((locale) => (
+  const localizedSiteConfigs = CONTENT_LOCALES.map((locale) => (
     join(contentRoot, 'config', 'locales', locale, 'site.yaml')
   ));
   await Promise.all(
@@ -181,7 +182,7 @@ export async function discoverContentSourceFiles(contentRoot) {
       assertPathHasNoSymbolicLinks(contentRoot, siteConfig)
     )),
   );
-  const localizedPageFiles = await Promise.all(['zh-CN', 'en'].map(async (locale) => {
+  const localizedPageFiles = await Promise.all(CONTENT_LOCALES.map(async (locale) => {
     const pagesDirectory = join(contentRoot, 'pages', locale);
     const pageFiles = await discoverMarkdownFiles(pagesDirectory);
 

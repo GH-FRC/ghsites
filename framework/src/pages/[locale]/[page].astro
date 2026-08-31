@@ -76,7 +76,7 @@ const pageFallbackLanguage = (path: string) => (
   pagePath={contentId}
   title={pageContent.meta.title}
   description={pageContent.meta.description}
-  noIndex={locale === 'en' && !localizedContent.isEnglishComplete}
+  noIndex={!localizedContent.isComplete}
   titleLanguage={pageFallbackLanguage('meta.title')}
   descriptionLanguage={pageFallbackLanguage('meta.description')}
 >

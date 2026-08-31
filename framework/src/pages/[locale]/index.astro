@@ -52,7 +52,7 @@ const fallbackLanguage = (path: string) => (
   currentPage="home"
   title={site.title}
   description={site.description}
-  noIndex={locale === 'en' && !localizedContent.isEnglishComplete}
+  noIndex={!localizedContent.isComplete}
   titleLanguage={fallbackLanguage('title')}
   descriptionLanguage={fallbackLanguage('description')}
 >

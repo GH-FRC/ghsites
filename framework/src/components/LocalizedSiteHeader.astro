@@ -2,7 +2,7 @@
 import type { SiteContent } from '../content-schema';
 import {
   htmlLanguageForLocale,
-  languageSwitchTargetFor,
+  SUPPORTED_LOCALES,
   type Locale,
 } from '../i18n/locales';
 import { buildLanguageSwitchPath } from '../scripts/language-preference';
@@ -31,8 +31,15 @@ const navigationItems = buildSiteNavigationItems(site.navigation, context, local
       : undefined,
   }),
 );
-const targetLocale = languageSwitchTargetFor(locale);
-const targetHtmlLanguage = htmlLanguageForLocale(targetLocale);
+const languageOptions = SUPPORTED_LOCALES
+  .filter((optionLocale) => optionLocale !== locale)
+  .map((optionLocale) => ({
+    href: buildLanguageSwitchPath(optionLocale, currentPath),
+    htmlLanguage: htmlLanguageForLocale(optionLocale),
+    locale: optionLocale,
+    languageName: site.languageSwitcher.options[optionLocale],
+    shortLabel: site.languageSwitcher.shortOptions[optionLocale],
+  }));
 const isHome = context === 'home';
 const homeLinkKey = isHome ? 'returnToTop' : 'returnToHome';
 ---
@@ -56,15 +63,14 @@ const homeLinkKey = isHome ? 'returnToTop' : 'returnToHome';
       : undefined
   }
   languageSwitcher={{
-    href: buildLanguageSwitchPath(targetLocale, currentPath),
+    currentLanguageLabel: site.languageSwitcher.currentLanguage,
+    currentLanguageName: site.languageSwitcher.options[locale],
+    currentShortLabel: site.languageSwitcher.shortOptions[locale],
     navigationLabel: site.accessibility.languageNavigation,
     navigationLanguage: fallbackPaths.has('accessibility.languageNavigation')
       ? 'zh-CN'
       : undefined,
-    targetHtmlLanguage,
-    targetLocale,
-    targetLanguageName: site.languageSwitcher.options[targetLocale],
-    targetShortLabel: site.languageSwitcher.shortOptions[targetLocale],
+    options: languageOptions,
   }}
   homeHref={isHome ? '#page-top' : `/${locale}/`}
 />
