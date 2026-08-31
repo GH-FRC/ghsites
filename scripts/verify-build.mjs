@@ -98,19 +98,24 @@ for (const route of localizedRoutes) {
   );
   assert.equal(countMatches(html, /<h1(?:\s|>)/gu), 1, `${relativePath} must have one h1.`);
   assert.match(html, /data-site-header/u, `${relativePath} must include the shared header.`);
-  for (const [scheme, color] of [['light', '#ffffff'], ['dark', '#000000']]) {
-    assert.ok(
-      html.includes(`<meta name="theme-color" content="${color}" media="(prefers-color-scheme: ${scheme})">`),
-      `${relativePath} must provide the ${scheme} browser theme color.`,
-    );
+  for (const scheme of ['light', 'dark']) {
     assert.ok(
       [...html.matchAll(/<link rel="icon"[^>]+>/gu)].some(([tag]) => (
         tag.includes('data-browser-tab-icon')
         && tag.includes(`data-${scheme}-icon="/content/`)
+        && tag.includes(`favicon=20260831-${scheme}`)
       )),
-      `${relativePath} must provide a content-supplied ${scheme} favicon.`,
+      `${relativePath} must provide a cache-versioned, content-supplied ${scheme} favicon.`,
     );
   }
+  assert.ok(
+    [...html.matchAll(/<meta name="theme-color"[^>]+>/gu)].some(([tag]) => (
+      tag.includes('data-browser-theme-color')
+      && tag.includes('data-light-color="#ffffff"')
+      && tag.includes('data-dark-color="#000000"')
+    )),
+    `${relativePath} must provide theme colors controlled with the effective page appearance.`,
+  );
   assert.match(html, /data-language-switch/u, `${relativePath} must include language switching.`);
   assert.match(
     html,

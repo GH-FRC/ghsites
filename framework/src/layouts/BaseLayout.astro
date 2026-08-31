@@ -46,6 +46,12 @@ const languageAlternates = SUPPORTED_LOCALES.map((alternateLocale) => ({
 const automaticUrl = new URL(`/${normalizedPagePath}`, Astro.site ?? Astro.url);
 const shouldPreventIndexing = noIndex || import.meta.env.SITE_NOINDEX === 'true';
 const languagePreferenceScript = createLocaleVisitScript(locale);
+const faviconRevision = '20260831';
+const versionFavicon = (src: string, variant: 'light' | 'dark') => (
+  `${src}${src.includes('?') ? '&' : '?'}favicon=${faviconRevision}-${variant}`
+);
+const faviconLightHref = versionFavicon(faviconLightSrc, 'light');
+const faviconDarkHref = versionFavicon(faviconDarkSrc, 'dark');
 ---
 
 <!doctype html>
@@ -60,15 +66,20 @@ const languagePreferenceScript = createLocaleVisitScript(locale);
     <meta name="description" content={description} lang={descriptionLanguage} />
     {shouldPreventIndexing && <meta name="robots" content="noindex, follow" />}
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)" />
+    <meta
+      name="theme-color"
+      content="#ffffff"
+      data-browser-theme-color
+      data-light-color="#ffffff"
+      data-dark-color="#000000"
+    />
     <link
       rel="icon"
       type="image/png"
-      href={faviconLightSrc}
+      href={faviconLightHref}
       data-browser-tab-icon
-      data-light-icon={faviconLightSrc}
-      data-dark-icon={faviconDarkSrc}
+      data-light-icon={faviconLightHref}
+      data-dark-icon={faviconDarkHref}
     />
     <link rel="canonical" href={canonicalUrl} />
     {
