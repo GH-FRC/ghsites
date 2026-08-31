@@ -110,8 +110,10 @@ test('discovers configured Markdown source trees recursively', async (t) => {
   ];
   const sourceFiles = [
     'config/locales/zh-CN/site.yaml',
+    'config/locales/zh-Hant/site.yaml',
     'config/locales/en/site.yaml',
     ...pageNames.map((pageName) => `pages/zh-CN/${pageName}.md`),
+    ...pageNames.map((pageName) => `pages/zh-Hant/${pageName}.md`),
     ...pageNames.map((pageName) => `pages/en/${pageName}.md`),
     'robots/seasons/2026.md',
     'news/2026/kickoff.md',
@@ -144,11 +146,18 @@ test('requires exactly seven page Markdown files for every enabled locale', asyn
   t.after(() => rm(contentRoot, { force: true, recursive: true }));
 
   await mkdir(join(contentRoot, 'config', 'locales', 'zh-CN'), { recursive: true });
+  await mkdir(join(contentRoot, 'config', 'locales', 'zh-Hant'), { recursive: true });
   await mkdir(join(contentRoot, 'config', 'locales', 'en'), { recursive: true });
   await mkdir(join(contentRoot, 'pages', 'zh-CN'), { recursive: true });
+  await mkdir(join(contentRoot, 'pages', 'zh-Hant'), { recursive: true });
   await mkdir(join(contentRoot, 'pages', 'en'), { recursive: true });
   await writeFile(
     join(contentRoot, 'config', 'locales', 'zh-CN', 'site.yaml'),
+    'site: example\n',
+    'utf8',
+  );
+  await writeFile(
+    join(contentRoot, 'config', 'locales', 'zh-Hant', 'site.yaml'),
     'site: example\n',
     'utf8',
   );
@@ -167,6 +176,11 @@ test('requires exactly seven page Markdown files for every enabled locale', asyn
   }
 
   for (let pageNumber = 1; pageNumber <= 7; pageNumber += 1) {
+    await writeFile(
+      join(contentRoot, 'pages', 'zh-Hant', `page-${pageNumber}.md`),
+      `page ${pageNumber}\n`,
+      'utf8',
+    );
     await writeFile(
       join(contentRoot, 'pages', 'en', `page-${pageNumber}.md`),
       `page ${pageNumber}\n`,
@@ -202,12 +216,19 @@ test('rejects symbolic links in recursively discovered text sources', async (t) 
   t.after(() => rm(contentRoot, { force: true, recursive: true }));
 
   await mkdir(join(contentRoot, 'config', 'locales', 'zh-CN'), { recursive: true });
+  await mkdir(join(contentRoot, 'config', 'locales', 'zh-Hant'), { recursive: true });
   await mkdir(join(contentRoot, 'config', 'locales', 'en'), { recursive: true });
   await mkdir(join(contentRoot, 'pages', 'zh-CN'), { recursive: true });
+  await mkdir(join(contentRoot, 'pages', 'zh-Hant'), { recursive: true });
   await mkdir(join(contentRoot, 'pages', 'en'), { recursive: true });
   await mkdir(join(contentRoot, 'robots'), { recursive: true });
   await writeFile(
     join(contentRoot, 'config', 'locales', 'zh-CN', 'site.yaml'),
+    'site: example\n',
+    'utf8',
+  );
+  await writeFile(
+    join(contentRoot, 'config', 'locales', 'zh-Hant', 'site.yaml'),
     'site: example\n',
     'utf8',
   );
@@ -220,6 +241,11 @@ test('rejects symbolic links in recursively discovered text sources', async (t) 
   for (let pageNumber = 1; pageNumber <= 7; pageNumber += 1) {
     await writeFile(
       join(contentRoot, 'pages', 'zh-CN', `page-${pageNumber}.md`),
+      `page ${pageNumber}\n`,
+      'utf8',
+    );
+    await writeFile(
+      join(contentRoot, 'pages', 'zh-Hant', `page-${pageNumber}.md`),
       `page ${pageNumber}\n`,
       'utf8',
     );

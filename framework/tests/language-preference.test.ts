@@ -68,7 +68,7 @@ function runLocaleVisit({
   storage = createLanguageStorage(),
 }: {
   hash?: string;
-  locale?: 'zh-cn' | 'en';
+  locale?: 'zh-cn' | 'zh-hant' | 'en';
   pathname?: string;
   referrer?: string;
   search?: string;
@@ -94,10 +94,17 @@ function runLocaleVisit({
 }
 
 describe('browser locale selection', () => {
-  it.each(['zh', 'zh-CN', 'zh-Hant-HK', 'ZH-tw'])(
+  it.each(['zh', 'zh-CN', 'zh-SG', 'zh-Hans', 'zh-Hans-HK'])(
     'uses Simplified Chinese for the browser language %s',
     (languageTag) => {
       expect(browserLanguageToLocale(languageTag)).toBe('zh-cn');
+    },
+  );
+
+  it.each(['zh-Hant', 'zh-Hant-HK', 'zh-TW', 'ZH-hk', 'zh-MO'])(
+    'uses Traditional Chinese for the browser language %s',
+    (languageTag) => {
+      expect(browserLanguageToLocale(languageTag)).toBe('zh-hant');
     },
   );
 
@@ -129,7 +136,7 @@ describe('remembered locale selection', () => {
           browserLanguages: ['zh-Hant-HK', 'en-US'],
           storage: createLanguageStorage(savedLocale),
         }),
-      ).toBe('zh-cn');
+      ).toBe('zh-hant');
     },
   );
 
@@ -201,7 +208,7 @@ describe('unlocalized route redirects', () => {
         search: '?review=1',
       }),
     ).toBe(
-      `/zh-cn/about-frc/?review=1&${AUTOMATIC_LANGUAGE_QUERY_KEY}=zh-cn#history`,
+      `/zh-hant/about-frc/?review=1&${AUTOMATIC_LANGUAGE_QUERY_KEY}=zh-hant#history`,
     );
   });
 
@@ -242,9 +249,9 @@ describe('explicit and automatic locale visits', () => {
   });
 
   it('persists a locale selected through an explicit language URL', () => {
-    const result = runLocaleVisit({ locale: 'zh-cn', pathname: '/zh-cn/' });
+    const result = runLocaleVisit({ locale: 'zh-hant', pathname: '/zh-hant/' });
 
-    expect(result.storage.getItem(LANGUAGE_STORAGE_KEY)).toBe('zh-cn');
+    expect(result.storage.getItem(LANGUAGE_STORAGE_KEY)).toBe('zh-hant');
     expect(result.cleanedUrl).toBeUndefined();
   });
 
@@ -260,9 +267,14 @@ describe('explicit and automatic locale visits', () => {
 
 describe('language switch URLs', () => {
   it('keeps the current English slug and hash when the locale changes', () => {
-    expect(buildLanguageSwitchPath('en', '/zh-cn/about-frc/', '#history')).toBe(
+    expect(buildLanguageSwitchPath('en', '/zh-hant/about-frc/', '#history')).toBe(
       '/en/about-frc/#history',
     );
+  });
+
+  it('switches directly between both Chinese writing systems', () => {
+    expect(buildLanguageSwitchPath('zh-hant', '/zh-cn/team/')).toBe('/zh-hant/team/');
+    expect(buildLanguageSwitchPath('zh-cn', '/zh-hant/team/')).toBe('/zh-cn/team/');
   });
 
   it('preserves the live query string and page fragment when a language link is activated', () => {

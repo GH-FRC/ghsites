@@ -31,6 +31,11 @@ const siteEn = defineCollection({
   schema: localeOverlaySchema,
 });
 
+const siteZhHant = defineCollection({
+  loader: file(resolve(contentRoot, 'config', 'locales', 'zh-Hant', 'site.yaml')),
+  schema: localeOverlaySchema,
+});
+
 const page = defineCollection({
   loader: glob({
     base: contentUrl('pages', 'zh-CN'),
@@ -42,6 +47,14 @@ const page = defineCollection({
 const pageEn = defineCollection({
   loader: glob({
     base: contentUrl('pages', 'en'),
+    pattern: '*.md',
+  }),
+  schema: localeOverlaySchema,
+});
+
+const pageZhHant = defineCollection({
+  loader: glob({
+    base: contentUrl('pages', 'zh-Hant'),
     pattern: '*.md',
   }),
   schema: localeOverlaySchema,
@@ -63,4 +76,13 @@ const news = defineCollection({
   schema: newsSchema,
 });
 
-export const collections = { news, page, pageEn, robot, site, siteEn };
+export const collections = {
+  news,
+  page,
+  pageEn,
+  pageZhHant,
+  robot,
+  site,
+  siteEn,
+  siteZhHant,
+};

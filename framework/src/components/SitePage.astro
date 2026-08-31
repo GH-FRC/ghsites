@@ -51,14 +51,10 @@ const compactEmptyState = page.navigationId === 'robots'
     && (!page.contactMethods || page.contactMethods.length === 0)
   );
 const fieldLanguage = (path: string) => {
-  if (locale !== 'en') {
-    return undefined;
-  }
-
-  return fallbackPaths.has(path) ? 'zh-CN' : 'en';
+  return fallbackPaths.has(path) ? 'zh-CN' : undefined;
 };
 const fallbackGroupLanguage = (prefix: string) => (
-  locale === 'en' && [...fallbackPaths].some((path) => path.startsWith(prefix))
+  locale !== 'zh-cn' && [...fallbackPaths].some((path) => path.startsWith(prefix))
     ? 'zh-CN'
     : undefined
 );
@@ -143,7 +139,7 @@ const fallbackGroupLanguage = (prefix: string) => (
         class="poster-stack"
         id={compactEmptyState ? 'page-top' : undefined}
         aria-label={page.hero.title}
-        lang={robots.length > 0 && locale === 'en' ? 'zh-CN' : fieldLanguage('hero.title')}
+        lang={robots.length > 0 && locale !== 'zh-cn' ? 'zh-CN' : fieldLanguage('hero.title')}
         data-scroll-section
       >
         {robots.length > 0 ? (
@@ -155,7 +151,7 @@ const fallbackGroupLanguage = (prefix: string) => (
                   placeholderLabel={robot.data.title}
                   placeholderKindLabel={placeholderKindLabel}
                   placeholderKindLanguage={placeholderKindLanguage}
-                  mediaTextLanguage={locale === 'en' ? 'zh-CN' : undefined}
+                  mediaTextLanguage={locale !== 'zh-cn' ? 'zh-CN' : undefined}
                 />
               </div>
               <div class="poster-card__copy">
@@ -218,7 +214,7 @@ const fallbackGroupLanguage = (prefix: string) => (
       <section
         class="news-index"
         aria-label={page.hero.title}
-        lang={news.length > 0 && locale === 'en' ? 'zh-CN' : undefined}
+        lang={news.length > 0 && locale !== 'zh-cn' ? 'zh-CN' : undefined}
         data-scroll-section
       >
         {news.length > 0 ? (
@@ -231,12 +227,14 @@ const fallbackGroupLanguage = (prefix: string) => (
                     placeholderLabel={article.data.title}
                     placeholderKindLabel={placeholderKindLabel}
                     placeholderKindLanguage={placeholderKindLanguage}
-                    mediaTextLanguage={locale === 'en' ? 'zh-CN' : undefined}
+                    mediaTextLanguage={locale !== 'zh-cn' ? 'zh-CN' : undefined}
                   />
                 )}
                 <div class="news-card__copy">
                   <time datetime={article.data.publishedAt.toISOString()}>
-                    {article.data.publishedAt.toLocaleDateString(locale === 'en' ? 'en' : 'zh-CN')}
+                    {article.data.publishedAt.toLocaleDateString(
+                      locale === 'en' ? 'en' : locale === 'zh-hant' ? 'zh-Hant' : 'zh-CN',
+                    )}
                   </time>
                   <h2>{article.data.title}</h2>
                   <p>{article.data.summary}</p>

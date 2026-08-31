@@ -2,35 +2,50 @@
 import type { HtmlLanguage, Locale } from '../i18n/locales';
 
 interface Props {
-  href: string;
+  currentLanguageLabel: string;
+  currentLanguageName: string;
+  currentShortLabel: string;
   navigationLabel: string;
   navigationLanguage?: string;
-  targetHtmlLanguage: HtmlLanguage;
-  targetLocale: Locale;
-  targetLanguageName: string;
-  targetShortLabel: string;
+  options: Array<{
+    href: string;
+    htmlLanguage: HtmlLanguage;
+    locale: Locale;
+    languageName: string;
+    shortLabel: string;
+  }>;
 }
 
 const {
-  href,
+  currentLanguageLabel,
+  currentLanguageName,
+  currentShortLabel,
   navigationLabel,
   navigationLanguage,
-  targetHtmlLanguage,
-  targetLocale,
-  targetLanguageName,
-  targetShortLabel,
+  options,
 } = Astro.props;
 ---
 
 <nav class="language-switcher" aria-label={navigationLabel} lang={navigationLanguage}>
-  <a
-    href={href}
-    hreflang={targetHtmlLanguage}
-    lang={targetHtmlLanguage}
-    aria-label={targetLanguageName}
-    data-language-switch
-    data-language-locale={targetLocale}
+  <span
+    class="language-switcher__current"
+    aria-current="page"
+    aria-label={`${currentLanguageLabel}: ${currentLanguageName}`}
   >
-    {targetShortLabel}
-  </a>
+    {currentShortLabel}
+  </span>
+  {
+    options.map((option) => (
+      <a
+        href={option.href}
+        hreflang={option.htmlLanguage}
+        lang={option.htmlLanguage}
+        aria-label={option.languageName}
+        data-language-switch
+        data-language-locale={option.locale}
+      >
+        {option.shortLabel}
+      </a>
+    ))
+  }
 </nav>

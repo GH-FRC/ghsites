@@ -9,6 +9,7 @@ const { pagePath = '' } = Astro.props;
 const normalizedPagePath = pagePath ? `${pagePath.replace(/^\/+|\/+$/g, '')}/` : '';
 const englishHref = `/en/${normalizedPagePath}${Astro.url.search}${Astro.url.hash}`;
 const simplifiedChineseHref = `/zh-cn/${normalizedPagePath}${Astro.url.search}${Astro.url.hash}`;
+const traditionalChineseHref = `/zh-hant/${normalizedPagePath}${Astro.url.search}${Astro.url.hash}`;
 ---
 
 <!doctype html>
@@ -18,16 +19,18 @@ const simplifiedChineseHref = `/zh-cn/${normalizedPagePath}${Astro.url.search}${
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="robots" content="noindex, follow" />
     <meta name="color-scheme" content="light dark" />
-    <title>Choose language | 选择语言</title>
+    <title>Choose language | 选择语言 | 選擇語言</title>
     <script is:inline set:html={createLanguageRedirectScript()}></script>
   </head>
   <body>
     <main>
       <h1>Choose language</h1>
       <p lang="zh-CN">选择语言</p>
+      <p lang="zh-Hant">選擇語言</p>
       <nav aria-label="Language selection">
         <a href={englishHref} lang="en" hreflang="en">English</a>
         <a href={simplifiedChineseHref} lang="zh-CN" hreflang="zh-CN">简体中文</a>
+        <a href={traditionalChineseHref} lang="zh-Hant" hreflang="zh-Hant">繁體中文</a>
       </nav>
     </main>
   </body>
