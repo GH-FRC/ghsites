@@ -7,7 +7,11 @@ afterEach(() => {
 });
 
 function setup(initiallyDark: boolean) {
-  document.head.innerHTML = '<link rel="icon" href="/light.png" data-browser-tab-icon data-light-icon="/light.png" data-dark-icon="/dark.png">';
+  document.documentElement.removeAttribute('data-color-scheme');
+  document.head.innerHTML = `
+    <meta name="theme-color" content="#ffffff" data-browser-theme-color data-light-color="#ffffff" data-dark-color="#000000">
+    <link rel="icon" href="/light.png" data-browser-tab-icon data-light-icon="/light.png" data-dark-icon="/dark.png">
+  `;
   let dark = initiallyDark;
   const preference = window.matchMedia('(prefers-color-scheme: dark)');
   Object.defineProperty(preference, 'matches', { configurable: true, get: () => dark });
@@ -16,9 +20,17 @@ function setup(initiallyDark: boolean) {
   return {
     handle,
     href: () => document.querySelector('link')?.getAttribute('href'),
+    themeColor: () => document.querySelector('meta')?.getAttribute('content'),
     setDark(value: boolean) {
       dark = value;
       preference.dispatchEvent(new Event('change'));
+    },
+    setManualScheme(value?: 'light' | 'dark') {
+      if (value) {
+        document.documentElement.dataset.colorScheme = value;
+      } else {
+        document.documentElement.removeAttribute('data-color-scheme');
+      }
     },
   };
 }
@@ -27,12 +39,14 @@ describe('browser tab appearance', () => {
   it('uses the black icon for a light browser preference', () => {
     const tab = setup(false);
     expect(tab.href()).toBe('/light.png');
+    expect(tab.themeColor()).toBe('#ffffff');
     tab.handle.destroy();
   });
 
   it('uses the white icon for a dark browser preference', () => {
     const tab = setup(true);
     expect(tab.href()).toBe('/dark.png');
+    expect(tab.themeColor()).toBe('#000000');
     tab.handle.destroy();
   });
 
@@ -40,8 +54,25 @@ describe('browser tab appearance', () => {
     const tab = setup(false);
     tab.setDark(true);
     expect(tab.href()).toBe('/dark.png');
+    expect(tab.themeColor()).toBe('#000000');
     tab.setDark(false);
     expect(tab.href()).toBe('/light.png');
+    expect(tab.themeColor()).toBe('#ffffff');
+    tab.handle.destroy();
+  });
+
+  it('follows the page manual theme before the system preference', async () => {
+    const tab = setup(true);
+    tab.setManualScheme('light');
+    await vi.waitFor(() => expect(tab.href()).toBe('/light.png'));
+    expect(tab.themeColor()).toBe('#ffffff');
+
+    tab.setManualScheme('dark');
+    await vi.waitFor(() => expect(tab.href()).toBe('/dark.png'));
+    expect(tab.themeColor()).toBe('#000000');
+
+    tab.setManualScheme();
+    await vi.waitFor(() => expect(tab.href()).toBe('/dark.png'));
     tab.handle.destroy();
   });
 
@@ -53,7 +84,7 @@ describe('browser tab appearance', () => {
   });
 
   it('leaves pages without an icon untouched', () => {
+    document.head.innerHTML = '';
     expect(() => initializeBrowserTab(document, window).destroy()).not.toThrow();
   });
 });
-
