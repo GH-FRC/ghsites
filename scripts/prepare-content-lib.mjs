@@ -196,11 +196,15 @@ export async function discoverContentSourceFiles(contentRoot) {
 
   const robotFiles = await discoverMarkdownFiles(join(contentRoot, 'robots'), { optional: true });
   const newsFiles = await discoverMarkdownFiles(join(contentRoot, 'news'), { optional: true });
+  const eventFiles = (await Promise.all(['zh-CN', 'en'].map((locale) => (
+    discoverMarkdownFiles(join(contentRoot, 'events', locale), { optional: true })
+  )))).flat();
 
   return [
     ...localizedSiteConfigs,
     ...localizedPageFiles.flat(),
     ...robotFiles,
     ...newsFiles,
+    ...eventFiles,
   ].sort();
 }

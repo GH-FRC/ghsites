@@ -1,0 +1,59 @@
+---
+import type { EventContent, SiteContent } from '../content-schema';
+import type { Locale } from '../i18n/locales';
+import { getEventStatus } from '../scripts/event-status';
+
+interface Props {
+  event: EventContent;
+  id: string;
+  labels: SiteContent['events'];
+  locale: Locale;
+}
+
+const { event, id, labels, locale } = Astro.props;
+const status = getEventStatus(event.startsAt, event.endsAt);
+const statusLabel = status === 'past'
+  ? labels.pastLabel
+  : status === 'ongoing'
+    ? labels.ongoingLabel
+    : labels.upcomingLabel;
+---
+
+<article
+  class="event-card"
+  data-event-card
+  data-event-status-container
+  data-event-starts-at={event.startsAt.toISOString()}
+  data-event-ends-at={event.endsAt.toISOString()}
+  data-event-status={status}
+  data-event-upcoming-label={labels.upcomingLabel}
+  data-event-ongoing-label={labels.ongoingLabel}
+  data-event-past-label={labels.pastLabel}
+>
+  <a class="event-card__link" href={`/${locale}/events/${id}/`}>
+    <figure class="event-card__media">
+      <img
+        src={event.cover.src}
+        alt={event.cover.alt}
+        width={event.cover.intrinsicWidth}
+        height={event.cover.intrinsicHeight}
+        loading="lazy"
+        decoding="async"
+      />
+    </figure>
+    <div class="event-card__copy">
+      <p class="event-status" data-event-status-label>{statusLabel}</p>
+      <p class="event-card__date">
+        <time datetime={event.startsAt.toISOString()}>{event.dateText}</time>
+        <span aria-hidden="true"> · </span>
+        <span>{event.timeText}</span>
+      </p>
+      <h3>{event.title}</h3>
+      <p>{event.summary}</p>
+      <span class="event-card__action">
+        {labels.viewEventLabel}
+        <span aria-hidden="true">↗</span>
+      </span>
+    </div>
+  </a>
+</article>

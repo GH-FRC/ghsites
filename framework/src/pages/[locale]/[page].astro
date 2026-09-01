@@ -15,7 +15,7 @@ interface Props {
 
 export function getStaticPaths() {
   return SUPPORTED_LOCALES.flatMap((locale) => (
-    sitePagePlan.map((plan) => ({
+    sitePagePlan.filter(({ id }) => id !== 'events').map((plan) => ({
       params: { locale, page: plan.contentId },
       props: {
         locale,

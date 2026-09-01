@@ -48,6 +48,7 @@ site:
   navigation:
     about-frc: 关于 FRC
     about-gh-frc: 关于 GHFRC
+    events: 活动
     robots: 机器人
     sponsors: 赞助商
     contact: 联系我们
@@ -56,6 +57,22 @@ site:
     title: GHFRC
     introduction: 首页介绍文字预留区
     mediaLabel: 首页图片或视频预留区
+  events:
+    metaTitle: 活动 | GHFRC
+    metaDescription: 查看队伍近期活动及历史活动。
+    eyebrow: GHFRC 活动
+    title: 活动
+    introduction: 查看队伍已经公开的近期活动与历史记录。
+    upcomingTitle: 近期活动
+    pastTitle: 历史活动
+    upcomingLabel: 即将开始
+    ongoingLabel: 正在进行
+    pastLabel: 已结束
+    viewEventLabel: 查看活动详情
+    emptyLabel: 暂无已公开活动
+    timeLabel: 时间
+    venueLabel: 地点
+    backLabel: 返回活动列表
   footer:
     title: GHFRC
     placeholder: 页脚信息预留区

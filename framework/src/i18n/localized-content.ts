@@ -40,6 +40,7 @@ const NON_TRANSLATABLE_CONTENT_KEYS: ReadonlySet<string> = new Set([
   'publishedAt',
   'default',
   'showPlaceholder',
+  'featuredEventId',
 ]);
 
 function isRecord(value: unknown): value is Record<string, unknown> {

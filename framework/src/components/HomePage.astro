@@ -1,5 +1,5 @@
 ---
-import type { PageContent, SiteContent } from '../content-schema';
+import type { EventContent, PageContent, SiteContent } from '../content-schema';
 import type { SitePageId } from '../site-structure';
 import MediaFrame from './MediaFrame.astro';
 
@@ -16,6 +16,17 @@ interface Props {
   pages: HomePageItem[];
   placeholderKindLabel: string;
   placeholderKindLanguage?: string;
+  featuredEvent?: {
+    data: EventContent;
+    href: string;
+    label: string;
+    linkLabel: string;
+    upcomingLabel: string;
+    ongoingLabel: string;
+    pastLabel: string;
+    timeLabel: string;
+    venueLabel: string;
+  };
 }
 
 const {
@@ -24,6 +35,7 @@ const {
   pages,
   placeholderKindLabel,
   placeholderKindLanguage,
+  featuredEvent,
 } = Astro.props;
 const fallbackLanguage = (
   paths: ReadonlySet<string>,
@@ -33,34 +45,97 @@ const showHeroMedia = Boolean(hero.media) || hero.showPlaceholder;
 ---
 
 <main class="home-page" id="main-content">
-  <section class="home-hero" id="page-top" data-scroll-section>
-    <div class="home-hero__inner">
-      <div class="home-hero__copy">
-        <h1 lang={fallbackLanguage(heroFallbackPaths, 'hero.title')}>{hero.title}</h1>
-        <p lang={fallbackLanguage(heroFallbackPaths, 'hero.introduction')}>
-          {hero.introduction}
-        </p>
-      </div>
-      {
-        showHeroMedia && (
-          <div class:list={[
-            'home-hero__media',
-            hero.media?.src.includes('/brand/ghfrc-logo-square-') && 'home-hero__media--brand',
-          ]}>
-            <MediaFrame
-              media={hero.media}
-              placeholderLabel={hero.mediaLabel}
-              placeholderKindLabel={placeholderKindLabel}
-              placeholderLanguage={fallbackLanguage(heroFallbackPaths, 'hero.mediaLabel')}
-              placeholderKindLanguage={placeholderKindLanguage}
-              mediaTextLanguage={fallbackLanguage(heroFallbackPaths, 'hero.media.alt')}
-              eager
-            />
+  {
+    featuredEvent ? (
+      <section
+        class="home-event-hero"
+        id="page-top"
+        data-featured-event={featuredEvent.data.title}
+        data-event-status-container
+        data-event-starts-at={featuredEvent.data.startsAt.toISOString()}
+        data-event-ends-at={featuredEvent.data.endsAt.toISOString()}
+        data-event-upcoming-label={featuredEvent.upcomingLabel}
+        data-event-ongoing-label={featuredEvent.ongoingLabel}
+        data-event-past-label={featuredEvent.pastLabel}
+        data-scroll-section
+      >
+        <div class="home-event-hero__inner">
+          <div class="home-event-hero__copy">
+            <p class="home-event-hero__eyebrow" data-event-status-label>{featuredEvent.label}</p>
+            <h1>{featuredEvent.data.title}</h1>
+            <p class="home-event-hero__summary">{featuredEvent.data.summary}</p>
+            <dl class="home-event-hero__facts">
+              <div>
+                <dt class="sr-only">{featuredEvent.timeLabel}</dt>
+                <dd>
+                  <time datetime={featuredEvent.data.startsAt.toISOString()}>
+                    {featuredEvent.data.dateText}
+                  </time>
+                  <span>{featuredEvent.data.timeText}</span>
+                </dd>
+              </div>
+              <div>
+                <dt class="sr-only">{featuredEvent.venueLabel}</dt>
+                <dd>{featuredEvent.data.venue}</dd>
+              </div>
+            </dl>
+            <a class="home-event-hero__action" href={featuredEvent.href}>
+              <span>{featuredEvent.linkLabel}</span>
+              <span aria-hidden="true">↗</span>
+            </a>
           </div>
-        )
-      }
-    </div>
-  </section>
+          <figure class="home-event-hero__media">
+            <img
+              class="home-event-hero__backdrop"
+              src={featuredEvent.data.cover.src}
+              alt=""
+              width={featuredEvent.data.cover.intrinsicWidth}
+              height={featuredEvent.data.cover.intrinsicHeight}
+              aria-hidden="true"
+            />
+            <img
+              class="home-event-hero__artwork"
+              src={featuredEvent.data.cover.src}
+              alt={featuredEvent.data.cover.alt}
+              width={featuredEvent.data.cover.intrinsicWidth}
+              height={featuredEvent.data.cover.intrinsicHeight}
+              loading="eager"
+              decoding="async"
+            />
+          </figure>
+        </div>
+      </section>
+    ) : (
+      <section class="home-hero" id="page-top" data-scroll-section>
+        <div class="home-hero__inner">
+          <div class="home-hero__copy">
+            <h1 lang={fallbackLanguage(heroFallbackPaths, 'hero.title')}>{hero.title}</h1>
+            <p lang={fallbackLanguage(heroFallbackPaths, 'hero.introduction')}>
+              {hero.introduction}
+            </p>
+          </div>
+          {
+            showHeroMedia && (
+              <div class:list={[
+                'home-hero__media',
+                hero.media?.src.includes('/brand/ghfrc-logo-square-') && 'home-hero__media--brand',
+              ]}>
+                <MediaFrame
+                  media={hero.media}
+                  placeholderLabel={hero.mediaLabel}
+                  placeholderKindLabel={placeholderKindLabel}
+                  placeholderLanguage={fallbackLanguage(heroFallbackPaths, 'hero.mediaLabel')}
+                  placeholderKindLanguage={placeholderKindLanguage}
+                  mediaTextLanguage={fallbackLanguage(heroFallbackPaths, 'hero.media.alt')}
+                  eager
+                />
+              </div>
+            )
+          }
+        </div>
+      </section>
+    )
+  }
 
   {
     pages.map(({ id, href, page, fallbackPaths }, index) => (
@@ -110,3 +185,9 @@ const showHeroMedia = Boolean(hero.media) || hero.showPlaceholder;
     ))
   }
 </main>
+
+<script>
+  import { initializeEventStatusLabels } from '../scripts/event-status';
+
+  initializeEventStatusLabels();
+</script>
