@@ -101,10 +101,17 @@ describe('browser locale selection', () => {
     },
   );
 
-  it.each(['en', 'en-US', 'ja', '', 'not_a_locale', undefined, null])(
+  it.each(['en', 'en-US'])(
     'uses English for the browser language %s',
     (languageTag) => {
       expect(browserLanguageToLocale(languageTag)).toBe('en');
+    },
+  );
+
+  it.each(['ja', 'fr-FR', '', 'not_a_locale', undefined, null])(
+    'uses Simplified Chinese as the default for the browser language %s',
+    (languageTag) => {
+      expect(browserLanguageToLocale(languageTag)).toBe('zh-cn');
     },
   );
 });
@@ -221,12 +228,12 @@ describe('unlocalized route redirects', () => {
     ).toBe(`/zh-cn/?${AUTOMATIC_LANGUAGE_QUERY_KEY}=zh-cn`);
   });
 
-  it('redirects to English when the browser language tag is invalid', () => {
+  it('redirects to Simplified Chinese when the browser language tag is invalid', () => {
     expect(
       runLanguageRedirect({
         browserLanguages: ['not_a_locale'],
       }),
-    ).toBe(`/en/?${AUTOMATIC_LANGUAGE_QUERY_KEY}=en`);
+    ).toBe(`/zh-cn/?${AUTOMATIC_LANGUAGE_QUERY_KEY}=zh-cn`);
   });
 });
 

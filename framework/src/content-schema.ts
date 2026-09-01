@@ -88,6 +88,7 @@ export const siteSchema = z.object({
   navigation: z.object({
     'about-frc': z.string().min(1),
     'about-gh-frc': z.string().min(1),
+    events: z.string().min(1),
     robots: z.string().min(1),
     achievements: z.string().min(1),
     news: z.string().min(1),
@@ -100,6 +101,39 @@ export const siteSchema = z.object({
     introduction: z.string().min(1),
     mediaLabel: z.string().min(1),
     media: localizedMediaSchema.optional(),
+    featuredEventId: z.string().min(1).optional(),
+    featuredEventLabel: z.string().min(1).optional(),
+    featuredEventLinkLabel: z.string().min(1).optional(),
+  }).superRefine((hero, context) => {
+    const featuredFields = [
+      hero.featuredEventId,
+      hero.featuredEventLabel,
+      hero.featuredEventLinkLabel,
+    ];
+
+    if (featuredFields.some(Boolean) && !featuredFields.every(Boolean)) {
+      context.addIssue({
+        code: 'custom',
+        message: 'Featured events require an id, label, and link label.',
+      });
+    }
+  }),
+  events: z.object({
+    metaTitle: z.string().min(1),
+    metaDescription: z.string().min(1),
+    eyebrow: z.string().min(1),
+    title: z.string().min(1),
+    introduction: z.string().min(1),
+    upcomingTitle: z.string().min(1),
+    pastTitle: z.string().min(1),
+    upcomingLabel: z.string().min(1),
+    ongoingLabel: z.string().min(1),
+    pastLabel: z.string().min(1),
+    viewEventLabel: z.string().min(1),
+    emptyLabel: z.string().min(1),
+    timeLabel: z.string().min(1),
+    venueLabel: z.string().min(1),
+    backLabel: z.string().min(1),
   }),
   footer: z.object({
     title: z.string().min(1),
@@ -111,6 +145,7 @@ export const pageSchema = z.object({
   navigationId: z.enum([
     'about-frc',
     'about-gh-frc',
+    'events',
     'robots',
     'achievements',
     'news',
@@ -223,8 +258,35 @@ export const newsSchema = z.discriminatedUnion('entryType', [
   }),
 ]);
 
+export const eventSchema = z.discriminatedUnion('entryType', [
+  z.object({
+    entryType: z.literal('guide'),
+  }),
+  z.object({
+    entryType: z.literal('event'),
+    title: z.string().min(1),
+    summary: z.string().min(1),
+    description: z.string().min(1),
+    startsAt: z.coerce.date(),
+    endsAt: z.coerce.date(),
+    dateText: z.string().min(1),
+    timeText: z.string().min(1),
+    venue: z.string().min(1),
+    cover: localizedImageSchema,
+    registration: z.object({
+      name: z.string().min(1),
+      instruction: z.string().min(1),
+    }),
+    published: z.boolean().default(true),
+  }).refine(
+    ({ startsAt, endsAt }) => endsAt.getTime() > startsAt.getTime(),
+    { message: 'An event must end after it starts.' },
+  ),
+]);
+
 export const localeOverlaySchema = z.record(z.string(), z.unknown());
 
 export type SiteContent = z.infer<typeof siteSchema>;
 export type PageContent = z.infer<typeof pageSchema>;
 export type LocalizedMedia = z.infer<typeof localizedMediaSchema>;
+export type EventContent = Extract<z.infer<typeof eventSchema>, { entryType: 'event' }>;

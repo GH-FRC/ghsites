@@ -10,9 +10,10 @@ export type Locale = keyof typeof LOCALE_METADATA;
 export type HtmlLanguage = (typeof LOCALE_METADATA)[Locale]['htmlLanguage'];
 
 export const SUPPORTED_LOCALES = Object.keys(LOCALE_METADATA) as Locale[];
-export const DEFAULT_BROWSER_LOCALE: Locale = ENGLISH_LOCALE;
+export const DEFAULT_BROWSER_LOCALE: Locale = SIMPLIFIED_CHINESE_LOCALE;
 export const BROWSER_LANGUAGE_LOCALES: Readonly<Record<string, Locale>> = {
   zh: SIMPLIFIED_CHINESE_LOCALE,
+  en: ENGLISH_LOCALE,
 };
 const LANGUAGE_SWITCH_TARGETS: Record<Locale, Locale> = {
   [SIMPLIFIED_CHINESE_LOCALE]: ENGLISH_LOCALE,

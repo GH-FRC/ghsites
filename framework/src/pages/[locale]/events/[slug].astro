@@ -1,0 +1,79 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+
+import EventDetailPage from '../../../components/EventDetailPage.astro';
+import { loadLocalizedWebsiteContent } from '../../../i18n/content-loader';
+import type { Locale } from '../../../i18n/locales';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+
+interface Props {
+  collectionName: 'event' | 'eventEn';
+  entryId: string;
+  locale: Locale;
+}
+
+export async function getStaticPaths() {
+  const [simplifiedChineseEntries, englishEntries] = await Promise.all([
+    getCollection('event'),
+    getCollection('eventEn'),
+  ]);
+
+  return [
+    ...simplifiedChineseEntries.flatMap((entry) => (
+      entry.data.entryType === 'event' && entry.data.published
+        ? [{
+            params: { locale: 'zh-cn', slug: entry.id },
+            props: { collectionName: 'event', entryId: entry.id, locale: 'zh-cn' },
+          }]
+        : []
+    )),
+    ...englishEntries.flatMap((entry) => (
+      entry.data.entryType === 'event' && entry.data.published
+        ? [{
+            params: { locale: 'en', slug: entry.id },
+            props: { collectionName: 'eventEn', entryId: entry.id, locale: 'en' },
+          }]
+        : []
+    )),
+  ];
+}
+
+const { collectionName, entryId, locale } = Astro.props;
+const entry = collectionName === 'event'
+  ? await getEntry('event', entryId)
+  : await getEntry('eventEn', entryId);
+
+if (!entry || entry.data.entryType !== 'event' || !entry.data.published) {
+  throw new Error(`The event "${entryId}" is missing or unpublished.`);
+}
+
+const localizedContent = await loadLocalizedWebsiteContent(locale);
+const site = localizedContent.site.content;
+const { Content } = await render(entry);
+const siteFallbackLanguage = (path: string) => (
+  localizedContent.site.fallbackPaths.has(path) ? 'zh-CN' : undefined
+);
+---
+
+<SiteLayout
+  site={site}
+  siteFallbackPaths={localizedContent.site.fallbackPaths}
+  locale={locale}
+  currentPage="events"
+  pagePath={`events/${entry.id}`}
+  title={`${entry.data.title} | ${site.title}`}
+  description={entry.data.description}
+  noIndex={locale === 'en' && !localizedContent.isEnglishComplete}
+>
+  <EventDetailPage
+    breadcrumbLabel={site.accessibility.breadcrumbNavigation}
+    breadcrumbLanguage={siteFallbackLanguage('accessibility.breadcrumbNavigation')}
+    event={entry.data}
+    homeLabel={site.accessibility.homeLabel}
+    homeLabelLanguage={siteFallbackLanguage('accessibility.homeLabel')}
+    labels={site.events}
+    locale={locale}
+  >
+    <Content />
+  </EventDetailPage>
+</SiteLayout>

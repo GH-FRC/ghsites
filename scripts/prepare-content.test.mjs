@@ -115,6 +115,8 @@ test('discovers configured Markdown source trees recursively', async (t) => {
     ...pageNames.map((pageName) => `pages/en/${pageName}.md`),
     'robots/seasons/2026.md',
     'news/2026/kickoff.md',
+    'events/zh-CN/2026-info-session.md',
+    'events/en/2026-info-session.md',
   ];
 
   await Promise.all(sourceFiles.map(async (sourceFile) => {

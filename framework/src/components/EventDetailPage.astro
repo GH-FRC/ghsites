@@ -1,0 +1,115 @@
+---
+import type { EventContent, SiteContent } from '../content-schema';
+import type { Locale } from '../i18n/locales';
+import { getEventStatus } from '../scripts/event-status';
+
+interface Props {
+  breadcrumbLabel: string;
+  breadcrumbLanguage?: string;
+  event: EventContent;
+  homeLabel: string;
+  homeLabelLanguage?: string;
+  labels: SiteContent['events'];
+  locale: Locale;
+}
+
+const {
+  breadcrumbLabel,
+  breadcrumbLanguage,
+  event,
+  homeLabel,
+  homeLabelLanguage,
+  labels,
+  locale,
+} = Astro.props;
+const status = getEventStatus(event.startsAt, event.endsAt);
+const statusLabel = status === 'past'
+  ? labels.pastLabel
+  : status === 'ongoing'
+    ? labels.ongoingLabel
+    : labels.upcomingLabel;
+---
+
+<main class="event-detail" id="main-content">
+  <nav class="site-page__breadcrumb" aria-label={breadcrumbLabel} lang={breadcrumbLanguage}>
+    <a href={`/${locale}/`} lang={homeLabelLanguage}>{homeLabel}</a>
+    <span aria-hidden="true">/</span>
+    <a href={`/${locale}/events/`}>{labels.title}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{event.title}</span>
+  </nav>
+
+  <header
+    class="event-detail__hero"
+    id="page-top"
+    data-event-status-container
+    data-event-starts-at={event.startsAt.toISOString()}
+    data-event-ends-at={event.endsAt.toISOString()}
+    data-event-status={status}
+    data-event-upcoming-label={labels.upcomingLabel}
+    data-event-ongoing-label={labels.ongoingLabel}
+    data-event-past-label={labels.pastLabel}
+    data-scroll-section
+  >
+    <div class="event-detail__hero-inner">
+      <div class="event-detail__copy">
+        <p class="event-status" data-event-status-label>{statusLabel}</p>
+        <h1>{event.title}</h1>
+        <p class="event-detail__summary">{event.summary}</p>
+      </div>
+      <figure class="event-detail__visual">
+        <img
+          class="event-detail__backdrop"
+          src={event.cover.src}
+          alt=""
+          width={event.cover.intrinsicWidth}
+          height={event.cover.intrinsicHeight}
+          aria-hidden="true"
+        />
+        <img
+          class="event-detail__artwork"
+          src={event.cover.src}
+          alt={event.cover.alt}
+          width={event.cover.intrinsicWidth}
+          height={event.cover.intrinsicHeight}
+          loading="eager"
+          decoding="async"
+        />
+      </figure>
+    </div>
+  </header>
+
+  <section class="event-detail__essentials" aria-label={event.title} data-scroll-section>
+    <dl class="event-detail__facts">
+      <div>
+        <dt>{labels.timeLabel}</dt>
+        <dd>
+          <time datetime={event.startsAt.toISOString()}>{event.dateText}</time>
+          <span>{event.timeText}</span>
+        </dd>
+      </div>
+      <div>
+        <dt>{labels.venueLabel}</dt>
+        <dd>{event.venue}</dd>
+      </div>
+    </dl>
+    <aside class="event-detail__registration">
+      <p>{event.registration.name}</p>
+      <p>{event.registration.instruction}</p>
+    </aside>
+  </section>
+
+  <article class="event-detail__body site-page__prose" data-scroll-section>
+    <slot />
+    <a class="text-link" href={`/${locale}/events/`}>
+      <span aria-hidden="true">←</span>
+      <span>{labels.backLabel}</span>
+    </a>
+  </article>
+</main>
+
+<script>
+  import { initializeEventStatusLabels } from '../scripts/event-status';
+
+  initializeEventStatusLabels();
+</script>

@@ -15,6 +15,13 @@
   --color-partner-light-text: #111111;
   --color-partner-dark-background: #111111;
   --color-partner-dark-text: #ffffff;
+  --color-campaign-background: #090604;
+  --color-campaign-surface: #0d0907;
+  --color-campaign-text: #f2e9d4;
+  --color-campaign-muted: rgba(242, 233, 212, 0.72);
+  --color-campaign-border: rgba(242, 233, 212, 0.18);
+  --color-campaign-accent: #ef7549;
+  --color-campaign-accent-strong: #911d23;
   --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --motion-fast: 160ms;
   --motion-medium: 240ms;
