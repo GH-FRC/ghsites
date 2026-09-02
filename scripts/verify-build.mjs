@@ -1,4 +1,5 @@
 import assert from 'node:assert/strict';
+import { createHash } from 'node:crypto';
 import { access, readFile, readdir } from 'node:fs/promises';
 import { dirname, extname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,6 +42,24 @@ function toOutputPath(publicReference) {
   }
 
   return join(distRoot, pathname.slice(1));
+}
+
+async function assertVersionedFavicon(html, relativePath, scheme) {
+  const iconTag = [...html.matchAll(/<link rel="icon"[^>]+>/gu)]
+    .map(([tag]) => tag)
+    .find((tag) => tag.includes('data-browser-tab-icon'));
+  const reference = iconTag?.match(new RegExp(`data-${scheme}-icon="([^"]+)"`, 'u'))?.[1];
+
+  assert.ok(reference?.startsWith('/content/'), `${relativePath} must provide a content-supplied ${scheme} favicon.`);
+  const contents = await readFile(toOutputPath(reference));
+  const expectedRevision = `${createHash('sha256').update(contents).digest('hex').slice(0, 12)}-${scheme}`;
+  const actualRevision = new URL(reference, 'https://ghfrc.org/').searchParams.get('favicon');
+
+  assert.equal(
+    actualRevision,
+    expectedRevision,
+    `${relativePath} must version its ${scheme} favicon from the actual asset bytes.`,
+  );
 }
 
 async function collectFiles(directory) {
@@ -210,14 +229,7 @@ for (const route of localizedRoutes) {
   assert.equal(countMatches(html, /<h1(?:\s|>)/gu), 1, `${relativePath} must have one h1.`);
   assert.match(html, /data-site-header/u, `${relativePath} must include the shared header.`);
   for (const scheme of ['light', 'dark']) {
-    assert.ok(
-      [...html.matchAll(/<link rel="icon"[^>]+>/gu)].some(([tag]) => (
-        tag.includes('data-browser-tab-icon')
-        && tag.includes(`data-${scheme}-icon="/content/`)
-        && tag.includes(`favicon=20260831-${scheme}`)
-      )),
-      `${relativePath} must provide a cache-versioned, content-supplied ${scheme} favicon.`,
-    );
+    await assertVersionedFavicon(html, relativePath, scheme);
   }
   assert.ok(
     [...html.matchAll(/<meta name="theme-color"[^>]+>/gu)].some(([tag]) => (

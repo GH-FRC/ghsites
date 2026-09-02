@@ -1,6 +1,7 @@
 ---
 import '../styles/global.css';
 
+import { versionFavicon } from '../favicon-version';
 import { COLOR_SCHEME_BOOTSTRAP_SCRIPT } from '../scripts/color-scheme';
 import { createLocaleVisitScript } from '../scripts/language-preference';
 import {
@@ -42,12 +43,10 @@ const languageAlternates = SUPPORTED_LOCALES.map((alternateLocale) => ({
 const automaticUrl = new URL(`/${normalizedPagePath}`, Astro.site ?? Astro.url);
 const shouldPreventIndexing = noIndex || import.meta.env.SITE_NOINDEX === 'true';
 const languagePreferenceScript = createLocaleVisitScript(locale);
-const faviconRevision = '20260831';
-const versionFavicon = (src: string, variant: 'light' | 'dark') => (
-  `${src}${src.includes('?') ? '&' : '?'}favicon=${faviconRevision}-${variant}`
-);
-const faviconLightHref = versionFavicon(faviconLightSrc, 'light');
-const faviconDarkHref = versionFavicon(faviconDarkSrc, 'dark');
+const [faviconLightHref, faviconDarkHref] = await Promise.all([
+  versionFavicon(faviconLightSrc, 'light'),
+  versionFavicon(faviconDarkSrc, 'dark'),
+]);
 ---
 
 <!doctype html>
