@@ -1,0 +1,57 @@
+---
+import { getCollection } from 'astro:content';
+
+import EventsPage from '../../../components/EventsPage.astro';
+import { loadLocalizedWebsiteContent } from '../../../i18n/content-loader';
+import { SUPPORTED_LOCALES, type Locale } from '../../../i18n/locales';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+export function getStaticPaths() {
+  return SUPPORTED_LOCALES.map((locale) => ({
+    params: { locale },
+    props: { locale },
+  }));
+}
+
+const { locale } = Astro.props;
+const [localizedContent, eventEntries] = await Promise.all([
+  loadLocalizedWebsiteContent(locale),
+  getCollection(locale === 'en' ? 'eventEn' : locale === 'zh-hant' ? 'eventZhHant' : 'event'),
+]);
+const site = localizedContent.site.content;
+const events = eventEntries.flatMap((entry) => (
+  entry.data.entryType === 'event' && entry.data.published
+    ? [{ id: entry.id, data: entry.data }]
+    : []
+));
+const siteFallbackLanguage = (path: string) => (
+  localizedContent.site.fallbackPaths.has(path) ? 'zh-CN' : undefined
+);
+---
+
+<SiteLayout
+  site={site}
+  siteFallbackPaths={localizedContent.site.fallbackPaths}
+  locale={locale}
+  currentPage="events"
+  pagePath="events"
+  title={site.events.metaTitle}
+  description={site.events.metaDescription}
+  noIndex={!localizedContent.isComplete}
+  titleLanguage={siteFallbackLanguage('events.metaTitle')}
+  descriptionLanguage={siteFallbackLanguage('events.metaDescription')}
+>
+  <EventsPage
+    breadcrumbLabel={site.accessibility.breadcrumbNavigation}
+    breadcrumbLanguage={siteFallbackLanguage('accessibility.breadcrumbNavigation')}
+    events={events}
+    homeLabel={site.accessibility.homeLabel}
+    homeLabelLanguage={siteFallbackLanguage('accessibility.homeLabel')}
+    labels={site.events}
+    locale={locale}
+  />
+</SiteLayout>

@@ -123,6 +123,8 @@ export function createLanguageRedirectScript(
             (script !== 'hans' && traditionalRegions.indexOf(region) >= 0)
               ? ${serializedTraditionalChineseLocale}
               : 'zh-cn';
+        } else if (browserLocale && browserLocale.language.toLowerCase() === 'en') {
+          locale = 'en';
         } else {
           locale = ${serializedDefaultLocale};
         }

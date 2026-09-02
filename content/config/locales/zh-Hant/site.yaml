@@ -49,6 +49,7 @@ site:
   navigation:
     about-frc: 關於 FRC
     about-gh-frc: 關於 GHFRC
+    events: 活動
     robots: 機器人
     achievements: 賽事成果
     news: 新聞動態
@@ -59,6 +60,22 @@ site:
     title: GHFRC
     introduction: 首頁介紹文字預留區
     mediaLabel: 首頁圖片或影片預留區
+  events:
+    metaTitle: 活動 | GHFRC
+    metaDescription: 查看 GHFRC 的近期活動及歷史活動記錄。
+    eyebrow: GHFRC 活動
+    title: 活動
+    introduction: 查看 GHFRC 的近期活動，並回顧已經結束的活動。
+    upcomingTitle: 近期活動
+    pastTitle: 歷史活動
+    upcomingLabel: 即將開始
+    ongoingLabel: 正在進行
+    pastLabel: 已結束
+    viewEventLabel: 查看活動詳情
+    emptyLabel: 暫無已公開活動
+    timeLabel: 時間
+    venueLabel: 地點
+    backLabel: 返回活動列表
   footer:
     title: GHFRC
     placeholder: 頁腳資訊預留區

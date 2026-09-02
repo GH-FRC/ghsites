@@ -1,0 +1,67 @@
+---
+import { getCollection, getEntry, render } from 'astro:content';
+
+import EventDetailPage from '../../../components/EventDetailPage.astro';
+import { loadLocalizedWebsiteContent } from '../../../i18n/content-loader';
+import type { Locale } from '../../../i18n/locales';
+import SiteLayout from '../../../layouts/SiteLayout.astro';
+
+interface Props {
+  collectionName: 'event' | 'eventEn' | 'eventZhHant';
+  entryId: string;
+  locale: Locale;
+}
+
+export async function getStaticPaths() {
+  const collections = [
+    { name: 'event' as const, locale: 'zh-cn' },
+    { name: 'eventZhHant' as const, locale: 'zh-hant' },
+    { name: 'eventEn' as const, locale: 'en' },
+  ];
+  return (await Promise.all(collections.map(async ({ name, locale }) => {
+    const entries = await getCollection(name);
+    return entries.flatMap((entry) => (
+      entry.data.entryType === 'event' && entry.data.published
+        ? [{ params: { locale, slug: entry.id }, props: { collectionName: name, entryId: entry.id, locale } }]
+        : []
+    ));
+  }))).flat();
+}
+
+const { collectionName, entryId, locale } = Astro.props;
+const entry = await getEntry(collectionName, entryId);
+
+if (!entry || entry.data.entryType !== 'event' || !entry.data.published) {
+  throw new Error(`The event "${entryId}" is missing or unpublished.`);
+}
+
+const localizedContent = await loadLocalizedWebsiteContent(locale);
+const site = localizedContent.site.content;
+const { Content } = await render(entry);
+const siteFallbackLanguage = (path: string) => (
+  localizedContent.site.fallbackPaths.has(path) ? 'zh-CN' : undefined
+);
+---
+
+<SiteLayout
+  site={site}
+  siteFallbackPaths={localizedContent.site.fallbackPaths}
+  locale={locale}
+  currentPage="events"
+  pagePath={`events/${entry.id}`}
+  title={`${entry.data.title} | ${site.title}`}
+  description={entry.data.description}
+  noIndex={!localizedContent.isComplete}
+>
+  <EventDetailPage
+    breadcrumbLabel={site.accessibility.breadcrumbNavigation}
+    breadcrumbLanguage={siteFallbackLanguage('accessibility.breadcrumbNavigation')}
+    event={entry.data}
+    homeLabel={site.accessibility.homeLabel}
+    homeLabelLanguage={siteFallbackLanguage('accessibility.homeLabel')}
+    labels={site.events}
+    locale={locale}
+  >
+    <Content />
+  </EventDetailPage>
+</SiteLayout>

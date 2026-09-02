@@ -28,3 +28,21 @@ site:
     news: News area
     sponsor: Sponsor Logo area
     contact: Official contact information area
+  navigation:
+    events: Events
+  events:
+    metaTitle: Events | GHFRC
+    metaDescription: View upcoming and past team events.
+    eyebrow: GHFRC Events
+    title: Events
+    introduction: Explore the team's published upcoming events and event archive.
+    upcomingTitle: Upcoming Events
+    pastTitle: Past Events
+    upcomingLabel: Upcoming
+    ongoingLabel: Happening Now
+    pastLabel: Past Event
+    viewEventLabel: View Event
+    emptyLabel: No events have been published yet.
+    timeLabel: Time
+    venueLabel: Venue
+    backLabel: Back to Events

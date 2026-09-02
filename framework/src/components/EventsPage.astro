@@ -1,0 +1,99 @@
+---
+import type { EventContent, SiteContent } from '../content-schema';
+import type { Locale } from '../i18n/locales';
+import { getEventStatus } from '../scripts/event-status';
+import EventCard from './EventCard.astro';
+
+interface EventItem {
+  id: string;
+  data: EventContent;
+}
+
+interface Props {
+  breadcrumbLabel: string;
+  breadcrumbLanguage?: string;
+  events: EventItem[];
+  homeLabel: string;
+  homeLabelLanguage?: string;
+  labels: SiteContent['events'];
+  locale: Locale;
+}
+
+const {
+  breadcrumbLabel,
+  breadcrumbLanguage,
+  events,
+  homeLabel,
+  homeLabelLanguage,
+  labels,
+  locale,
+} = Astro.props;
+const now = Date.now();
+const sortedEvents = [...events].sort(
+  (left, right) => right.data.startsAt.getTime() - left.data.startsAt.getTime(),
+);
+const upcomingEvents = sortedEvents
+  .filter(({ data }) => getEventStatus(data.startsAt, data.endsAt, now) !== 'past')
+  .sort((left, right) => left.data.startsAt.getTime() - right.data.startsAt.getTime());
+const pastEvents = sortedEvents.filter(
+  ({ data }) => getEventStatus(data.startsAt, data.endsAt, now) === 'past',
+);
+---
+
+<main class="events-page" id="main-content" data-event-archive>
+  <nav class="site-page__breadcrumb" aria-label={breadcrumbLabel} lang={breadcrumbLanguage}>
+    <a href={`/${locale}/`} lang={homeLabelLanguage}>{homeLabel}</a>
+    <span aria-hidden="true">/</span>
+    <span aria-current="page">{labels.title}</span>
+  </nav>
+
+  <header class="events-page__intro" id="page-top" data-scroll-section>
+    <p class="page-eyebrow">{labels.eyebrow}</p>
+    <h1>{labels.title}</h1>
+    <p>{labels.introduction}</p>
+  </header>
+
+  {
+    events.length === 0 ? (
+      <section class="events-page__empty" data-scroll-section>
+        <p>{labels.emptyLabel}</p>
+      </section>
+    ) : (
+      <div class="event-archive">
+        <section
+          class="event-archive__section"
+          data-event-section="upcoming"
+          hidden={upcomingEvents.length === 0}
+          data-scroll-section
+        >
+          <h2>{labels.upcomingTitle}</h2>
+          <div class="event-archive__grid" data-event-list="upcoming">
+            {upcomingEvents.map(({ id, data }) => (
+              <EventCard event={data} id={id} labels={labels} locale={locale} />
+            ))}
+          </div>
+        </section>
+
+        <section
+          class="event-archive__section"
+          data-event-section="past"
+          hidden={pastEvents.length === 0}
+          data-scroll-section
+        >
+          <h2>{labels.pastTitle}</h2>
+          <div class="event-archive__grid" data-event-list="past">
+            {pastEvents.map(({ id, data }) => (
+              <EventCard event={data} id={id} labels={labels} locale={locale} />
+            ))}
+          </div>
+        </section>
+      </div>
+    )
+  }
+
+  <script>
+    import { initializeEventArchive } from '../scripts/event-status';
+
+    initializeEventArchive();
+  </script>
+</main>
