@@ -39,7 +39,7 @@ if (!newsPage) {
 
 const { Content } = await render(entry);
 const site = localizedContent.site.content;
-const contentLanguage = locale === 'en' ? 'zh-CN' : undefined;
+const contentLanguage = locale === 'zh-cn' ? undefined : 'zh-CN';
 const siteFallbackLanguage = (path: string) => (
   localizedContent.site.fallbackPaths.has(path) ? 'zh-CN' : undefined
 );
@@ -53,7 +53,7 @@ const siteFallbackLanguage = (path: string) => (
   pagePath={`news/${entry.id}`}
   title={`${entry.data.title} | ${site.title}`}
   description={entry.data.description}
-  noIndex={locale === 'en'}
+  noIndex={locale !== 'zh-cn'}
   titleLanguage={contentLanguage}
   descriptionLanguage={contentLanguage}
 >
@@ -64,7 +64,7 @@ const siteFallbackLanguage = (path: string) => (
     homeHref={`/${locale}/`}
     sectionLabel={newsPage.data.content.hero.title}
     sectionHref={`/${locale}/news/`}
-    eyebrow={entry.data.publishedAt.toLocaleDateString(locale === 'en' ? 'en' : 'zh-CN')}
+    eyebrow={entry.data.publishedAt.toLocaleDateString(locale === 'en' ? 'en' : locale === 'zh-hant' ? 'zh-Hant' : 'zh-CN')}
     title={entry.data.title}
     introduction={entry.data.summary}
     media={entry.data.cover}

@@ -5,8 +5,8 @@ The framework module owns the GHFRC website's page structure, components, routes
 The current implementation includes:
 
 - An Astro static site with a homepage overview and seven primary pages.
-- Simplified Chinese and English routes with automatic browser-language entry pages and a persistent manual language choice.
-- Independent English content overlays with field-level structured-content fallback and whole-body Markdown fallback to Simplified Chinese.
+- Simplified Chinese, universal Traditional Chinese, and English routes with automatic browser-language entry pages and a persistent manual language choice.
+- Independent Traditional Chinese and English content overlays with field-level structured-content fallback and whole-body Markdown fallback to Simplified Chinese.
 - Canonical, `hreflang`, and incomplete-translation `noindex` metadata for localized pages.
 - Future-ready robot and news detail routes driven by Markdown collections.
 - Shared header, footer, breadcrumbs, metadata, compact navigation, and keyboard-accessible controls.
@@ -26,8 +26,8 @@ Run development, testing, checking, and build commands from the project root so 
 当前实现包括：
 
 - 由首页汇总页和 7 个主要页面组成的 Astro 静态网站。
-- 简体中文与英文内容路由、浏览器语言自动入口，以及长期保存的访客手动语言选择。
-- 独立英文内容覆盖，并对结构化字段进行逐字段简体中文回退、对空白 Markdown 正文进行整篇简体中文回退。
+- 简体中文、通用繁体中文与英文内容路由、浏览器语言自动入口，以及长期保存的访客手动语言选择。
+- 独立繁体中文与英文内容覆盖，并对结构化字段进行逐字段简体中文回退、对空白 Markdown 正文进行整篇简体中文回退。
 - 本地化页面的规范链接、`hreflang` 及翻译未完成时的 `noindex` 元数据。
 - 由 Markdown 内容集合驱动、可供未来使用的机器人和新闻详情路由。
 - 全站共用的标题栏、页脚、面包屑、页面元数据、紧凑导航和键盘可操作控件。
