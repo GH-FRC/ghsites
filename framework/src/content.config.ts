@@ -5,6 +5,7 @@ import { defineCollection } from 'astro:content';
 import { file, glob } from 'astro/loaders';
 
 import {
+  eventSchema,
   localeOverlaySchema,
   newsSchema,
   pageSchema,
@@ -76,13 +77,18 @@ const news = defineCollection({
   schema: newsSchema,
 });
 
+const event = defineCollection({
+  loader: glob({ base: contentUrl('events', 'zh-CN'), pattern: '*.md' }),
+  schema: eventSchema,
+});
+const eventEn = defineCollection({
+  loader: glob({ base: contentUrl('events', 'en'), pattern: '*.md' }),
+  schema: eventSchema,
+});
+const eventZhHant = defineCollection({
+  loader: glob({ base: contentUrl('events', 'zh-Hant'), pattern: '*.md' }),
+  schema: eventSchema,
+});
 export const collections = {
-  news,
-  page,
-  pageEn,
-  pageZhHant,
-  robot,
-  site,
-  siteEn,
-  siteZhHant,
+  event, eventEn, eventZhHant, news, page, pageEn, pageZhHant, robot, site, siteEn, siteZhHant,
 };

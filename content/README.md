@@ -10,6 +10,7 @@ This folder contains public, replaceable example content for the website templat
 - `pages/en/`: independent English overlay documents for the same seven retained English-slug pages.
 - `robots/`: optional robot detail documents. No fictional robot entry is included in the public example content.
 - `news/`: optional news detail documents. No fictional news entry is included in the public example content.
+- `events/zh-CN/`, `events/zh-Hant/`, and `events/en/`: complete event documents for the public activity archive. Every published event requires matching files with body content in all three locales. No fictional event is included.
 - `media/images/`: replaceable example images. The included `placeholder-logo.png` is exactly `400 × 138 px`.
 - `media/videos/`: replaceable example videos and usage notes.
 
@@ -31,6 +32,7 @@ Replace the files in this folder with one complete content set. Do not place pas
 - `pages/en/`：使用相同英文文件名的 7 份独立英文覆盖文档。
 - `robots/`：可选的机器人详情文档。公开示例内容不包含虚构的机器人条目。
 - `news/`：可选的新闻详情文档。公开示例内容不包含虚构的新闻条目。
+- `events/zh-CN/`、`events/zh-Hant/` 与 `events/en/`：用于公开活动归档的完整三语言活动文档。每个已发布活动都必须在三种语言中提供同名文件和正文。示例内容不包含虚构活动。
 - `media/images/`：可替换的示例图片，其中 `placeholder-logo.png` 的尺寸严格为 `400 × 138 px`。
 - `media/videos/`：可替换的示例视频和使用说明。
 

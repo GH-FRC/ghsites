@@ -2,6 +2,7 @@
 @import './home.css';
 @import './site-page.css';
 @import './profile.css';
+@import './events.css';
 
 :root {
   --header-height: 78px;
@@ -14,6 +15,18 @@
 *::before,
 *::after {
   box-sizing: border-box;
+}
+
+.sr-only {
+  position: absolute;
+  overflow: hidden;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  border: 0;
+  margin: -1px;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
 }
 
 html {

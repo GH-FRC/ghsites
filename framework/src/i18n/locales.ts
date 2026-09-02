@@ -12,7 +12,7 @@ export type Locale = keyof typeof LOCALE_METADATA;
 export type HtmlLanguage = (typeof LOCALE_METADATA)[Locale]['htmlLanguage'];
 
 export const SUPPORTED_LOCALES = Object.keys(LOCALE_METADATA) as Locale[];
-export const DEFAULT_BROWSER_LOCALE: Locale = ENGLISH_LOCALE;
+export const DEFAULT_BROWSER_LOCALE: Locale = SIMPLIFIED_CHINESE_LOCALE;
 export const TRADITIONAL_CHINESE_REGIONS = ['HK', 'MO', 'TW'] as const;
 
 export function isLocale(value: unknown): value is Locale {
@@ -32,7 +32,7 @@ export function browserLanguageToLocale(languageTag: unknown): Locale {
     const browserLocale = new Intl.Locale(languageTag);
 
     if (browserLocale.language.toLowerCase() !== 'zh') {
-      return DEFAULT_BROWSER_LOCALE;
+      return browserLocale.language.toLowerCase() === 'en' ? ENGLISH_LOCALE : DEFAULT_BROWSER_LOCALE;
     }
 
     const script = browserLocale.script?.toLowerCase();
