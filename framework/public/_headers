@@ -1,5 +1,7 @@
 /zh-cn/xplore/*
   Cache-Control: no-store
+/zh-hant/xplore/*
+  Cache-Control: no-store
 /en/xplore/*
   Cache-Control: no-store
 /xplore/*

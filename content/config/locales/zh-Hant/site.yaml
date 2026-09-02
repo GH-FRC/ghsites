@@ -1,0 +1,62 @@
+site:
+  title: GHFRC
+  description: GHFRC 隊伍官方網站框架
+  logo:
+    src: /content/images/placeholder-logo.png
+    alt: 示例隊伍 Logo
+    intrinsicWidth: 400
+    intrinsicHeight: 138
+  favicon:
+    light:
+      src: /content/images/placeholder-logo.png
+      alt: 示例隊伍淺色標籤頁圖標
+      intrinsicWidth: 400
+      intrinsicHeight: 138
+    dark:
+      src: /content/images/placeholder-logo.png
+      alt: 示例隊伍深色標籤頁圖標
+      intrinsicWidth: 400
+      intrinsicHeight: 138
+  accessibility:
+    skipToContent: 跳到主要內容
+    mainNavigation: 主要導航
+    breadcrumbNavigation: 麵包屑導航
+    homeLabel: 首頁
+    returnToTop: 返回頁面頂部
+    returnToHome: 返回首頁
+    switchToDarkMode: 切換至深色模式
+    switchToLightMode: 切換至淺色模式
+    languageNavigation: 語言選擇
+  languageSwitcher:
+    currentLanguage: 目前語言
+    options:
+      zh-cn: 簡體中文
+      zh-hant: 繁體中文
+      en: English
+    shortOptions:
+      zh-cn: 简
+      zh-hant: 繁
+      en: EN
+  achievementMessages:
+    unlocked: 成就已解鎖
+  placeholderKinds:
+    text: 文字區域
+    media: 圖片或影片區域
+    item: 資訊區域
+    news: 新聞內容區域
+    sponsor: 贊助商標誌區域
+    contact: 官方聯絡資訊區域
+  navigation:
+    about-frc: 關於 FRC
+    about-gh-frc: 關於 GHFRC
+    robots: 機器人
+    sponsors: 贊助商
+    contact: 聯絡我們
+  hero:
+    eyebrow: 示例隊伍官網
+    title: GHFRC
+    introduction: 首頁介紹文字預留區
+    mediaLabel: 首頁圖片或影片預留區
+  footer:
+    title: GHFRC
+    placeholder: 頁腳資訊預留區

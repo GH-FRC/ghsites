@@ -13,8 +13,10 @@ const pageSlugs = [
   'contact',
 ];
 const inactivePageSlugs = ['xplore', 'achievements', 'news'];
+const locales = ['zh-cn', 'zh-hant', 'en'];
+const htmlLanguages = { 'zh-cn': 'zh-CN', 'zh-hant': 'zh-Hant', en: 'en' };
 const automaticRoutes = ['', 'about-frc', ...pageSlugs];
-const localizedRoutes = ['zh-cn', 'en'].flatMap((locale) => (
+const localizedRoutes = locales.flatMap((locale) => (
   ['', ...pageSlugs].map((slug) => [locale, slug].filter(Boolean).join('/'))
 ));
 const expectedHtmlFiles = [
@@ -79,10 +81,11 @@ for (const route of localizedRoutes) {
   const relativePath = `${route}/index.html`;
   const html = await readFile(join(distRoot, relativePath), 'utf8');
   const locale = route.split('/')[0];
-  const htmlLanguage = locale === 'en' ? 'en' : 'zh-CN';
+  const htmlLanguage = htmlLanguages[locale];
   const pagePath = route.slice(locale.length + 1);
-  const oppositeLocale = locale === 'en' ? 'zh-cn' : 'en';
-  const expectedSwitchPath = `/${oppositeLocale}/${pagePath ? `${pagePath}/` : ''}`;
+  const expectedSwitchPaths = locales
+    .filter((candidate) => candidate !== locale)
+    .map((candidate) => `/${candidate}/${pagePath ? `${pagePath}/` : ''}`);
 
   assert.equal(countMatches(html, /<title(?:\s|>)/gu), 1, `${relativePath} must have one title.`);
   assert.equal(
@@ -111,15 +114,17 @@ for (const route of localizedRoutes) {
     );
   }
   assert.match(html, /data-language-switch/u, `${relativePath} must include language switching.`);
-  assert.match(
-    html,
-    new RegExp(`href="${expectedSwitchPath}"[^>]*data-language-switch`, 'u'),
-    `${relativePath} must switch to the matching localized route.`,
-  );
+  for (const expectedSwitchPath of expectedSwitchPaths) {
+    assert.match(
+      html,
+      new RegExp(`href="${expectedSwitchPath}"[^>]*data-language-switch`, 'u'),
+      `${relativePath} must switch to ${expectedSwitchPath}.`,
+    );
+  }
   assert.match(html, /hreflang="zh-CN"/u, `${relativePath} must advertise zh-CN.`);
+  assert.match(html, /hreflang="zh-Hant"/u, `${relativePath} must advertise zh-Hant.`);
   assert.match(html, /hreflang="en"/u, `${relativePath} must advertise English.`);
   assert.match(html, /hreflang="x-default"/u, `${relativePath} must advertise x-default.`);
-  assert.doesNotMatch(html, /hreflang="zh-Hant"/u, 'Traditional Chinese must remain disabled.');
 
   if (locale === 'en') {
     assert.doesNotMatch(
@@ -156,7 +161,7 @@ for (const route of automaticRoutes) {
   assert.doesNotMatch(html, /data-site-header/u, `${relativePath} must remain a redirect entry.`);
 }
 
-for (const locale of ['zh-cn', 'en']) {
+for (const locale of locales) {
   const homepageHtml = await readFile(join(distRoot, locale, 'index.html'), 'utf8');
   let previousRoutePosition = -1;
 
@@ -214,8 +219,6 @@ for (const locale of ['zh-cn', 'en']) {
     );
   }
 }
-
-assert.equal(await fileExists(join(distRoot, 'zh-hant')), false, 'zh-Hant routes must not be generated.');
 
 const outputFiles = await collectFiles(distRoot);
 for (const outputFile of outputFiles) {

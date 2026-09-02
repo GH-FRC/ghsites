@@ -39,9 +39,9 @@ This keeps public builds on the replaceable example content by default, even whe
 
 ## Languages
 
-The current site generates Simplified Chinese and English content pages under `/zh-cn/` and `/en/`. Unprefixed entry routes choose Simplified Chinese for any Chinese browser language and English for every other language. A visitor's manual choice is stored for later visits, and the language control preserves the current page, query, and fragment when switching.
+The current site generates Simplified Chinese, universal Traditional Chinese, and English content pages under `/zh-cn/`, `/zh-hant/`, and `/en/`. Unprefixed entry routes choose Traditional Chinese for `zh-Hant` and Chinese locales associated with Hong Kong, Macau, or Taiwan; other Chinese locales use Simplified Chinese, and non-Chinese locales use English. A visitor's manual choice is stored for later visits, and the language control preserves the current page, query, and fragment when switching.
 
-Simplified Chinese is the complete base content. English files are independent overlays: missing structured fields and stable-ID list items fall back to their Simplified Chinese counterparts, while an empty English Markdown body falls back to the Simplified Chinese body. The translation report remains non-blocking, but English pages stay `noindex` until required English content is complete. Unified Traditional Chinese using `/zh-hant/` is reserved for a later release and is not generated now.
+Simplified Chinese is the complete base content. Traditional Chinese and English files are independent overlays: missing structured fields and stable-ID list items fall back to their Simplified Chinese counterparts, while an empty localized Markdown body falls back to the Simplified Chinese body. The translation report remains non-blocking for English, but English pages stay `noindex` until required English content is complete; Traditional Chinese completeness is required for release.
 
 ## Verification
 
@@ -98,9 +98,9 @@ npm run dev
 
 ## 语言
 
-当前网站生成简体中文与英文内容页面，路径分别以 `/zh-cn/` 和 `/en/` 开头。无语言前缀入口会将任何中文浏览器语言映射到简体中文，将所有其他语言映射到英文。访客的手动选择会留待以后访问继续使用；切换语言时会保留当前页面、查询参数和页面片段。
+当前网站生成简体中文、通用繁体中文与英文内容页面，路径分别以 `/zh-cn/`、`/zh-hant/` 和 `/en/` 开头。无语言前缀入口会将 `zh-Hant` 以及香港、澳门、台湾相关中文语言映射到通用繁体中文；其他中文映射到简体中文，非中文映射到英文。访客的手动选择会留待以后访问继续使用；切换语言时会保留当前页面、查询参数和页面片段。
 
-简体中文是完整基础内容，英文文件是相互独立的覆盖内容：缺失的结构化字段及带稳定 ID 的列表项目会回退到对应简体中文内容；英文 Markdown 正文为空时，整段正文回退到简体中文。翻译检查不会阻断构建，但在必需英文内容全部完成前，英文页面保持 `noindex`。未来统一繁体中文使用 `/zh-hant/`，当前版本不生成该语言。
+简体中文是完整基础内容，繁体中文和英文文件是相互独立的覆盖内容：缺失的结构化字段及带稳定 ID 的列表项目会回退到对应简体中文内容；本地化 Markdown 正文为空时，整段正文回退到简体中文。英文翻译检查不会阻断构建，但在必需英文内容全部完成前，英文页面保持 `noindex`；繁体中文必须完整才能发布。
 
 ## 验证
 
