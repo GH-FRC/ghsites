@@ -152,6 +152,7 @@ ghfrc-website/                    # GitHub 公开仓库
 └── scripts/                      # 内容准备与构建辅助脚本
 
 ghfrc-website-content/            # GitHub 私有内容仓库
+├── events/                      # zh-CN、zh-Hant、en 活动文档，ID 与发布状态一致
 ├── config/
 │   └── locales/
 │       ├── zh-CN/                # 完整的简体中文基础内容
